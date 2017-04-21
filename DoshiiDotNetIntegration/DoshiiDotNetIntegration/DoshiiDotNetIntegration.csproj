@@ -158,10 +158,12 @@
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Controllers.cs" />
+    <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Json\JsonAddress.cs" />
     <Compile Include="Models\Json\JsonApp.cs" />
     <Compile Include="Models\Json\JsonBooking.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
+    <Compile Include="Models\Json\JsonEmployee.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />

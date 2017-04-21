@@ -54,6 +54,8 @@ namespace DoshiiDotNetIntegration.Models
         public DateTime CreatedAt { get; set; }
 
         public Uri Uri { get; set; }
+
+        public Booking Booking { get; set; }
         
     }
 }
