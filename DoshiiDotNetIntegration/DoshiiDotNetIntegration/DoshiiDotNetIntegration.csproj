@@ -165,6 +165,7 @@
     <Compile Include="Models\Json\JsonConsumer.cs" />
     <Compile Include="Models\Json\JsonEmployee.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
+    <Compile Include="Models\Json\JsonLog.cs" />
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Models\Json\SocketMessage.cs" />
     <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Member.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />

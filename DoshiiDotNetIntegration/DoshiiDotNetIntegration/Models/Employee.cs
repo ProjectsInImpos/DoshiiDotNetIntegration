@@ -18,7 +18,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
         public string OrginistaionId { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         public Uri Uri { get; set; }
     }
 }

@@ -18,6 +18,7 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
+		    _log = new List<Log>();
 			Clear();
 		}
 
@@ -38,7 +39,11 @@ namespace DoshiiDotNetIntegration.Models
 		    MemberId = string.Empty;
 		    Phase = string.Empty;
 			_items.Clear();
+            _log.Clear();
 		    RequiredAt = null;
+		    ManuallyAccepted = false;
+		    TransactionUri = string.Empty;
+		    AvailableEta = null;
 		}
 
         /// <summary>
@@ -69,6 +74,8 @@ namespace DoshiiDotNetIntegration.Models
 
         public string MemberId { get; set; }
 
+        public bool ManuallyAccepted { get; set; }
+
         /// <summary>
         /// Free text representation of where the Order is in the it's lifecycle at the venue. 
         /// </summary>
@@ -84,6 +91,8 @@ namespace DoshiiDotNetIntegration.Models
 		/// The Id of the location that the order was created in.
 		/// </summary>
 		public string LocationId { get; set; }
+
+        public DateTime? AvailableEta { get; set; }
 
 		private List<Surcount> _surcounts;
 
@@ -103,6 +112,21 @@ namespace DoshiiDotNetIntegration.Models
 			}
 			set { _surcounts = value.ToList<Surcount>(); }
 		}
+
+        private List<Log> _log;
+
+        public List<Log> Log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new List<Log>();
+                }
+                return _log;
+            }
+            set { _log = value.ToList<Log>(); }
+        }
         
         /// <summary>
 		/// An obfuscated string representation of the version for the order in Doshii.
@@ -113,6 +137,8 @@ namespace DoshiiDotNetIntegration.Models
 		/// The URI of the order
 		/// </summary>
 		public string Uri { get; set; }
+
+        public string TransactionUri { get; set; }
 
         /// <summary>
         /// the time the order is required if it is required in the future, 

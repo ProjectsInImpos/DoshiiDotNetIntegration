@@ -24,5 +24,22 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "points")]
         public string Points { get; set; }
+
+        private List<string> _apps;
+
+        [DataMember]
+        [JsonProperty(PropertyName = "types")]
+        public List<string> Surcounts
+        {
+            get
+            {
+                if (_apps == null)
+                {
+                    _apps = new List<string>();
+                }
+                return _apps;
+            }
+            set { _apps = value; }
+        }
     }
 }

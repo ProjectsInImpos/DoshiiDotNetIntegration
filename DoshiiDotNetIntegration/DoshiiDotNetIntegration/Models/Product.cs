@@ -112,7 +112,34 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
-        public decimal Quantity { get; set; }
+        public int Quantity { get; set; }
+
+        /// <summary>
+        /// the following are valid strings for type 'single' - a regular item, 'bundle' - an item with sub products.  
+        /// </summary>
+        public string Type { get; set; }
+
+
+        private List<string> _menuDir;
+
+        /// <summary>
+        /// A list of Surcharges available / selected for this product on the product.
+        /// </summary>
+        public List<string> MenuDir
+        {
+            get
+            {
+                if (_menuDir == null)
+                {
+                    _menuDir = new List<string>();
+                }
+                return _menuDir;
+            }
+            set
+            {
+                _menuDir = value.ToList<string>();
+            }
+        }
 
         /// <summary>
         /// Constructor
@@ -121,6 +148,7 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			_Tags = new List<string>();
 			_ProductOptions = new List<ProductOptions>();
+		    _menuDir = new List<string>();
 			Clear();
 		}
 
@@ -137,7 +165,7 @@ namespace DoshiiDotNetIntegration.Models
 			_Tags.Clear();
 			_ProductOptions.Clear();
 			PosId = String.Empty;
-            Quantity = 0.0M;
+            Quantity = 0;
 		}
 
 		#region ICloneable Members

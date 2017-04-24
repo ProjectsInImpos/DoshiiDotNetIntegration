@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    public class JsonEmployee
+    internal class JsonEmployee
     {
         [DataMember]
         [JsonProperty(PropertyName = "firstName")]
@@ -34,7 +34,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "address")]
-        public Address Address { get; set; }
+        public JsonAddress Address { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "id")]
@@ -56,9 +56,63 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "uri")]
         public Uri Uri { get; set; }
 
-        public bool ShouldSerializeLine1()
+        #region Serialize methods
+
+        public bool ShouldSerializeFirstName()
         {
-            return (!string.IsNullOrEmpty(Line1));
+            return (!string.IsNullOrEmpty(FirstName));
         }
+
+        public bool ShouldSerializeLastName()
+        {
+            return (!string.IsNullOrEmpty(LastName));
+        }
+
+        public bool ShouldSerializeEmail()
+        {
+            return (!string.IsNullOrEmpty(Email));
+        }
+        public bool ShouldSerializePosRef()
+        {
+            return (!string.IsNullOrEmpty(PosRef));
+        }
+        public bool ShouldSerializePhone()
+        {
+            return (!string.IsNullOrEmpty(Phone));
+        }
+        public bool ShouldSerializeAddress()
+        {
+            return (Address != null);
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return (!string.IsNullOrEmpty(Id));
+        }
+
+        public bool ShouldSerializeOrginistaionId()
+        {
+            return (!string.IsNullOrEmpty(OrginistaionId));
+        }
+
+        public bool ShouldSerializeUpdatedAt()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeCreatedAt()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeUri()
+        {
+            return false;
+        }
+
+        #endregion
+
+        
+
     }
 }

@@ -11,6 +11,11 @@ namespace DoshiiDotNetIntegration.Models
     /// </summary>
     public class App
     {
+        public App()
+        {
+            _types = new List<string>();
+        }
+
         /// <summary>
         /// the Id of the partner app
         /// </summary>
@@ -25,5 +30,20 @@ namespace DoshiiDotNetIntegration.Models
         /// the amount of points available for the member on this app
         /// </summary>
         public decimal Points { get; set; }
+
+        private List<string> _types;
+
+        public List<string> Types
+        {
+            get
+            {
+                if (_types == null)
+                {
+                    _types = new List<string>();
+                }
+                return _types;
+            }
+            set { _types = value.ToList<string>(); }
+        }
     }
 }

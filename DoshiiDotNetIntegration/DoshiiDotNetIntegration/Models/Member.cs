@@ -30,6 +30,10 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string Name { get; set; }
 
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         /// <summary>
         /// the email of the member
         /// </summary>

@@ -106,6 +106,22 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "uri")]
 		public string Uri { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "log")]
+        public JsonLog log { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "manuallyAccepted")]
+        public bool ManuallyAccepted { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "availableEta")]
+        public DateTime? AvailableEta { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "TransactionUri")]
+        public string TransactionUri { get; set; }
+
         /// <summary>
         /// the dateTime the order is Required
         /// </summary>
