@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Base;
 using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetIntegration.Models
@@ -11,7 +12,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// a doshii table
     /// </summary>
-    public class Table 
+    public class Table : BaseCreatedAt
     {
         /// <summary>
         /// the name of the table. 

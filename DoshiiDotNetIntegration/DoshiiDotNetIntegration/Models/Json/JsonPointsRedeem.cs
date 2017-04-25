@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {

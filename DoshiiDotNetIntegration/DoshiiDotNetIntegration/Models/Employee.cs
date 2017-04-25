@@ -4,10 +4,11 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
-    public class Employee
+    public class Employee : BaseCreatedAt
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -17,8 +18,6 @@ namespace DoshiiDotNetIntegration.Models
         public Address Address { get; set; }
         public string Id { get; set; }
         public string OrginistaionId { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public Uri Uri { get; set; }
+        
     }
 }

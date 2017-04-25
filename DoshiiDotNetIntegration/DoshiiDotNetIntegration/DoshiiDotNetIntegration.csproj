@@ -111,10 +111,14 @@
     <Compile Include="CommunicationLogic\HttpController.cs" />
     <Compile Include="CommunicationLogic\SocketsController.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderEventArgs.cs" />
+    <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\CheckinController.cs" />
     <Compile Include="Controllers\ConsumerController.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\OrderingController.cs" />
+    <Compile Include="Controllers\RejectionCodeController.cs" />
     <Compile Include="Controllers\ReservationController.cs" />
     <Compile Include="Controllers\RewardController.cs" />
     <Compile Include="Controllers\TableController.cs" />
@@ -155,12 +159,16 @@
     <Compile Include="Interfaces\NamespaceDoc.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
+    <Compile Include="Models\Base\BaseCreatedAt.cs" />
+    <Compile Include="Models\Base\BaseStatus.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Controllers.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Json\JsonAddress.cs" />
     <Compile Include="Models\Json\JsonApp.cs" />
+    <Compile Include="Models\Json\JsonBase\JsonBaseStatus.cs" />
+    <Compile Include="Models\Json\JsonBase\JsonBaseCreatedAt.cs" />
     <Compile Include="Models\Json\JsonBooking.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
     <Compile Include="Models\Json\JsonEmployee.cs" />
@@ -169,16 +177,17 @@
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
-    <Compile Include="Models\Json\JsonOrderWithConsumer.cs" />
+    <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
+    <Compile Include="Models\Json\JsonOrginisation.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonCheckin.cs" />
+    <Compile Include="Models\Json\JsonRejectionCodes.cs" />
     <Compile Include="Models\Json\JsonTableCriteria.cs" />
     <Compile Include="Models\Json\JsonTable.cs" />
     <Compile Include="Models\Json\JsonReward.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
-    <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonMenuProduct.cs" />
     <Compile Include="Models\Json\JsonMenuProductOptions.cs" />
     <Compile Include="Models\Json\JsonMenuSurcount.cs" />
@@ -188,7 +197,7 @@
     <Compile Include="Models\Json\JsonTransaction.cs" />
     <Compile Include="Models\Json\JsonOrderProduct.cs" />
     <Compile Include="Models\Json\JsonOrderProductOptions.cs" />
-    <Compile Include="Models\Json\JsonSerializationBase.cs" />
+    <Compile Include="Models\Json\JsonBase\JsonSerializationBase.cs" />
     <Compile Include="Models\Json\JsonOrderSurcount.cs" />
     <Compile Include="Models\Json\JsonTableAllocation.cs" />
     <Compile Include="Models\Json\JsonTableOrder.cs" />
@@ -199,12 +208,12 @@
     <Compile Include="Models\Member.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
-    <Compile Include="Models\OrderWithConsumer.cs" />
     <Compile Include="Models\Order.cs" />
-    <Compile Include="Models\OrderWithNoPriceProperties.cs" />
+    <Compile Include="Models\Orginisation.cs" />
     <Compile Include="Models\PointsRedeem.cs" />
     <Compile Include="Models\RedeemOrderResult.cs" />
     <Compile Include="Models\Checkin.cs" />
+    <Compile Include="Models\RejectionCodes.cs" />
     <Compile Include="Models\Table.cs" />
     <Compile Include="Models\Reward.cs" />
     <Compile Include="Models\TableCriteria.cs" />
@@ -233,6 +242,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

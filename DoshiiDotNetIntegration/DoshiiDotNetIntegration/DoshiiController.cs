@@ -16,6 +16,7 @@ using System.Text;
 using NUnit.Framework;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
+using Order = DoshiiDotNetIntegration.Models.Order;
 
 namespace DoshiiDotNetIntegration
 {
@@ -326,6 +327,10 @@ namespace DoshiiDotNetIntegration
             _controllers.TableController = new TableController(_controllers, _httpComs);
             _controllers.CheckinController = new CheckinController(_controllers, _httpComs);
             _controllers.ConsumerController = new ConsumerController(_controllers, _httpComs);
+            _controllers.AppController = new AppController(_controllers, _httpComs);
+            _controllers.LocationController = new LocationController(_controllers, _httpComs);
+            _controllers.EmployeeController = new EmployeeController(_controllers, _httpComs);
+            _controllers.RejectionCodeController = new RejectionCodeController(_controllers, _httpComs);
             if (_controllers.ReservationManager != null)
             {
                 _controllers.ReservationController = new ReservationController(_controllers, _httpComs);
@@ -1645,6 +1650,28 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
+        #region partner Apps
+        
+        public virtual IEnumerable<App> GetApps()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetApps"));
+            }
+            try
+            {
+                return _controllers.AppController.GetApps();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        
+        #endregion
+
         /// <summary>
         /// This method is used to get the location information from doshii,
         /// <para/>This should be used to get the DoshiiId for the location - this is the string that can be given to partners to allow them to communicate with this venue through Doshii
@@ -1662,7 +1689,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _httpComs.GetLocation();
+                return _controllers.LocationController.GetLocation();
             }
             catch(Exception ex)
             {

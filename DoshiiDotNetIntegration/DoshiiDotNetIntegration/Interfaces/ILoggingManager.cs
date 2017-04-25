@@ -45,5 +45,8 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </code>
 		/// </example>
 		void LogDoshiiMessage(Type callingClass, Enums.DoshiiLogLevels logLevel, string message, Exception ex = null);
+
+
+	    void RecordSocketMessage(string messageType, string messageData);
 	}
 }

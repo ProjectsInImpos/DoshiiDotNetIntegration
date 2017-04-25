@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
@@ -11,7 +12,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// Transactions that are linked to orders in Doshii
     /// </summary>
-    public class Transaction : ICloneable
+    public class Transaction : BaseStatus, ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -36,7 +37,7 @@ namespace DoshiiDotNetIntegration.Models
             Partner = String.Empty;
 		    Status = "pending";
             Version = String.Empty;
-            Uri = String.Empty;
+            Uri = new Uri("");
 		    Tip = 0.0M;
 		}
 
@@ -83,22 +84,11 @@ namespace DoshiiDotNetIntegration.Models
         public string Partner { get; set; }
 
         /// <summary>
-        /// The current transaction status, pending, waiting, complete
-        /// </summary>
-        public string Status { get; set; }
-
-        /// <summary>
         /// An obfuscated string representation of the version for the order in Doshii.
         /// </summary>
         public string Version { get; set; }
 
-        /// <summary>
-        /// The URI of the order
-        /// </summary>
-        public string Uri { get; set; }
-
-
-		#region ICloneable Members
+        #region ICloneable Members
 
 		/// <summary>
 		/// Returns a deep copy of the instance.

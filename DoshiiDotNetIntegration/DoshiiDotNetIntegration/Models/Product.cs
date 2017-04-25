@@ -39,6 +39,8 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public decimal UnitPrice { get; set; }
 
+        public string Uuid { get; set; }
+
         private List<string> _Tags;
         
         /// <summary>
@@ -119,6 +121,27 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string Type { get; set; }
 
+        private List<Product> _includedItems;
+
+        /// <summary>
+        /// A list of Surcharges available / selected for this product on the product.
+        /// </summary>
+        public List<Product> IncludedItems
+        {
+            get
+            {
+                if (_includedItems == null)
+                {
+                    _includedItems = new List<Product>();
+                }
+                return _includedItems;
+            }
+            set
+            {
+                _includedItems = value.ToList<Product>();
+            }
+        }
+
 
         private List<string> _menuDir;
 
@@ -165,6 +188,8 @@ namespace DoshiiDotNetIntegration.Models
 			_Tags.Clear();
 			_ProductOptions.Clear();
 			PosId = String.Empty;
+		    Uuid = string.Empty;
+            _includedItems.Clear();
             Quantity = 0;
 		}
 
@@ -179,14 +204,25 @@ namespace DoshiiDotNetIntegration.Models
 			var product = (Product)this.MemberwiseClone();
 
 			var tags = new List<string>();
-			foreach (string tag in this.Tags)
-				tags.Add(tag);
+		    foreach (string tag in this.Tags)
+		    {
+                tags.Add(tag);
+		    }
 			product.Tags = tags;
 
 			var options = new List<ProductOptions>();
-			foreach (var option in this.ProductOptions)
-				options.Add((ProductOptions)option.Clone());
+		    foreach (var option in this.ProductOptions)
+		    {
+                options.Add((ProductOptions)option.Clone());
+		    }
 			product.ProductOptions = options;
+
+		    var includeItems = new List<Product>();
+		    foreach (var pro in this.IncludedItems)
+		    {
+		        includeItems.Add((Product)pro.Clone());
+		    }
+		    product.IncludedItems = includeItems;
 
 			return product;
 		}

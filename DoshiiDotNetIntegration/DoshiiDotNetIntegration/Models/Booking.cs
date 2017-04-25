@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
 	/// <summary>
 	/// An object representing a doshii booking
 	/// </summary>
-    public class Booking
+    public class Booking : BaseCreatedAt
 	{
 		/// <summary>
 		/// the Id of the booking
@@ -42,19 +43,5 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
 		public String App { get; set; }
 
-        /// <summary>
-        /// the last time the booking was updated
-        /// </summary>
-		public DateTime UpdatedAt { get; set; }
-
-        /// <summary>
-        /// the time the booking as created.
-        /// </summary>
-		public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// the Uri to retreive the booking. 
-        /// </summary>
-		public Uri Uri { get; set; }
-	}
+    }
 }

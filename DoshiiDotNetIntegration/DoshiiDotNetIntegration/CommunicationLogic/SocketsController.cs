@@ -407,6 +407,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
             SocketMessageData messageData = new SocketMessageData();
+            _logger.RecordSocketMessage((string)theMessage.Emit[0], theMessage.ToJsonString());
             messageData.EventName = (string)theMessage.Emit[0];
             messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
             messageData.OrderId = (string)dynamicSocketMessageData.orderId;

@@ -88,9 +88,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// If an order if found matching the orderId the order is returned,
         /// If on order matching the orderId is not found a new order is returned. 
         /// </returns>
-        internal virtual Order GetOrder(string orderId)
+        internal virtual Models.Order GetOrder(string orderId)
         {
-            var retreivedOrder = new Order();
+            var retreivedOrder = new Models.Order();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -109,7 +109,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
 						var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
-						retreivedOrder = Mapper.Map<Order>(jsonOrder);
+						retreivedOrder = Mapper.Map<Models.Order>(jsonOrder);
                     }
                     else
                     {
@@ -142,9 +142,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// If an order if found matching the orderId the order is returned,
         /// If on order matching the orderId is not found a new order is returned. 
         /// </returns>
-        internal virtual OrderWithConsumer GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual Models.Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
-            var retreivedOrder = new OrderWithConsumer();
+            var retreivedOrder = new Models.Order();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -161,10 +161,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonOrder = JsonOrderWithConsumer.deseralizeFromJson(responseMessage.Data);
+                        var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
                         try
                         {
-                            retreivedOrder = Mapper.Map<OrderWithConsumer>(jsonOrder);
+                            retreivedOrder = Mapper.Map<Models.Order>(jsonOrder);
                         }
                         catch (Exception ex)
                         {
@@ -173,8 +173,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                                     "Doshii: An order received from Doshii could not be processed, A Price value in the order could not be converted into a decimal, the order will be rejected by the SDK: ",
                                     jsonOrder),ex);
                             //reject the order. 
-                            var orderWithNoPricePropertiesToReject = Mapper.Map<OrderWithNoPriceProperties>(jsonOrder);
-                            var orderToReject = Mapper.Map<Order>(orderWithNoPricePropertiesToReject);
+                            var orderToReject = Mapper.Map<Models.Order>(jsonOrder);
                             _controllers.OrderingController.RejectOrderAheadCreation(orderToReject);
                             retreivedOrder = null;
                         }
@@ -209,9 +208,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// A list of all currently active linked orders from Doshii
         /// If there are no current active linked orders an empty list is returned.  
         /// </returns>
-        internal virtual IEnumerable<Order> GetOrders()
+        internal virtual IEnumerable<Models.Order> GetOrders()
         {
-            var retreivedOrderList = new List<Order>();
+            var retreivedOrderList = new List<Models.Order>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -229,7 +228,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
-                        retreivedOrderList = Mapper.Map<List<Order>>(jsonList);
+                        retreivedOrderList = Mapper.Map<List<Models.Order>>(jsonList);
                     }
                     else
                     {
@@ -247,13 +246,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
             }
 
-            List<Order> fullOrderList = new List<Order>();
+            List<Models.Order> fullOrderList = new List<Models.Order>();
             foreach (var partOrder in retreivedOrderList)
             {
-                Order newOrder = GetOrder(partOrder.Id);
+                Models.Order newOrder = GetOrder(partOrder.Id);
                 fullOrderList.Add(newOrder);
             }
-            return (IEnumerable<Order>)fullOrderList;
+            return (IEnumerable<Models.Order>)fullOrderList;
         }
 
         /// <summary>
@@ -264,9 +263,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// A list of all currently active unlinked orders from Doshii
         /// If there are no current active unlinked orders an empty list is returned.  
         /// </returns>
-        internal virtual IEnumerable<OrderWithConsumer> GetUnlinkedOrders()
+        internal virtual IEnumerable<Models.Order> GetUnlinkedOrders()
         {
-            var retreivedOrderList = new List<OrderWithConsumer>();
+            var retreivedOrderList = new List<Models.Order>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -283,8 +282,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrderWithConsumer>>(responseMessage.Data);
-                        retreivedOrderList = Mapper.Map<List<OrderWithConsumer>>(jsonList);
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
+                        retreivedOrderList = Mapper.Map<List<Models.Order>>(jsonList);
                     }
                     else
                     {
@@ -302,16 +301,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
             }
 
-            var fullOrderList = new List<OrderWithConsumer>();
+            var fullOrderList = new List<Models.Order>();
             foreach (var partOrder in retreivedOrderList)
             {
-                OrderWithConsumer newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
+                Models.Order newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
                 if (newOrder != null)
                 {
                     fullOrderList.Add(newOrder);
                 }
             }
-            return (IEnumerable<OrderWithConsumer>)fullOrderList;
+            return (IEnumerable<Models.Order>)fullOrderList;
         }
 
         /// <summary>
@@ -327,14 +326,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The order returned from the request. 
         /// </returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal virtual Order PutPostOrder(Order order, string method)
+        internal virtual Models.Order PutPostOrder(Models.Order order, string method)
         {
             if (!method.Equals(WebRequestMethods.Http.Put))
             {
                 throw new NotSupportedException("Method Not Supported");
             }
 
-            var returnOrder = new Order();
+            var returnOrder = new Models.Order();
             DoshiHttpResponseMessage responseMessage;
 
             try
@@ -355,7 +354,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
 
             var dto = new JsonOrder();
-            returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
+            returnOrder = HandleOrderResponse<Models.Order, JsonOrder>(order.Id, responseMessage, out dto);
 
             return returnOrder;
         }
@@ -369,9 +368,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The order that was returned from the PUT request to Doshii. 
         /// </returns>
-        internal virtual Order PutOrderCreatedResult(Order order)
+        internal virtual Models.Order PutOrderCreatedResult(Models.Order order)
         {
-            var returnOrder = new Order();
+            var returnOrder = new Models.Order();
             DoshiHttpResponseMessage responseMessage;
 
             try
@@ -387,7 +386,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             var dto = new JsonOrder();
             if (order.Status != "rejected")
             {
-                returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
+                returnOrder = HandleOrderResponse<Models.Order, JsonOrder>(order.Id, responseMessage, out dto);
             }
             
             return returnOrder;
@@ -470,9 +469,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             if (orderDetails != null)
             {
-                Order order = null;
-                if (orderDetails is Order)
-                    order = orderDetails as Order;
+                Models.Order order = null;
+                if (orderDetails is Models.Order)
+                    order = orderDetails as Models.Order;
                 else if (orderDetails is TableOrder)
                     order = (orderDetails as TableOrder).Order;
 
@@ -485,9 +484,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             if (orderDetails != null)
             {
-                Order order = null;
-                if (orderDetails is Order)
-                    order = orderDetails as Order;
+                Models.Order order = null;
+                if (orderDetails is Models.Order)
+                    order = orderDetails as Models.Order;
                 else if (orderDetails is TableOrder)
                     order = (orderDetails as TableOrder).Order;
 
@@ -505,7 +504,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// If the request is not successful a new order will be returned - you can check the order.Id in the returned order to confirm it is a valid response. 
         /// </returns>
-        internal virtual Order PutOrder(Order order)
+        internal virtual Models.Order PutOrder(Models.Order order)
         {
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
@@ -549,6 +548,51 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
 
             return false;
+        }
+        
+        #endregion
+
+        #region Partner App Methods
+
+        internal virtual IEnumerable<Models.App> GetApps()
+        {
+            var retreivedAppList = new List<Models.App>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.App), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonApp>>(responseMessage.Data);
+                        retreivedAppList = Mapper.Map<List<Models.App>>(jsonList);
+                    }
+                    else
+                    {
+                        _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order)));
+                    }
+
+                }
+                else
+                {
+                    _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order)));
+                }
+            }
+            else
+            {
+                _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
+            }
+
+            return retreivedAppList;
         }
         
         #endregion
@@ -1138,7 +1182,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedRewardList;
         }
 
-        internal virtual bool RedeemRewardForMember(string memberId, string rewardId, Order order)
+        internal virtual bool RedeemRewardForMember(string memberId, string rewardId, Models.Order order)
         {
             
             DoshiHttpResponseMessage responseMessage;
@@ -1612,7 +1656,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
 #endregion
 
-#region Menu
+        #region Menu
         /// <summary>
         /// Adds a menu to Doshii, this will overwrtie the current menu stored on Doshii 
         /// </summary>
@@ -1839,7 +1883,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 #endregion
 
-#region Location
+        #region Location
         /// <summary>
         /// This method is used to retrieve the location information for the connected pos from doshii,
         /// </summary>
@@ -2430,6 +2474,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case EndPointPurposes.BookingsCheckin:
                     newUrlbuilder.AppendFormat("/bookings/{0}/checkin", identification);
+                    break;
+                case EndPointPurposes.App:
+                    newUrlbuilder.AppendFormat("/apps");
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

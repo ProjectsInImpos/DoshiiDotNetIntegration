@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
     /// This class represents a location / venue in doshii
     /// </summary>
-    public class Location
+    public class Location : BaseCreatedAt
     {
         /// <summary>
         /// the DoshiiId for the venue - give this value to partners to allow them to send orders and payments to your venue. 
@@ -60,6 +61,11 @@ namespace DoshiiDotNetIntegration.Models
         /// the last time the venue was disconnected - will be null if the venue is connected. 
         /// </summary>
         public DateTime? DisconnectedDate { get; set; }
+
+        public string Latitude { get; set; }
+
+        public string Longitude { get; set; }
+
 
         /// <summary>
         /// Resets all property values to default settings.

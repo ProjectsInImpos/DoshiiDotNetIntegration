@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -11,7 +12,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonUnlinkedOrderToPut : JsonSerializationBase<JsonUnlinkedOrderToPut>
+    internal class JsonUnlinkedOrderToPut : JsonBaseStatus<JsonUnlinkedOrderToPut>
     {
         /// <summary>
         /// id
@@ -20,13 +21,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
         
-        /// <summary>
-        /// Order status
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-
         [DataMember]
         [JsonProperty(PropertyName = "phase")]
         public string Phase { get; set; }
@@ -34,6 +28,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "memberId")]
         public string MemberId { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "availableEta")]
+        public DateTime? AvailableEta { get; set; }
 
         private List<JsonOrderSurcount> _surcounts;
 
@@ -82,6 +80,14 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
 			set { _items = value; } 
         }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionReason")]
+        public string RejectionReason { get; set; }
 
         #region serializeMembers
 

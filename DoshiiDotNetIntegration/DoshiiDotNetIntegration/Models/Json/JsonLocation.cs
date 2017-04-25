@@ -4,13 +4,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonLocation : JsonSerializationBase<JsonLocation>
+    internal class JsonLocation : JsonBaseCreatedAt<JsonLocation>
     {
         /// <summary>
         /// the DoshiiId for the venue - give this value to partners to allow them to send orders and payments to your venue. 
@@ -81,5 +82,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "disconnectedDate")]
         public DateTime? DisconnectedDate { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "latitude")]
+        public string Latitude { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "longitude")]
+        public string Longitude { get; set; }
     }
 }

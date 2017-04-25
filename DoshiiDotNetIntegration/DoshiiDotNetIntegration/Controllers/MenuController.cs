@@ -59,7 +59,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The Doshii menu is successful and null if not successful. 
         /// </returns>
-        public virtual Menu UpdateMenu(Menu menu)
+        internal virtual Menu UpdateMenu(Menu menu)
         {
             Menu returnedMenu = null;
             try

@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonEmployee
+    internal class JsonEmployee : JsonBaseCreatedAt<JsonEmployee>
     {
         [DataMember]
         [JsonProperty(PropertyName = "firstName")]
@@ -44,18 +45,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "orginistaionId")]
         public string OrginistaionId { get; set; }
         
-        [DataMember]
-        [JsonProperty(PropertyName = "updatedAt")]
-        public DateTime? UpdatedAt { get; set; }
-
-        [DataMember]
-        [JsonProperty(PropertyName = "createdAt")]
-        public DateTime CreatedAt { get; set; }
-
-        [DataMember]
-        [JsonProperty(PropertyName = "uri")]
-        public Uri Uri { get; set; }
-
         #region Serialize methods
 
         public bool ShouldSerializeFirstName()

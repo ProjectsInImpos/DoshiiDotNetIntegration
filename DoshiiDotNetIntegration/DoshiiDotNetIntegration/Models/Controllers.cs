@@ -28,5 +28,9 @@ namespace DoshiiDotNetIntegration.Models
         internal TableController TableController;
         internal CheckinController CheckinController;
         internal ConsumerController ConsumerController;
+        internal AppController AppController;
+        internal LocationController LocationController;
+        internal EmployeeController EmployeeController;
+        internal RejectionCodeController RejectionCodeController;
     }
 }

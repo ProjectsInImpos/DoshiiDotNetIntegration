@@ -4,13 +4,14 @@ using System.Linq;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
     /// the class representing a member in Doshii
     /// </summary>
-    public class Member
+    public class Member : BaseCreatedAt
     {
         /// <summary>
         /// constructor. 
@@ -48,21 +49,6 @@ namespace DoshiiDotNetIntegration.Models
         /// the <see cref="Address"/> associated with the member
         /// </summary>
         public Address Address { get; set; }
-
-        /// <summary>
-        /// the last time the member was updated on Doshii
-        /// </summary>
-        public DateTime? UpdatedAt { get; set; }
-
-        /// <summary>
-        /// the time the member was created on Doshii
-        /// </summary>
-        public DateTime? CreatedAt { get; set; }
-
-        /// <summary>
-        /// the URI to retreive the member details from Doshii
-        /// </summary>
-        public Uri Uri { get; set; }
 
         /// <summary>
         /// the Pos identifier for the member. 

@@ -101,7 +101,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        internal virtual Order GetOrder(string orderId)
+        internal virtual Models.Order GetOrder(string orderId)
         {
             try
             {
@@ -126,7 +126,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual OrderWithConsumer GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual Models.Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             try
             {
@@ -143,7 +143,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// If the order has not yet been processed by the pos and an Id has not been provided you should use <see cref="GetUnlinkedOrders"/> to retreive the order. 
         /// </summary>
         /// <returns></returns>
-        internal virtual IEnumerable<Order> GetOrders()
+        internal virtual IEnumerable<Models.Order> GetOrders()
         {
             try
             {
@@ -163,7 +163,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there are no unlinkedOrders a blank IEnumerable is returned.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual IEnumerable<OrderWithConsumer> GetUnlinkedOrders()
+        internal virtual IEnumerable<Models.Order> GetUnlinkedOrders()
         {
             try
             {
@@ -180,13 +180,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="order">The order to update.</param>
         /// <returns></returns>
-        internal virtual Order UpdateOrder(Order order)
+        internal virtual Models.Order UpdateOrder(Models.Order order)
         {
             order.Version = _controllers.OrderingManager.RetrieveOrderVersion(order.Id);
             var jsonOrder = Mapper.Map<JsonOrder>(order);
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
 
-            var returnedOrder = new Order();
+            var returnedOrder = new Models.Order();
 
             try
             {
@@ -222,7 +222,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// The order to be confirmed. 
         /// </param>
         /// <returns></returns>
-        internal virtual Order PutOrderCreatedResult(Order order)
+        internal virtual Models.Order PutOrderCreatedResult(Models.Order order)
         {
             if (order.Status == "accepted")
             {
@@ -232,7 +232,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
             }
 
-            var returnedOrder = new Order();
+            var returnedOrder = new Models.Order();
 
             try
             {
@@ -280,9 +280,9 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 //check unassigned orders
                 _controllers.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Info, "Refreshing all orders.");
-                IEnumerable<OrderWithConsumer> unassignedOrderList;
+                IEnumerable<Models.Order> unassignedOrderList;
                 unassignedOrderList = GetUnlinkedOrders();
-                foreach (OrderWithConsumer order in unassignedOrderList)
+                foreach (Models.Order order in unassignedOrderList)
                 {
                     if (order.Status == "pending")
                     {
@@ -308,9 +308,9 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="transactionList">
         /// The transaction list for the new created order. 
         /// </param>
-        internal virtual void HandleOrderCreated(OrderWithConsumer orderWithConsumer, List<Transaction> transactionList)
+        internal virtual void HandleOrderCreated(Models.Order orderWithConsumer, List<Transaction> transactionList)
         {
-            var orderWithoutConsumer = Mapper.Map<Order>(orderWithConsumer);
+            var orderWithoutConsumer = Mapper.Map<Models.Order>(orderWithConsumer);
             if (transactionList == null)
             {
                 transactionList = new List<Transaction>();
@@ -362,9 +362,9 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="orderToAccept"></param>
         /// <returns></returns>
-        internal virtual bool AcceptOrderAheadCreation(Order orderToAccept)
+        internal virtual bool AcceptOrderAheadCreation(Models.Order orderToAccept)
         {
-            OrderWithConsumer orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
+            Models.Order orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
             List<Transaction> transactionList = _controllers.TransactionController.GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
 
             //test on doshii has changed. 
@@ -406,7 +406,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// use to reject an order created by a partner through the orderAhead interface. 
         /// </summary>
         /// <param name="orderToReject"></param>
-        internal virtual void RejectOrderAheadCreation(Order orderToReject)
+        internal virtual void RejectOrderAheadCreation(Models.Order orderToReject)
         {
             List<Transaction> transactionList = _controllers.TransactionController.GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ToList();
             //test order to accept is equal to the order on doshii
@@ -422,7 +422,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="transactionList">
         /// The transaction list to be rejected
         /// </param>
-        internal virtual void RejectOrderFromOrderCreateMessage(Order order, List<Transaction> transactionList)
+        internal virtual void RejectOrderFromOrderCreateMessage(Models.Order order, List<Transaction> transactionList)
         {
             //set order status to rejected post to doshii
             order.Status = "rejected";

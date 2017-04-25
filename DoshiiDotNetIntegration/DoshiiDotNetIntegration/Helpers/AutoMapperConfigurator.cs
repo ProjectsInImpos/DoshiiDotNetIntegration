@@ -64,6 +64,8 @@ namespace DoshiiDotNetIntegration.Helpers
                 AutoMapperConfigurator.MapTableCriteraObjects();
                 AutoMapperConfigurator.MapTableObjects();
                 AutoMapperConfigurator.MapBookingObjects();
+			    AutoMapperConfigurator.MapTableRejectionCodeObjects();
+                AutoMapperConfigurator.MapOrginisationObjects();
 
                 AutoMapperConfigurator.IsConfigured = true;
 			}
@@ -110,6 +112,26 @@ namespace DoshiiDotNetIntegration.Helpers
             // src = JsonOrder, dest = Order
             Mapper.CreateMap<JsonTableCriteria, TableCriteria>();
                 
+        }
+
+        private static void MapOrginisationObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Orginisation, JsonOrginisation>();
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonOrginisation, Orginisation>();
+
+        }
+
+        private static void MapTableRejectionCodeObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<RejectionCodes, JsonRejectionCodes>();
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonRejectionCodes, RejectionCodes>();
+
         }
         
         private static void MapCheckInObjects()
@@ -429,35 +451,35 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// </summary>
 		private static void MapOrderObjects()
 		{
-            Mapper.CreateMap<OrderWithConsumer, JsonOrderWithConsumer>()
+            Mapper.CreateMap<Models.Order, JsonOrder>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
                 .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
-            Mapper.CreateMap<JsonOrderWithConsumer, OrderWithConsumer>()
+            Mapper.CreateMap<JsonOrder, Models.Order>()
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
             
-            Mapper.CreateMap<OrderWithConsumer, Order>();
+            Mapper.CreateMap<Models.Order, Models.Order>();
                 
             // src = Order, dest = JsonOrder
-		    Mapper.CreateMap<Order, JsonOrder>()
+		    Mapper.CreateMap<Models.Order, JsonOrder>()
 		        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
                 .ForMember(dest => dest.AvailableEta, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.AvailableEta)))
 		        .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 		    	
 			// src = JsonOrder, dest = Order
-		    Mapper.CreateMap<JsonOrder, Order>()
+		    Mapper.CreateMap<JsonOrder, Models.Order>()
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
                 .ForMember(dest => dest.AvailableEta, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.AvailableEta)));
                 
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<Order, JsonOrderToPut>()
+            Mapper.CreateMap<Models.Order, JsonOrderToPut>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
                 .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonOrderToPut, Order>()
+            Mapper.CreateMap<JsonOrderToPut, Models.Order>()
              .ForMember(dest => dest.Id, opt => opt.Ignore())
              .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
              .ForMember(dest => dest.Type, opt => opt.Ignore())
@@ -468,12 +490,12 @@ namespace DoshiiDotNetIntegration.Helpers
              .ForMember(dest => dest.RequiredAt, opt => opt.Ignore());
 
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<Order, JsonUnlinkedOrderToPut>()
+            Mapper.CreateMap<Models.Order, JsonUnlinkedOrderToPut>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
                 .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonUnlinkedOrderToPut, Order>()
+            Mapper.CreateMap<JsonUnlinkedOrderToPut, Models.Order>()
              .ForMember(dest => dest.Id, opt => opt.Ignore())
              .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
              .ForMember(dest => dest.Type, opt => opt.Ignore())
@@ -489,7 +511,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = JsonTableOrder, dest = TableOrder
 			Mapper.CreateMap<JsonTableOrder, TableOrder>();
 
-            // src = Order, dest = JsonOrder
+            /*// src = Order, dest = JsonOrder
             Mapper.CreateMap<OrderWithNoPriceProperties, JsonOrder>()
                 .ForMember(dest => dest.Items, opt => opt.Ignore())
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
@@ -500,20 +522,20 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
 
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<OrderWithNoPriceProperties, Order>()
+            Mapper.CreateMap<OrderWithNoPriceProperties, Models.Order>()
                 .ForMember(dest => dest.Items, opt => opt.Ignore())
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
                 .ForMember(dest => dest.Surcounts, opt => opt.Ignore());
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<Order, OrderWithNoPriceProperties>()
+            Mapper.CreateMap<Models.Order, OrderWithNoPriceProperties>()
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
-
+*/
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<Order, JsonOrderIdSimple>();
+            Mapper.CreateMap<Models.Order, JsonOrderIdSimple>();
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonOrderIdSimple, Order>()
+            Mapper.CreateMap<JsonOrderIdSimple, Models.Order>()
              .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
              .ForMember(dest => dest.Type, opt => opt.Ignore())
              .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -13,7 +14,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonTransaction : JsonSerializationBase<JsonTransaction>
+    internal class JsonTransaction : JsonBaseStatus<JsonTransaction>
     {
         /// <summary>
         /// Unique number identifying this resource
@@ -72,25 +73,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Partner { get; set; }
 
         /// <summary>
-        /// The current transaction status, pending, waiting, complete
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-
-        /// <summary>
         /// An obfuscated string representation of the version of the order in Doshii.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "version")]
         public string Version { get; set; }
-
-        /// <summary>
-        /// The URI of the order
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "uri")]
-        public string Uri { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "tip")]
@@ -134,11 +121,6 @@ namespace DoshiiDotNetIntegration.Models.Json
             
         }
 
-        /*public bool ShouldSerializeAcceptLess()
-        {
-            return false;
-        }*/
-        
         public bool ShouldSerializeInvoice()
         {
             return (!string.IsNullOrEmpty(Invoice));

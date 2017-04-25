@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonMember : JsonSerializationBase<JsonMember>
+    internal class JsonMember : JsonBaseCreatedAt<JsonMember>
     {
         [DataMember]
         [JsonProperty(PropertyName = "id")]
@@ -39,18 +40,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "address")]
         public JsonAddress Address { get; set; }
-
-        [DataMember]
-        [JsonProperty(PropertyName = "updatedAt")]
-        public DateTime? UpdatedAt { get; set; }
-
-        [DataMember]
-        [JsonProperty(PropertyName = "createdAt")]
-        public DateTime? CreatedAt { get; set; }
-
-        [DataMember]
-        [JsonProperty(PropertyName = "uri")]
-        public string Uri { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "ref")]

@@ -3,22 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// A Doshii order
+    /// A Doshii order with a counsumer
     /// </summary>
-    public class Order : ICloneable
+    public class Order : BaseStatus, ICloneable
     {
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public Order()
+        public Order()
 		{
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
-		    _log = new List<Log>();
 			Clear();
 		}
 
@@ -35,17 +35,17 @@ namespace DoshiiDotNetIntegration.Models
 			LocationId = String.Empty;
 			_surcounts.Clear();
 			Version = String.Empty;
-			Uri = String.Empty;
+			Uri = new Uri("");
 		    MemberId = string.Empty;
 		    Phase = string.Empty;
 			_items.Clear();
-            _log.Clear();
 		    RequiredAt = null;
-		    ManuallyAccepted = false;
-		    TransactionUri = string.Empty;
-		    AvailableEta = null;
+		    Consumer = null;
 		}
 
+
+        public Consumer Consumer { get; set; }
+        
         /// <summary>
         /// Order id
         /// </summary>
@@ -55,11 +55,6 @@ namespace DoshiiDotNetIntegration.Models
         /// The Doshii Id for the order, this is used to get unlinked orders
         /// </summary>
         public string DoshiiId { get; set; }
-
-        /// <summary>
-        /// Order status
-        /// </summary>
-        public string Status { get; set; }
 
         /// <summary>
         /// type of order 'delivery' or 'pickup'
@@ -73,8 +68,6 @@ namespace DoshiiDotNetIntegration.Models
 
 
         public string MemberId { get; set; }
-
-        public bool ManuallyAccepted { get; set; }
 
         /// <summary>
         /// Free text representation of where the Order is in the it's lifecycle at the venue. 
@@ -91,8 +84,6 @@ namespace DoshiiDotNetIntegration.Models
 		/// The Id of the location that the order was created in.
 		/// </summary>
 		public string LocationId { get; set; }
-
-        public DateTime? AvailableEta { get; set; }
 
 		private List<Surcount> _surcounts;
 
@@ -112,21 +103,6 @@ namespace DoshiiDotNetIntegration.Models
 			}
 			set { _surcounts = value.ToList<Surcount>(); }
 		}
-
-        private List<Log> _log;
-
-        public List<Log> Log
-        {
-            get
-            {
-                if (_log == null)
-                {
-                    _log = new List<Log>();
-                }
-                return _log;
-            }
-            set { _log = value.ToList<Log>(); }
-        }
         
         /// <summary>
 		/// An obfuscated string representation of the version for the order in Doshii.
@@ -134,17 +110,14 @@ namespace DoshiiDotNetIntegration.Models
 		public string Version { get; set; }
 
 		/// <summary>
-		/// The URI of the order
-		/// </summary>
-		public string Uri { get; set; }
-
-        public string TransactionUri { get; set; }
-
-        /// <summary>
         /// the time the order is required if it is required in the future, 
         /// string will be empty is it is required now. 
         /// </summary>
         public DateTime? RequiredAt { get; set; }
+
+        public DateTime? AvailableEta { get; set; }
+
+
         
         private List<Product> _items;
         
@@ -162,6 +135,33 @@ namespace DoshiiDotNetIntegration.Models
             }
             set { _items = value.ToList<Product>(); } 
         }
+
+        private List<Log> _log;
+
+        /// <summary>
+        /// A list of all the items included in the order. 
+        /// </summary>
+        public List<Log> Log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new List<Log>();
+                }
+                return _log;
+            }
+            set { _log = value.ToList<Log>(); }
+        }
+
+
+        public bool ManuallyAccepted { get; set; }
+
+        public Uri TransactionsUri { get; set; }
+
+        public string RejectionCode { get; set; }
+
+        public string RejectionReason { get; set; }
 
 		#region ICloneable Members
 
