@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonRejectionCodes : JsonSerializationBase<JsonRejectionCodes>
+    internal class JsonRejectionCode : JsonSerializationBase<JsonRejectionCode>
     {
         /// <summary>
         /// the rejection code

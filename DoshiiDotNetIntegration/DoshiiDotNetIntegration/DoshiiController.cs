@@ -1672,6 +1672,84 @@ namespace DoshiiDotNetIntegration
         
         #endregion
 
+        #region Employee
+
+        public virtual IEnumerable<Employee> GetEmployees()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetEmployees"));
+            }
+            try
+            {
+                return _controllers.EmployeeController.GetEmployees();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public virtual Employee GetEmployee(string doshiiId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetEmployees"));
+            }
+            try
+            {
+                return _controllers.EmployeeController.GetEmployee(doshiiId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public virtual Employee SaveEmployee(Employee employee)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetEmployees"));
+            }
+            try
+            {
+                return _controllers.EmployeeController.SaveEmployee(employee);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public virtual bool DeleteEmployee(Employee employee)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetEmployees"));
+            }
+            try
+            {
+                return _controllers.EmployeeController.DeleteEmployee(employee);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        #endregion
+
+        #region location
+
         /// <summary>
         /// This method is used to get the location information from doshii,
         /// <para/>This should be used to get the DoshiiId for the location - this is the string that can be given to partners to allow them to communicate with this venue through Doshii
@@ -1691,11 +1769,119 @@ namespace DoshiiDotNetIntegration
             {
                 return _controllers.LocationController.GetLocation();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
         }
+
+        public virtual Location GetLocation(string hashedLocationId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetLocation"));
+            }
+            try
+            {
+                return _controllers.LocationController.GetLocation(hashedLocationId);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public virtual IEnumerable<Location> GetLocations()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetLocations"));
+            }
+            try
+            {
+                return _controllers.LocationController.GetLocations();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public virtual Location CreateLocation(Location location)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "CreateLocation"));
+            }
+            try
+            {
+                return _controllers.LocationController.CreateLocation(location);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+	    public virtual Orginisation CreateOrginisation(Orginisation orginisation)
+	    {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "CreateOrginisation"));
+            }
+            try
+            {
+                return _controllers.LocationController.CreateOrginisation(orginisation);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+	    }
+
+        #endregion
+
+        #region rejection codes
+
+	    public virtual IEnumerable<RejectionCode> GetRejectionCodes()
+	    {
+	        if (!m_IsInitalized)
+	        {
+	            ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+	                "GetRejectionCodes"));
+	        }
+	        try
+	        {
+	            return _controllers.RejectionCodeController.GetRejectionCodes();
+	        }
+	        catch (Exception ex)
+	        {
+	            return null;
+	        }
+	    }
+
+        public virtual RejectionCode GetRejectionCode(string code)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetRejectionCode"));
+            }
+            try
+            {
+                return _controllers.RejectionCodeController.GetRejectionCode(code);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+	    #endregion
 
         /// <summary>
         /// throws the DoshiiManagerNotInitializedException

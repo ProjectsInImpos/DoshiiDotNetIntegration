@@ -138,7 +138,13 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// requests for partner app details. 
         /// </summary>
-        App = 26
+        App = 26,
+
+        RejectionCodes = 27,
+
+        Employee = 28,
+
+        Orginisation = 29
 
     }
 }

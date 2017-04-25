@@ -127,10 +127,10 @@ namespace DoshiiDotNetIntegration.Helpers
         private static void MapTableRejectionCodeObjects()
         {
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<RejectionCodes, JsonRejectionCodes>();
+            Mapper.CreateMap<RejectionCode, JsonRejectionCode>();
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonRejectionCodes, RejectionCodes>();
+            Mapper.CreateMap<JsonRejectionCode, RejectionCode>();
 
         }
         

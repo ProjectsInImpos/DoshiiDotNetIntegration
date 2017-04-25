@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
-        internal virtual IEnumerable<Models.RejectionCodes> GetRejectionCodes()
+        internal virtual IEnumerable<Models.RejectionCode> GetRejectionCodes()
         {
             try
             {
@@ -58,7 +58,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual Models.RejectionCodes GetRejectionCode(string rejectionCodeId)
+        internal virtual Models.RejectionCode GetRejectionCode(string rejectionCodeId)
         {
             try
             {
