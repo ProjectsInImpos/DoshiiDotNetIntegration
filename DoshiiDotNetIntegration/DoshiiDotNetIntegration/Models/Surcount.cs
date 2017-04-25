@@ -80,5 +80,32 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(Surcount other)
+        {
+            return string.Equals(Name, other.Name) && Amount == other.Amount && Value == other.Value && string.Equals(Type, other.Type) && string.Equals(Id, other.Id) && string.Equals(RewardId, other.RewardId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Surcount) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Amount.GetHashCode();
+                hashCode = (hashCode*397) ^ Value.GetHashCode();
+                hashCode = (hashCode*397) ^ (Type != null ? Type.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (RewardId != null ? RewardId.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }

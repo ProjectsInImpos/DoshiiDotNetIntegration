@@ -22,7 +22,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region fields and properties
 
-        internal Models.Controllers _controllers { get; set; }
+        internal Models.ControllersCollection _controllersCollection { get; set; }
         
         
         /// <summary>
@@ -168,24 +168,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// <param name="logManager">
 		/// A <see cref="LoggingController"/> instance.
 		/// </param>
-        internal SocketsController(string webSocketUrl, int socketConnectionTimeOutValue, Models.Controllers controllers)
+        internal SocketsController(string webSocketUrl, int socketConnectionTimeOutValue, Models.ControllersCollection controllersCollection)
         {
-            if (controllers.OrderingController == null)
+            if (controllersCollection.OrderingController == null)
             {
                 throw new ArgumentNullException("orderingController");
             }
-            if (controllers.TransactionController == null)
+            if (controllersCollection.TransactionController == null)
             {
                 throw new ArgumentNullException("transactionController");
             }
 
-			if (controllers.LoggingController == null)
+			if (controllersCollection.LoggingController == null)
 			{
 				throw new ArgumentNullException("logManager");
 			}
-            _controllers = controllers;
+            _controllersCollection = controllersCollection;
 			_socketConnectionTimeOutValue = socketConnectionTimeOutValue;
-            _logger = controllers.LoggingController;
+            _logger = controllersCollection.LoggingController;
            
             if (socketConnectionTimeOutValue < 10)
             {
@@ -423,10 +423,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 case "order_created":
                     var orderStatusEventArgs = new CommunicationEventArgs.OrderCreatedEventArgs();
-                    orderStatusEventArgs.Order = _controllers.OrderingController.GetOrderFromDoshiiOrderId(messageData.Id);
+                    orderStatusEventArgs.Order = _controllersCollection.OrderingController.GetOrderFromDoshiiOrderId(messageData.Id);
                     if (orderStatusEventArgs.Order != null)
                     {
-                        orderStatusEventArgs.TransactionList = _controllers.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id);
+                        orderStatusEventArgs.TransactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id);
                         orderStatusEventArgs.OrderId = messageData.Id;
                         orderStatusEventArgs.Status = messageData.Status;
 
@@ -443,7 +443,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_created":
                     CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();
-                    transactionCreatedEventArgs.Transaction = _controllers.TransactionController.GetTransaction(messageData.Id);
+                    transactionCreatedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id);
                     transactionCreatedEventArgs.TransactionId = messageData.Id;
                     transactionCreatedEventArgs.Status = messageData.Status;
                     if (TransactionCreatedEvent != null)
@@ -458,7 +458,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_updated":
                     CommunicationEventArgs.TransactionEventArgs transactionUpdtaedEventArgs = new TransactionEventArgs();
-                    transactionUpdtaedEventArgs.Transaction = _controllers.TransactionController.GetTransaction(messageData.Id);
+                    transactionUpdtaedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id);
                     transactionUpdtaedEventArgs.TransactionId = messageData.Id;
                     transactionUpdtaedEventArgs.Status = messageData.Status;
 
@@ -476,7 +476,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberCreatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.Id);
+                        memberCreatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id);
                         memberCreatedEventArgs.MemberId = messageData.Id;
                     }
                     catch(Exception ex)
@@ -499,7 +499,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberUpdatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberUpdatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.Id);
+                        memberUpdatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id);
                         memberUpdatedEventArgs.MemberId = messageData.Id;
                     }
                     catch(Exception ex)
@@ -521,7 +521,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingCreatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingCreatedEventArgs.Booking = _controllers.ReservationController.GetBooking(messageData.BookingId);
+                        bookingCreatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId);
                         bookingCreatedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -541,7 +541,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingUpdatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingUpdatedEventArgs.Booking = _controllers.ReservationController.GetBooking(messageData.BookingId);
+                        bookingUpdatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId);
                         bookingUpdatedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -561,7 +561,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingDeletedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingDeletedEventArgs.Booking = _controllers.ReservationController.GetBooking(messageData.BookingId);
+                        bookingDeletedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId);
                         bookingDeletedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -640,7 +640,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		public void Dispose()
 		{
 			_logger = null;
-		    _controllers = null;
+		    _controllersCollection = null;
 			_webSocketsConnection = null;
 		}
 

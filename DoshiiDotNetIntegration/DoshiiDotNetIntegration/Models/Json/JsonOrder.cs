@@ -158,5 +158,14 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
             set { _log = value; }
         }
+
+        #region serialize methods
+
+        public bool ShouldSerializeConsumer()
+        {
+            return (Consumer != null);
+        }
+
+        #endregion
     }
 }

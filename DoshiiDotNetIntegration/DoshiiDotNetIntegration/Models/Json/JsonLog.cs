@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonLog
+    internal class JsonLog : JsonSerializationBase<JsonLog>
     {
         [DataMember]
         [JsonProperty(PropertyName = "employeeId")]

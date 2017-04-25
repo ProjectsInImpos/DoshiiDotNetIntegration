@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// a Doshii reward
     /// </summary>
-    public class Reward 
+    public class Reward : ICloneable
     {
         /// <summary>
         /// the Id of the reward
@@ -59,6 +59,53 @@ namespace DoshiiDotNetIntegration.Models
         /// the URI to retreive details about the reward from Doshii. 
         /// </summary>
         public Uri Uri { get; set; }
-        
+
+        protected bool Equals(Reward other)
+        {
+            return string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(Description, other.Description) && string.Equals(SurcountType, other.SurcountType) && SurcountAmount == other.SurcountAmount && string.Equals(AppName, other.AppName) && UpdatedAt.Equals(other.UpdatedAt) && CreatedAt.Equals(other.CreatedAt) && Equals(Uri, other.Uri);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Reward) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Description != null ? Description.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (SurcountType != null ? SurcountType.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ SurcountAmount.GetHashCode();
+                hashCode = (hashCode*397) ^ (AppName != null ? AppName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ UpdatedAt.GetHashCode();
+                hashCode = (hashCode*397) ^ CreatedAt.GetHashCode();
+                hashCode = (hashCode*397) ^ (Uri != null ? Uri.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        protected void Clear()
+        {
+            this.Id = string.Empty;
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.SurcountType = string.Empty;
+            this.SurcountAmount = 0;
+            this.AppName = string.Empty;
+            this.UpdatedAt = null;
+            this.CreatedAt = null;
+            this.Uri = new Uri("");
+        }
+
+        public object Clone()
+        {
+            return (Reward)this.MemberwiseClone();
+        }
     }
 }

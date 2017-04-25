@@ -9,8 +9,8 @@ namespace DoshiiDotNetIntegration.Models.Base
 {
     public abstract class BaseCreatedAt
     {
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public Uri Uri { get; set; }
     }
 }

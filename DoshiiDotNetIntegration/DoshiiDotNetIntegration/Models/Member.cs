@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// the class representing a member in Doshii
     /// </summary>
-    public class Member : BaseCreatedAt
+    public class Member : BaseCreatedAt, ICloneable
     {
         /// <summary>
         /// constructor. 
@@ -76,64 +76,52 @@ namespace DoshiiDotNetIntegration.Models
             }
         }
 
-        public override bool Equals(System.Object obj)
+        protected bool Equals(Member other)
         {
-            // Check if the object is a RecommendationDTO.
-            // The initial null check is unnecessary as the cast will result in null
-            // if obj is null to start with.
-            var memberToTest = obj as Member;
+            return Equals(_Apps, other._Apps) && string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) && string.Equals(Email, other.Email) && string.Equals(Phone, other.Phone) && Equals(Address, other.Address) && string.Equals(Ref, other.Ref);
+        }
 
-            if (memberToTest == null)
-            {
-                // If it is null then it is not equal to this instance.
-                return false;
-            }
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Member) obj);
+        }
 
-             
-            if (this.Id != memberToTest.Id)
+        public override int GetHashCode()
+        {
+            unchecked
             {
-                return false;
+                var hashCode = (_Apps != null ? _Apps.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (FirstName != null ? FirstName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (LastName != null ? LastName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Email != null ? Email.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Phone != null ? Phone.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Address != null ? Address.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Ref != null ? Ref.GetHashCode() : 0);
+                return hashCode;
             }
-             
-            if (this.Name != memberToTest.Name)
-            {
-                return false;
-            }
-             
-            if (this.Email != memberToTest.Email)
-            {
-                return false;
-            }
-             
-            if (this.Phone != memberToTest.Phone)
-            {
-                return false;
-            }
+        }
 
-            if (this.Address != null && memberToTest.Address != null)
-            {
-                if (!this.Address.Equals(memberToTest.Address))
-                {
-                    return false;
-                }
-            }
-            else if ((this.Address == null && memberToTest.Address != null) ||
-                (this.Address != null && memberToTest.Address == null))
-            {
-                return false;
-            } 
-            
-            if (this.Uri != memberToTest.Uri)
-            {
-                return false;
-            }
+        protected void Clear()
+        {
+            this._Apps.Clear();
+            this.Id = string.Empty;
+            this.Name = string.Empty;
+            this.FirstName = string.Empty;
+            this.LastName = string.Empty;
+            this.Email = string.Empty;
+            this.Phone = string.Empty;
+            this.Address = new Address();
+            this.Ref = string.Empty;
+        }
 
-            if (this.Ref != memberToTest.Ref)
-            {
-                return false;
-            }
-
-            return true;
+        public object Clone()
+        {
+            return (Member)this.MemberwiseClone();
         }
     }
 }

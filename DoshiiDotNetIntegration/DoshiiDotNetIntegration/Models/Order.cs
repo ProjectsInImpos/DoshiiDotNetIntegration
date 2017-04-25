@@ -40,6 +40,11 @@ namespace DoshiiDotNetIntegration.Models
 		    Phase = string.Empty;
 			_items.Clear();
 		    RequiredAt = null;
+		    AvailableEta = null;
+		    ManuallyAccepted = false;
+            _log.Clear();
+		    RejectionCode = string.Empty;
+		    RejectionReason = string.Empty;
 		    Consumer = null;
 		}
 
@@ -175,7 +180,6 @@ namespace DoshiiDotNetIntegration.Models
 
 			// Memberwise clone doesn't handle recursive cloning of internal properties such as lists
 			// here I am overwriting the list with cloned copies of the list items
-			var payments = new List<Transaction>();
 			var surcounts = new List<Surcount>();
 			foreach (var surcount in this.Surcounts)
 			{
@@ -185,6 +189,46 @@ namespace DoshiiDotNetIntegration.Models
             return order;
 		}
 
-		#endregion
+        protected bool Equals(Order other)
+        {
+            return Equals(_surcounts, other._surcounts) && Equals(_items, other._items) && Equals(_log, other._log) && Equals(Consumer, other.Consumer) && string.Equals(Id, other.Id) && string.Equals(DoshiiId, other.DoshiiId) && string.Equals(Type, other.Type) && string.Equals(InvoiceId, other.InvoiceId) && string.Equals(MemberId, other.MemberId) && string.Equals(Phase, other.Phase) && string.Equals(CheckinId, other.CheckinId) && string.Equals(LocationId, other.LocationId) && string.Equals(Version, other.Version) && RequiredAt.Equals(other.RequiredAt) && AvailableEta.Equals(other.AvailableEta) && ManuallyAccepted == other.ManuallyAccepted && Equals(TransactionsUri, other.TransactionsUri) && string.Equals(RejectionCode, other.RejectionCode) && string.Equals(RejectionReason, other.RejectionReason);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Order) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (_surcounts != null ? _surcounts.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_items != null ? _items.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_log != null ? _log.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Consumer != null ? Consumer.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (DoshiiId != null ? DoshiiId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Type != null ? Type.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (InvoiceId != null ? InvoiceId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (MemberId != null ? MemberId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Phase != null ? Phase.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (CheckinId != null ? CheckinId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (LocationId != null ? LocationId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ RequiredAt.GetHashCode();
+                hashCode = (hashCode*397) ^ AvailableEta.GetHashCode();
+                hashCode = (hashCode*397) ^ ManuallyAccepted.GetHashCode();
+                hashCode = (hashCode*397) ^ (TransactionsUri != null ? TransactionsUri.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (RejectionCode != null ? RejectionCode.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (RejectionReason != null ? RejectionReason.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        #endregion
 	}
 }

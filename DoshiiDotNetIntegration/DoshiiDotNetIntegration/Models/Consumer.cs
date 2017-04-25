@@ -8,7 +8,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// The consumer model represents the individual customer in Doshii.
     /// </summary>
-    public class Consumer
+    public class Consumer : ICloneable
     {
         /// <summary>
 		/// Constructor.
@@ -70,5 +70,38 @@ namespace DoshiiDotNetIntegration.Models
         /// Notes about special requests for the delivery. 
         /// </summary>
         public string Notes { get; set; }
+
+        protected bool Equals(Consumer other)
+        {
+            return string.Equals(PhotoUrl, other.PhotoUrl) && Anonymous == other.Anonymous && string.Equals(Name, other.Name) && string.Equals(Phone, other.Phone) && string.Equals(Email, other.Email) && Equals(Address, other.Address) && string.Equals(Notes, other.Notes);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Consumer) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (PhotoUrl != null ? PhotoUrl.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Anonymous.GetHashCode();
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Phone != null ? Phone.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Email != null ? Email.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Address != null ? Address.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Notes != null ? Notes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public object Clone()
+        {
+            return (Consumer)this.MemberwiseClone();
+        }
     }
 }

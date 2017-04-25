@@ -20,9 +20,9 @@ namespace DoshiiDotNetIntegration.Controllers
     internal class TransactionController
     {
         /// <summary>
-        /// prop for the local <see cref="Controllers"/> instance. 
+        /// prop for the local <see cref="ControllersCollection"/> instance. 
         /// </summary>
-        internal Models.Controllers _controllers;
+        internal Models.ControllersCollection _controllersCollection;
 
         /// <summary>
         /// prop for the local <see cref="HttpController"/> instance.
@@ -34,27 +34,27 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="transactionManager"></param>
         /// <param name="httpComs"></param>
-        /// <param name="controller"></param>
-        internal TransactionController(Models.Controllers controller, HttpController httpComs)
+        /// <param name="controllerCollection"></param>
+        internal TransactionController(Models.ControllersCollection controllerCollection, HttpController httpComs)
         {
-            if (controller == null)
+            if (controllerCollection == null)
             {
                 throw new NullReferenceException("controller cannot be null");
             }
-            _controllers = controller;
-            if (controller.LoggingController == null)
+            _controllersCollection = controllerCollection;
+            if (controllerCollection.LoggingController == null)
             {
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
-            _controllers.LoggingController = controller.LoggingController;
-            if (_controllers.TransactionManager == null)
+            _controllersCollection.LoggingController = controllerCollection.LoggingController;
+            if (_controllersCollection.TransactionManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - transactionManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - transactionManager cannot be null");
                 throw new NullReferenceException("transactionManager cannot be null");
             }
             if (httpComs == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -70,17 +70,17 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             try
             {
-                _controllers.TransactionManager.RecordTransactionVersion(transaction.Id, transaction.Version);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(transaction.Id, transaction.Version);
             }
             catch (TransactionDoesNotExistOnPosException nex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update a transaction version for a transaction that does not exist on the Pos, TransactionId - {0}, version - {1}", transaction.Id, transaction.Version));
-                _controllers.TransactionManager.CancelPayment(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update a transaction version for a transaction that does not exist on the Pos, TransactionId - {0}, version - {1}", transaction.Id, transaction.Version));
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a transaction version on the pos, TransactionId - {0}, version - {1}, {2}", transaction.Id, transaction.Version, ex.ToString()));
-                _controllers.TransactionManager.CancelPayment(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a transaction version on the pos, TransactionId - {0}, version - {1}, {2}", transaction.Id, transaction.Version, ex.ToString()));
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
             }
         }
 
@@ -221,47 +221,47 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for order.Id{0}", transaction.OrderId), rex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for order.Id{0}", transaction.OrderId), rex);
                 }
                 else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
                 {
                     // this just means that the partner failed to claim payment when requested
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
                         string.Format("Doshii: The partner could not claim the payment for for order.Id{0}", transaction.OrderId), rex);
                 }
                 else
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
                         string.Format("Doshii: There was an unknown exception while attempting to get a payment from doshii"), rex);
                 }
-                _controllers.TransactionManager.CancelPayment(transaction);
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
                 return false;
             }
             catch (NullResponseDataReturnedException)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
-                _controllers.TransactionManager.CancelPayment(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
                 return false;
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", transaction.OrderId, ex));
-                _controllers.TransactionManager.CancelPayment(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", transaction.OrderId, ex));
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
                 return false;
             }
 
             if (returnedTransaction != null && returnedTransaction.Id == transaction.Id)
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
                 //returnedTransaction.OrderId = transaction.OrderId;
-                _controllers.TransactionManager.RecordSuccessfulPayment(returnedTransaction);
-                _controllers.TransactionManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
+                _controllersCollection.TransactionManager.RecordSuccessfulPayment(returnedTransaction);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
                 return true;
             }
             else
             {
-                _controllers.TransactionManager.CancelPayment(transaction);
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
                 return false;
             }
         }
@@ -292,20 +292,20 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (RestfulApiErrorResponseException rex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for transaction.Id{0}", transaction.OrderId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for transaction.Id{0}", transaction.OrderId));
                 return false;
 
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putTransaction for transaction.Id {0} : {1}", transaction.OrderId, ex));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putTransaction for transaction.Id {0} : {1}", transaction.OrderId, ex));
                 return false;
             }
 
             if (returnedTransaction != null && returnedTransaction.Id == transaction.Id && returnedTransaction.Status == "complete")
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction put for payment - '{0}'", jsonTransaction.ToJsonString()));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction put for payment - '{0}'", jsonTransaction.ToJsonString()));
                 return true;
             }
             else
@@ -325,11 +325,11 @@ namespace DoshiiDotNetIntegration.Controllers
             Transaction transactionFromPos = null;
             try
             {
-                transactionFromPos = _controllers.TransactionManager.ReadyToPay(receivedTransaction);
+                transactionFromPos = _controllersCollection.TransactionManager.ReadyToPay(receivedTransaction);
             }
             catch (OrderDoesNotExistOnPosException)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
                 receivedTransaction.Status = "rejected";
                 RejectPaymentForOrder(receivedTransaction);
                 return;
@@ -337,7 +337,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
             if (transactionFromPos != null)
             {
-                _controllers.TransactionManager.RecordTransactionVersion(receivedTransaction.Id, receivedTransaction.Version);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(receivedTransaction.Id, receivedTransaction.Version);
                 RequestPaymentForOrderExistingTransaction(transactionFromPos);
             }
             else

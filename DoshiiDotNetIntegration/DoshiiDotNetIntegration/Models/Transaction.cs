@@ -39,6 +39,8 @@ namespace DoshiiDotNetIntegration.Models
             Version = String.Empty;
             Uri = new Uri("");
 		    Tip = 0.0M;
+		    CreatedAt = null;
+		    UpdatedAt = null;
 		}
 
         public decimal Tip { get; set; }
@@ -100,5 +102,36 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(Transaction other)
+        {
+            return Tip == other.Tip && string.Equals(Id, other.Id) && string.Equals(OrderId, other.OrderId) && string.Equals(Reference, other.Reference) && string.Equals(Invoice, other.Invoice) && PaymentAmount == other.PaymentAmount && AcceptLess == other.AcceptLess && PartnerInitiated == other.PartnerInitiated && string.Equals(Partner, other.Partner) && string.Equals(Version, other.Version);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Transaction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Tip.GetHashCode();
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (OrderId != null ? OrderId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Reference != null ? Reference.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Invoice != null ? Invoice.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ PaymentAmount.GetHashCode();
+                hashCode = (hashCode*397) ^ AcceptLess.GetHashCode();
+                hashCode = (hashCode*397) ^ PartnerInitiated.GetHashCode();
+                hashCode = (hashCode*397) ^ (Partner != null ? Partner.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }

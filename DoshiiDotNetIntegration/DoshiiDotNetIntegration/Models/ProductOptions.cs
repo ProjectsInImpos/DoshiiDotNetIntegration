@@ -95,5 +95,31 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(ProductOptions other)
+        {
+            return Equals(_Variants, other._Variants) && string.Equals(Name, other.Name) && Min == other.Min && Max == other.Max && string.Equals(PosId, other.PosId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ProductOptions) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (_Variants != null ? _Variants.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Min;
+                hashCode = (hashCode*397) ^ Max;
+                hashCode = (hashCode*397) ^ (PosId != null ? PosId.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }

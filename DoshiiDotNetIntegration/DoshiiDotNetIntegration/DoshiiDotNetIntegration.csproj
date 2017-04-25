@@ -163,7 +163,7 @@
     <Compile Include="Models\Base\BaseStatus.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Consumer.cs" />
-    <Compile Include="Models\Controllers.cs" />
+    <Compile Include="Controllers\ControllersCollection.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Json\JsonAddress.cs" />
     <Compile Include="Models\Json\JsonApp.cs" />

@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// This class represents a location / venue in doshii
     /// </summary>
-    public class Location : BaseCreatedAt
+    public class Location : BaseCreatedAt, ICloneable
     {
         /// <summary>
         /// the DoshiiId for the venue - give this value to partners to allow them to send orders and payments to your venue. 
@@ -82,6 +82,47 @@ namespace DoshiiDotNetIntegration.Models
             Country = String.Empty;
             PhoneNumber = String.Empty;
             DisconnectedDate = null;
+            CreatedAt = null;
+            UpdatedAt = null;
+            Uri = new Uri("");
+        }
+
+        protected bool Equals(Location other)
+        {
+            return string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(AddressLine1, other.AddressLine1) && string.Equals(AddressLine2, other.AddressLine2) && string.Equals(City, other.City) && string.Equals(State, other.State) && string.Equals(PostalCode, other.PostalCode) && string.Equals(Country, other.Country) && string.Equals(PhoneNumber, other.PhoneNumber) && DisconnectedDate.Equals(other.DisconnectedDate) && string.Equals(Latitude, other.Latitude) && string.Equals(Longitude, other.Longitude);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Location) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (AddressLine1 != null ? AddressLine1.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (AddressLine2 != null ? AddressLine2.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (City != null ? City.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (State != null ? State.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (PostalCode != null ? PostalCode.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Country != null ? Country.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (PhoneNumber != null ? PhoneNumber.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ DisconnectedDate.GetHashCode();
+                hashCode = (hashCode*397) ^ (Latitude != null ? Latitude.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Longitude != null ? Longitude.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public object Clone()
+        {
+            return (Location)this.MemberwiseClone();
         }
     }
 }

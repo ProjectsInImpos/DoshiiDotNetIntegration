@@ -161,7 +161,7 @@ namespace DoshiiDotNetIntegration
 		/// <summary>
 		/// The logging manager for the Doshii SDK.
 		/// </summary>
-		internal Models.Controllers _controllers { get; set; }
+		internal Models.ControllersCollection _controllersCollection { get; set; }
         
         /// <summary>
         /// Gets the current Doshii version information.
@@ -185,39 +185,39 @@ namespace DoshiiDotNetIntegration
         /// <param name="configurationManager">An instance of IConfigurationManager that provides pos side configuration to the sdk.</param>
         public DoshiiController(IConfigurationManager configurationManager)
         {
-            _controllers = new Models.Controllers();
+            _controllersCollection = new Models.ControllersCollection();
             if (configurationManager == null)
             {
                 throw new ArgumentNullException("configurationManager", "IConfigurationManager needs to be instantiated as it is a core module");
             }
-            _controllers.ConfigurationManager = configurationManager;
-            _controllers.TransactionManager = configurationManager.GetTransactionManagerFromPos();
-            _controllers.OrderingManager = configurationManager.GetOrderingManagerFromPos();
-            _controllers.RewardManager = configurationManager.GetRewardManagerFromPos();
-            _controllers.ReservationManager = configurationManager.GetReservationManagerFromPos();
+            _controllersCollection.ConfigurationManager = configurationManager;
+            _controllersCollection.TransactionManager = configurationManager.GetTransactionManagerFromPos();
+            _controllersCollection.OrderingManager = configurationManager.GetOrderingManagerFromPos();
+            _controllersCollection.RewardManager = configurationManager.GetRewardManagerFromPos();
+            _controllersCollection.ReservationManager = configurationManager.GetReservationManagerFromPos();
 
             if (configurationManager.GetLoggingManagerFromPos() == null)
             {
                 throw new ArgumentNullException("logger", "ILoggingManager needs to be instantiated as it is a core module");
             }
-            _controllers.LoggingController = new LoggingController(configurationManager.GetLoggingManagerFromPos());
-            if (_controllers.TransactionManager == null)
+            _controllersCollection.LoggingController = new LoggingController(configurationManager.GetLoggingManagerFromPos());
+            if (_controllersCollection.TransactionManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IConfigurationManager.GetTransactionManager() cannot return null, it is a core module");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IConfigurationManager.GetTransactionManager() cannot return null, it is a core module");
                 throw new ArgumentNullException("paymentManager", "ITransactionManager needs to be instantiated as it is a core module");
             }
-            if (_controllers.OrderingManager == null)
+            if (_controllersCollection.OrderingManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IConfigurationManager.GetOrderingManager() cannot return null, it is a core module");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IConfigurationManager.GetOrderingManager() cannot return null, it is a core module");
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IConfigurationManager.GetRewardManager() returned null");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IConfigurationManager.GetRewardManager() returned null");
             }
-            if (_controllers.ReservationManager == null)
+            if (_controllersCollection.ReservationManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Reservation module not supported - IConfigurationManager.GetReservationManager() returned null");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Reservation module not supported - IConfigurationManager.GetReservationManager() returned null");
             }
             
 
@@ -239,58 +239,58 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with the interfaces provided in the IConfigurationManager implementation.</exception>
         public virtual bool Initialize(bool startWebSocketConnection)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", _controllers.ConfigurationManager.GetLocationTokenFromPos(), _controllers.ConfigurationManager.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, _controllers.ConfigurationManager.GetVendorFromPos(), _controllers.ConfigurationManager.GetSecretKeyFromPos()));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", _controllersCollection.ConfigurationManager.GetLocationTokenFromPos(), _controllersCollection.ConfigurationManager.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, _controllersCollection.ConfigurationManager.GetVendorFromPos(), _controllersCollection.ConfigurationManager.GetSecretKeyFromPos()));
 			
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetBaseUrlFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetBaseUrlFromPos()))
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetLocationTokenFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetLocationTokenFromPos()))
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
                 throw new ArgumentException("empty locationToken");
             }
 
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetVendorFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetVendorFromPos()))
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
                 throw new ArgumentException("empty vendor");
             }
 
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetSecretKeyFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetSecretKeyFromPos()))
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
                 throw new ArgumentException("empty secretKey");
             }
 
-            int timeout = _controllers.ConfigurationManager.GetSocketTimeOutFromPos();
+            int timeout = _controllersCollection.ConfigurationManager.GetSocketTimeOutFromPos();
 
 			if (timeout < 0)
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
                 throw new ArgumentException("timeoutvaluesecs < 0");
             }
 			else if (timeout == 0)
 			{
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, String.Format("Doshii: will use default timeout of {0}", DoshiiController.DefaultTimeout));
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, String.Format("Doshii: will use default timeout of {0}", DoshiiController.DefaultTimeout));
 				timeout = DoshiiController.DefaultTimeout;
 			}
 
-            string socketUrl = BuildSocketUrl(FormatBaseUrl(_controllers.ConfigurationManager.GetSocketUrlFromPos()), _controllers.ConfigurationManager.GetLocationTokenFromPos());
-            m_IsInitalized = InitializeProcess(socketUrl, FormatBaseUrl(_controllers.ConfigurationManager.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
+            string socketUrl = BuildSocketUrl(FormatBaseUrl(_controllersCollection.ConfigurationManager.GetSocketUrlFromPos()), _controllersCollection.ConfigurationManager.GetLocationTokenFromPos());
+            m_IsInitalized = InitializeProcess(socketUrl, FormatBaseUrl(_controllersCollection.ConfigurationManager.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
                 try
                 {
-                    _controllers.OrderingController.RefreshAllOrders();
+                    _controllersCollection.OrderingController.RefreshAllOrders();
                 }
                 catch (Exception ex)
                 {
                     m_IsInitalized = false;
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed");
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed");
                 }
                 
             }
@@ -318,52 +318,52 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         internal virtual bool InitializeProcess(string socketUrl, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
 
-            _httpComs = new HttpController(UrlBase, _controllers);
-            _controllers.TransactionController = new TransactionController(_controllers, _httpComs);
-            _controllers.OrderingController = new OrderingController(_controllers, _httpComs);
-            _controllers.MenuController = new MenuController(_controllers, _httpComs);
-            _controllers.TableController = new TableController(_controllers, _httpComs);
-            _controllers.CheckinController = new CheckinController(_controllers, _httpComs);
-            _controllers.ConsumerController = new ConsumerController(_controllers, _httpComs);
-            _controllers.AppController = new AppController(_controllers, _httpComs);
-            _controllers.LocationController = new LocationController(_controllers, _httpComs);
-            _controllers.EmployeeController = new EmployeeController(_controllers, _httpComs);
-            _controllers.RejectionCodeController = new RejectionCodeController(_controllers, _httpComs);
-            if (_controllers.ReservationManager != null)
+            _httpComs = new HttpController(UrlBase, _controllersCollection);
+            _controllersCollection.TransactionController = new TransactionController(_controllersCollection, _httpComs);
+            _controllersCollection.OrderingController = new OrderingController(_controllersCollection, _httpComs);
+            _controllersCollection.MenuController = new MenuController(_controllersCollection, _httpComs);
+            _controllersCollection.TableController = new TableController(_controllersCollection, _httpComs);
+            _controllersCollection.CheckinController = new CheckinController(_controllersCollection, _httpComs);
+            _controllersCollection.ConsumerController = new ConsumerController(_controllersCollection, _httpComs);
+            _controllersCollection.AppController = new AppController(_controllersCollection, _httpComs);
+            _controllersCollection.LocationController = new LocationController(_controllersCollection, _httpComs);
+            _controllersCollection.EmployeeController = new EmployeeController(_controllersCollection, _httpComs);
+            _controllersCollection.RejectionCodeController = new RejectionCodeController(_controllersCollection, _httpComs);
+            if (_controllersCollection.ReservationManager != null)
             {
-                _controllers.ReservationController = new ReservationController(_controllers, _httpComs);
+                _controllersCollection.ReservationController = new ReservationController(_controllersCollection, _httpComs);
             }
             else
             {
-                _controllers.ReservationController = null;
+                _controllersCollection.ReservationController = null;
             }
-            if (_controllers.RewardManager != null)
+            if (_controllersCollection.RewardManager != null)
             {
-                _controllers.RewardController = new RewardController(_controllers, _httpComs);
+                _controllersCollection.RewardController = new RewardController(_controllersCollection, _httpComs);
             }
             else
             {
-                _controllers.RewardController = null;
+                _controllersCollection.RewardController = null;
             }
             
             if (StartWebSocketConnection)
             {
                 try
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
-                    m_SocketComs = new SocketsController(socketUrl, timeOutValueSecs, _controllers);
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
+                    m_SocketComs = new SocketsController(socketUrl, timeOutValueSecs, _controllersCollection);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
 
                     SubscribeToSocketEvents();
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket events are subscribed to")));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket events are subscribed to")));
 
                     m_SocketComs.Initialize();
                 }
                 catch (Exception ex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString()));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString()));
                     return false;
                 }
             }
@@ -407,13 +407,13 @@ namespace DoshiiDotNetIntegration
         {
             if (m_SocketComs == null)
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: The socketComs has not been initialized");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: The socketComs has not been initialized");
                 throw new NotSupportedException("m_SocketComms is null");
             }
             else
             {
                 UnsubscribeFromSocketEvents();
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Subscribing to socket events");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Subscribing to socket events");
                 m_SocketComs.OrderCreatedEvent += new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
                 m_SocketComs.TransactionCreatedEvent += new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
                 m_SocketComs.TransactionUpdatedEvent += new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
@@ -432,7 +432,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         internal virtual void UnsubscribeFromSocketEvents()
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
             m_SocketComs.OrderCreatedEvent -= new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
             m_SocketComs.TransactionCreatedEvent -= new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
             m_SocketComs.TransactionUpdatedEvent -= new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
@@ -455,14 +455,14 @@ namespace DoshiiDotNetIntegration
         /// <param name="e">The event arguments.</param>
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
             try
             {
-                _controllers.OrderingController.RefreshAllOrders();
+                _controllersCollection.OrderingController.RefreshAllOrders();
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to retrieve all the orders from Doshii.", ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to retrieve all the orders from Doshii.", ex);
             }
             
         }
@@ -474,7 +474,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTimeOutValueReached(object sender, EventArgs e)
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, 
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, 
 				"Doshii: SocketComsTimeoutValueReached");
         }
 
@@ -489,10 +489,10 @@ namespace DoshiiDotNetIntegration
         {
 			if (!String.IsNullOrEmpty(e.Order.Id))
             {
-                _controllers.LoggingController.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting order was passed to the order created event handler.");
+                _controllersCollection.LoggingController.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting order was passed to the order created event handler.");
                 throw new NotSupportedException("Developer Error, An order with a posId was passed to the CreatedOrderEventHandler");
             }
-            _controllers.OrderingController.HandleOrderCreated(e.Order, e.TransactionList.ToList());
+            _controllersCollection.OrderingController.HandleOrderCreated(e.Order, e.TransactionList.ToList());
         }
 
         
@@ -507,14 +507,14 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTransactionCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             switch (e.Transaction.Status)
             {
                 case "pending":
-                    _controllers.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    _controllersCollection.TransactionController.HandelPendingTransactionReceived(e.Transaction);
                     break;
                 default:
-					_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status)); 
+					_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status)); 
                     throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API",e.Transaction.Status));
             }
 		}
@@ -527,21 +527,21 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsMemberCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
             try
             {
-                _controllers.RewardManager.CreateMemberOnPos(e.Member);
+                _controllersCollection.RewardManager.CreateMemberOnPos(e.Member);
             }
             catch(MemberExistOnPosException ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
                 try
                 {
-                    _controllers.RewardManager.UpdateMemberOnPos(e.Member);
+                    _controllersCollection.RewardManager.UpdateMemberOnPos(e.Member);
                 }
                 catch (MemberDoesNotExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed.", e.MemberId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed.", e.MemberId));
                 }
             }
         }
@@ -554,21 +554,21 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsMemberUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
             try
             {
-                _controllers.RewardManager.UpdateMemberOnPos(e.Member);
+                _controllersCollection.RewardManager.UpdateMemberOnPos(e.Member);
             }
             catch (MemberDoesNotExistOnPosException ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
                 try
                 {
-                    _controllers.RewardManager.CreateMemberOnPos(e.Member);
+                    _controllersCollection.RewardManager.CreateMemberOnPos(e.Member);
                 }
                 catch (MemberExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed", e.MemberId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed", e.MemberId));
                 }
             }
         }
@@ -581,21 +581,21 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsBookingCreatedEventHandler(object sender, BookingEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking created event for booking id '{0}'", e.BookingId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking created event for booking id '{0}'", e.BookingId));
             try
             {
-                _controllers.ReservationManager.CreateBookingOnPos(e.Booking);
+                _controllersCollection.ReservationManager.CreateBookingOnPos(e.Booking);
             }
             catch (BookingExistOnPosException bex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed due to booking already existing, now attempting to update existing booking.", e.BookingId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed due to booking already existing, now attempting to update existing booking.", e.BookingId));
                 try
                 {
-                    _controllers.ReservationManager.UpdateBookingOnPos(e.Booking);
+                    _controllersCollection.ReservationManager.UpdateBookingOnPos(e.Booking);
                 }
                 catch (BookingDoesNotExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed.", e.BookingId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed.", e.BookingId));
                 }
             }
         }
@@ -608,21 +608,21 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsBookingUpdatedEventHandler(object sender, BookingEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking updated event for booking id '{0}'", e.BookingId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking updated event for booking id '{0}'", e.BookingId));
             try
             {
-                _controllers.ReservationManager.UpdateBookingOnPos(e.Booking);
+                _controllersCollection.ReservationManager.UpdateBookingOnPos(e.Booking);
             }
             catch (BookingDoesNotExistOnPosException bex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed due to booking already existing, now attempting to create new booking.", e.BookingId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed due to booking already existing, now attempting to create new booking.", e.BookingId));
                 try
                 {
-                    _controllers.ReservationManager.CreateBookingOnPos(e.Booking);
+                    _controllersCollection.ReservationManager.CreateBookingOnPos(e.Booking);
                 }
                 catch (BookingExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed.", e.BookingId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed.", e.BookingId));
                 }
             }
         }
@@ -635,14 +635,14 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsBookingDeletedEventHandler(object sender, BookingEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking deleted event for booking id '{0}'", e.BookingId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking deleted event for booking id '{0}'", e.BookingId));
             try
             {
-                _controllers.ReservationManager.DeleteBookingOnPos(e.Booking);
+                _controllersCollection.ReservationManager.DeleteBookingOnPos(e.Booking);
             }
             catch (BookingDoesNotExistOnPosException bex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete booking with Id '{0}' on pos failed due to booking not existing.", e.BookingId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete booking with Id '{0}' on pos failed due to booking not existing.", e.BookingId));
             }
 
         }
@@ -656,22 +656,22 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTransactionUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             
             switch (e.Transaction.Status)
             {
                 case "pending":
-                    _controllers.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    _controllersCollection.TransactionController.HandelPendingTransactionReceived(e.Transaction);
                     break;
                 case "cancelled":
-                    _controllers.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
-                    _controllers.TransactionManager.CancelPayment(e.Transaction);
+                    _controllersCollection.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
+                    _controllersCollection.TransactionManager.CancelPayment(e.Transaction);
                     break;
                 case "complete":
-                    _controllers.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
+                    _controllersCollection.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
                     break;
                 default:
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status));
                     throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API", e.Transaction.Status));
             }
         }
@@ -703,7 +703,7 @@ namespace DoshiiDotNetIntegration
                     "AcceptOrderAheadCreation"));
             }
 
-            return _controllers.OrderingController.AcceptOrderAheadCreation(orderToAccept);
+            return _controllersCollection.OrderingController.AcceptOrderAheadCreation(orderToAccept);
         }
 
         /// <summary>
@@ -720,7 +720,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RejectOrderAheadCreation"));
             }
-            _controllers.OrderingController.RejectOrderAheadCreation(orderToReject);
+            _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
         }
 
         /// <summary>
@@ -741,7 +741,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RecordPosTransactionOnDoshii"));
             }
-            return _controllers.TransactionController.RecordPosTransactionOnDoshii(transaction);
+            return _controllersCollection.TransactionController.RecordPosTransactionOnDoshii(transaction);
         }
 
         /// <summary>
@@ -765,7 +765,7 @@ namespace DoshiiDotNetIntegration
             }
 		    try
 		    {
-                return _controllers.OrderingController.GetOrder(orderId);
+                return _controllersCollection.OrderingController.GetOrder(orderId);
 		    }
 		    catch(Exception ex)
 		    {
@@ -793,7 +793,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetConsumerFromCheckinId"));
             }
-            return _controllers.ConsumerController.GetConsumerFromCheckinId(checkinId);
+            return _controllersCollection.ConsumerController.GetConsumerFromCheckinId(checkinId);
         }
         
 		/// <summary>
@@ -814,7 +814,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetOrders"));
             }
-		    return _controllers.OrderingController.GetOrders();
+		    return _controllersCollection.OrderingController.GetOrders();
         }
 
         /// <summary>
@@ -836,7 +836,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTransaction"));
             }
-            return _controllers.TransactionController.GetTransaction(transactionId);
+            return _controllersCollection.TransactionController.GetTransaction(transactionId);
         }
 
         /// <summary>
@@ -858,7 +858,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTransactionFromDoshiiOrderId"));
             }
-            return _controllers.TransactionController.GetTransactionFromDoshiiOrderId(doshiiOrderId);
+            return _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(doshiiOrderId);
             
         }
 
@@ -880,7 +880,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTransactionFromDoshiiOrderId"));
             }
-            return _controllers.TransactionController.GetTransactionFromPosOrderId(posOrderId);
+            return _controllersCollection.TransactionController.GetTransactionFromPosOrderId(posOrderId);
 
         }
 
@@ -897,7 +897,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTransactions"));
             }
-		    return _controllers.TransactionController.GetTransactions();
+		    return _controllersCollection.TransactionController.GetTransactions();
 		}
 
         /// <summary>
@@ -925,7 +925,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateOrder"));
             }
-            return _controllers.OrderingController.UpdateOrder(order);
+            return _controllersCollection.OrderingController.UpdateOrder(order);
         }
 
         #endregion
@@ -947,12 +947,12 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetMember"));
             }
-            return _controllers.RewardController.GetMember(memberId);
+            return _controllersCollection.RewardController.GetMember(memberId);
         }
 
         /// <summary>
@@ -971,12 +971,12 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetMembers"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetMembers"));
             }
-            return _controllers.RewardController.GetMembers();
+            return _controllersCollection.RewardController.GetMembers();
         }
 
         /// <summary>
@@ -997,13 +997,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteMember"));
             }
-            return _controllers.RewardController.DeleteMember(member);
+            return _controllersCollection.RewardController.DeleteMember(member);
         }
 
         /// <summary>
@@ -1025,13 +1025,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMember"));
             }
-            return _controllers.RewardController.UpdateMember(member);
+            return _controllersCollection.RewardController.UpdateMember(member);
         }
 
         /// <summary>
@@ -1051,13 +1051,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMember"));
             }
-            return _controllers.RewardController.SyncDoshiiMembersWithPosMembers();
+            return _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
         }
 
         /// <summary>
@@ -1082,12 +1082,12 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetRewardsForMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetRewardsForMember"));
             }
-            return _controllers.RewardController.GetRewardsForMember(memberId, orderId, orderTotal);
+            return _controllersCollection.RewardController.GetRewardsForMember(memberId, orderId, orderTotal);
         }
 
         /// <summary>
@@ -1114,13 +1114,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemRewardForMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemRewardForMember"));
             }
-            return _controllers.RewardController.RedeemRewardForMember(member, reward, order);
+            return _controllersCollection.RewardController.RedeemRewardForMember(member, reward, order);
         }
 
         /// <summary>
@@ -1142,13 +1142,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemRewardForMemberCancel"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemRewardForMemberCancel"));
             }
-            return _controllers.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
+            return _controllersCollection.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
         }
 
         /// <summary>
@@ -1175,13 +1175,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemRewardForMemberConfirm"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemRewardForMemberConfirm"));
             }
-            return _controllers.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
+            return _controllersCollection.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
         }
 
         /// <summary>
@@ -1210,13 +1210,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemPointsForMember"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemPointsForMember"));
             }
-            return _controllers.RewardController.RedeemPointsForMember(member, app, order, points);
+            return _controllersCollection.RewardController.RedeemPointsForMember(member, app, order, points);
         }
 
         /// <summary>
@@ -1240,13 +1240,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemPointsForMemberConfirm"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemPointsForMemberConfirm"));
             }
-            return _controllers.RewardController.RedeemPointsForMemberConfirm(memberId);
+            return _controllersCollection.RewardController.RedeemPointsForMemberConfirm(memberId);
         }
 
         /// <summary>
@@ -1264,13 +1264,13 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemPointsForMemberCancel"));
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RedeemPointsForMemberCancel"));
             }
-            return _controllers.RewardController.RedeemPointsForMemberCancel(memberId, cancelReason);
+            return _controllersCollection.RewardController.RedeemPointsForMemberCancel(memberId, cancelReason);
         }
         #endregion
 
@@ -1294,7 +1294,7 @@ namespace DoshiiDotNetIntegration
             }
 		    try
 		    {
-		        return _controllers.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
+		        return _controllersCollection.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
 		    }
 		    catch (Exception ex)
 		    {
@@ -1325,7 +1325,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
+                return _controllersCollection.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
             }
             catch (Exception ex)
             {
@@ -1354,7 +1354,7 @@ namespace DoshiiDotNetIntegration
                     "AddTableAllocation"));
             }
 
-            return _controllers.CheckinController.CloseCheckin(checkinId);
+            return _controllersCollection.CheckinController.CloseCheckin(checkinId);
         }
 
         #endregion
@@ -1384,7 +1384,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMenu"));
             }
-            return _controllers.MenuController.UpdateMenu(menu);
+            return _controllersCollection.MenuController.UpdateMenu(menu);
         }
 
         /// <summary>
@@ -1405,7 +1405,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateSurcount"));
             }
-            return _controllers.MenuController.UpdateSurcount(surcount);
+            return _controllersCollection.MenuController.UpdateSurcount(surcount);
         }
 
         /// <summary>
@@ -1426,7 +1426,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateProduct"));
             }
-            return _controllers.MenuController.UpdateProduct(product);
+            return _controllersCollection.MenuController.UpdateProduct(product);
         }
 
         /// <summary>
@@ -1447,7 +1447,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteSurcount"));
             }
-            return _controllers.MenuController.DeleteSurcount(posId);
+            return _controllersCollection.MenuController.DeleteSurcount(posId);
         }
 
         /// <summary>
@@ -1468,7 +1468,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteProduct"));
             }
-            return _controllers.MenuController.DeleteProduct(posId);
+            return _controllersCollection.MenuController.DeleteProduct(posId);
         }
 
 
@@ -1493,7 +1493,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTable"));
             }
-            return _controllers.TableController.GetTable(tableName);
+            return _controllersCollection.TableController.GetTable(tableName);
         }
         
         /// <summary>
@@ -1509,7 +1509,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTables"));
             }
-            return _controllers.TableController.GetTables();
+            return _controllersCollection.TableController.GetTables();
         }
 
         /// <summary>
@@ -1528,7 +1528,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "CreateTable"));
             }
-            return _controllers.TableController.CreateTable(table);
+            return _controllersCollection.TableController.CreateTable(table);
         }
 
         /// <summary>
@@ -1550,7 +1550,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateTable"));
             }
-            return _controllers.TableController.UpdateTable(table, oldTableName);
+            return _controllersCollection.TableController.UpdateTable(table, oldTableName);
         }
 
         /// <summary>
@@ -1569,7 +1569,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteTable"));
             }
-            return _controllers.TableController.DeleteTable(tableName);
+            return _controllersCollection.TableController.DeleteTable(tableName);
         }
 
         /// <summary>
@@ -1586,7 +1586,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "ReplaceTableListOnDoshii"));
             }
-            return _controllers.TableController.ReplaceTableListOnDoshii(tableList);
+            return _controllersCollection.TableController.ReplaceTableListOnDoshii(tableList);
         }
 
         #endregion
@@ -1609,7 +1609,7 @@ namespace DoshiiDotNetIntegration
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBooking"));
             }
-            return _controllers.ReservationController.GetBooking(bookingId);
+            return _controllersCollection.ReservationController.GetBooking(bookingId);
         }
 
         /// <summary>
@@ -1628,7 +1628,7 @@ namespace DoshiiDotNetIntegration
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBookings"));
             }
-            return _controllers.ReservationController.GetBookings(from, to);
+            return _controllersCollection.ReservationController.GetBookings(from, to);
         }
 
           /// <summary>
@@ -1645,7 +1645,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "SeatBooking"));
             }
-            return _controllers.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
+            return _controllersCollection.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
         }
 
         #endregion
@@ -1661,7 +1661,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.AppController.GetApps();
+                return _controllersCollection.AppController.GetApps();
             }
             catch (Exception ex)
             {
@@ -1683,7 +1683,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.EmployeeController.GetEmployees();
+                return _controllersCollection.EmployeeController.GetEmployees();
             }
             catch (Exception ex)
             {
@@ -1701,7 +1701,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.EmployeeController.GetEmployee(doshiiId);
+                return _controllersCollection.EmployeeController.GetEmployee(doshiiId);
             }
             catch (Exception ex)
             {
@@ -1719,7 +1719,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.EmployeeController.SaveEmployee(employee);
+                return _controllersCollection.EmployeeController.SaveEmployee(employee);
             }
             catch (Exception ex)
             {
@@ -1737,7 +1737,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.EmployeeController.DeleteEmployee(employee);
+                return _controllersCollection.EmployeeController.DeleteEmployee(employee);
             }
             catch (Exception ex)
             {
@@ -1767,7 +1767,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.LocationController.GetLocation();
+                return _controllersCollection.LocationController.GetLocation();
             }
             catch (Exception ex)
             {
@@ -1784,7 +1784,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.LocationController.GetLocation(hashedLocationId);
+                return _controllersCollection.LocationController.GetLocation(hashedLocationId);
             }
             catch (Exception ex)
             {
@@ -1801,7 +1801,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.LocationController.GetLocations();
+                return _controllersCollection.LocationController.GetLocations();
             }
             catch (Exception ex)
             {
@@ -1818,7 +1818,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.LocationController.CreateLocation(location);
+                return _controllersCollection.LocationController.CreateLocation(location);
             }
             catch (Exception ex)
             {
@@ -1835,7 +1835,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.LocationController.CreateOrginisation(orginisation);
+                return _controllersCollection.LocationController.CreateOrginisation(orginisation);
             }
             catch (Exception ex)
             {
@@ -1856,7 +1856,7 @@ namespace DoshiiDotNetIntegration
 	        }
 	        try
 	        {
-	            return _controllers.RejectionCodeController.GetRejectionCodes();
+	            return _controllersCollection.RejectionCodeController.GetRejectionCodes();
 	        }
 	        catch (Exception ex)
 	        {
@@ -1873,7 +1873,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllers.RejectionCodeController.GetRejectionCode(code);
+                return _controllersCollection.RejectionCodeController.GetRejectionCode(code);
             }
             catch (Exception ex)
             {
@@ -1911,9 +1911,9 @@ namespace DoshiiDotNetIntegration
 		/// </summary>
 		public virtual void Dispose()
 		{
-			_controllers.TransactionManager = null;
-			_controllers.LoggingController.Dispose();
-			_controllers.LoggingController = null;
+			_controllersCollection.TransactionManager = null;
+			_controllersCollection.LoggingController.Dispose();
+			_controllersCollection.LoggingController = null;
 		}
 
 		#endregion
