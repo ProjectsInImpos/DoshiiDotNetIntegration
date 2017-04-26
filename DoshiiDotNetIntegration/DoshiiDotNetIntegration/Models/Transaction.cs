@@ -41,6 +41,7 @@ namespace DoshiiDotNetIntegration.Models
 		    Tip = 0.0M;
 		    CreatedAt = null;
 		    UpdatedAt = null;
+		    LinkedTrxIds.Clear();
 		}
 
         public decimal Tip { get; set; }
@@ -90,6 +91,26 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string Version { get; set; }
 
+        private List<string> _linkedTrxIds;
+
+        /// <summary>
+        /// A list of all surcounts applied at and order level
+        /// Surcounts are discounts and surcharges / discounts should have a negative value. 
+        /// </summary>
+        public List<string> LinkedTrxIds
+        {
+            get
+            {
+                if (_linkedTrxIds == null)
+                {
+                    _linkedTrxIds = new List<string>();
+                }
+                return _linkedTrxIds;
+            }
+            set { _linkedTrxIds = value.ToList<string>(); }
+        }
+
+
         #region ICloneable Members
 
 		/// <summary>
@@ -98,14 +119,24 @@ namespace DoshiiDotNetIntegration.Models
 		/// <returns>A clone of the instance.</returns>
 		public object Clone()
 		{
-			return this.MemberwiseClone();
+            var transaction = (Transaction)this.MemberwiseClone();
+
+            // Memberwise clone doesn't handle recursive cloning of internal properties such as lists
+            // here I am overwriting the list with cloned copies of the list items
+            var trxList = new List<string>();
+            foreach (var trxId in this.LinkedTrxIds)
+            {
+                trxList.Add((string)trxId.Clone());
+            }
+            transaction.LinkedTrxIds = trxList;
+            return transaction;
 		}
 
 		#endregion
 
         protected bool Equals(Transaction other)
         {
-            return Tip == other.Tip && string.Equals(Id, other.Id) && string.Equals(OrderId, other.OrderId) && string.Equals(Reference, other.Reference) && string.Equals(Invoice, other.Invoice) && PaymentAmount == other.PaymentAmount && AcceptLess == other.AcceptLess && PartnerInitiated == other.PartnerInitiated && string.Equals(Partner, other.Partner) && string.Equals(Version, other.Version);
+            return Equals(_linkedTrxIds, other._linkedTrxIds) && Tip == other.Tip && string.Equals(Id, other.Id) && string.Equals(OrderId, other.OrderId) && string.Equals(Reference, other.Reference) && string.Equals(Invoice, other.Invoice) && PaymentAmount == other.PaymentAmount && AcceptLess == other.AcceptLess && PartnerInitiated == other.PartnerInitiated && string.Equals(Partner, other.Partner) && string.Equals(Version, other.Version);
         }
 
         public override bool Equals(object obj)
@@ -122,6 +153,7 @@ namespace DoshiiDotNetIntegration.Models
             {
                 var hashCode = Tip.GetHashCode();
                 hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_linkedTrxIds != null ? _linkedTrxIds.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (OrderId != null ? OrderId.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Reference != null ? Reference.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Invoice != null ? Invoice.GetHashCode() : 0);

@@ -539,7 +539,14 @@ namespace DoshiiDotNetIntegration
             switch (e.Transaction.Status)
             {
                 case "pending":
-                    _controllersCollection.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    if (e.Transaction.LinkedTrxIds.Count > 0)
+                    {
+                        _controllersCollection.TransactionController.HandelPendingRefundTransactionReceived(e.Transaction);
+                    }
+                    else
+                    {
+                        _controllersCollection.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    }
                     break;
                 default:
 					_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status)); 
@@ -752,7 +759,7 @@ namespace DoshiiDotNetIntegration
         }
 
 
-	    public virtual bool RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund)
+	    public virtual bool RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
 	    {
             if (!m_IsInitalized)
             {
@@ -761,7 +768,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, amountToRefund);
+                return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, amountToRefund, transacitonIdsToRefund);
             }
             catch (Exception ex)
             {

@@ -83,8 +83,34 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "tip")]
         public string Tip { get; set; }
 
+        private List<string> _linkedTrxIds;
+
+        /// <summary>
+        /// A list of all surcounts applied at and order level
+        /// Surcounts are discounts and surcharges / discounts should have a negative value. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "linkedTrxIds ")]
+        public List<string> LinkedTrxIds 
+        {
+            get
+            {
+                if (_linkedTrxIds == null)
+                {
+                    _linkedTrxIds = new List<string>();
+                }
+                return _linkedTrxIds;
+            }
+            set { _linkedTrxIds = value; }
+        }
+
         #region serialize methods
 
+        public bool ShouldSerializeLinkedTrxIds()
+        {
+            return LinkedTrxIds.Count > 0;
+        }
+        
         public bool ShouldSerializePartner()
         {
             return false;

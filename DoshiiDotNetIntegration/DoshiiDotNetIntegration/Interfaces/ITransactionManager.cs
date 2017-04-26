@@ -33,6 +33,21 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">Thrown when the referenced order does not exist.</exception>
 		Transaction ReadyToPay(Transaction transaction);
 
+        /// <summary>
+        /// The Doshii SDK will call this function to indicate that the partner is ready to refund a transaction
+        /// with the supplied <paramref name="transaction"/><c>.Id</c>. The ids of the transactions to be refunded will be listed in <paramref name="transaction"/><c>.linkedTrxIds </c> 
+        /// The POS is required to respond with a transaction containing the current amount paid for the 
+        /// listed transactions in the <paramref name="transaction"/><c>.PaymentAmount</c> property. The payment amount MUST be negative. 
+        /// If the POS will accept a refund amount below the total amount owing, the 
+        /// <paramref name="transaction"/><c>.AcceptLess</c> should be set to <c>true</c>. It is recommended that the POS places the transactions to be refunded into a state that cannot 
+        /// be edited from the POS after receiving the <c>ReadyToPay</c> call from the Doshii SDK.
+        /// </summary>
+        /// <param name="transaction">The payment details that has been initiated by the partner.</param>
+        /// <returns>A payment transaction detailing the current amount owing on the order; 
+        /// or <c>null</c> if the pos does not want the transaction from the partner to be processed for any reason.</returns>
+        /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">Thrown when the referenced order does not exist.</exception>
+        Transaction ReadyToRefund(Transaction transaction);
+
 		/// <summary>
 		/// The Doshii SDK will call this function to indicate that the partner has failed to claim payment for an order that
 		/// was previously locked using a call to <see cref="ITransactionManager.ReadyToPay"/>.

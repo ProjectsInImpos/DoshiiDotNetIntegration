@@ -314,6 +314,33 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        internal virtual void HandelPendingRefundTransactionReceived(Transaction receivedTransaction)
+        {
+            Transaction transactionFromPos = null;
+            try
+            {
+                transactionFromPos = _controllersCollection.TransactionManager.ReadyToRefund(receivedTransaction);
+            }
+            catch (OrderDoesNotExistOnPosException)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
+                receivedTransaction.Status = "rejected";
+                RejectPaymentForOrder(receivedTransaction);
+                return;
+            }
+
+            if (transactionFromPos != null)
+            {
+                _controllersCollection.TransactionManager.RecordTransactionVersion(receivedTransaction.Id, receivedTransaction.Version);
+                RequestPaymentForOrderExistingTransaction(transactionFromPos);
+            }
+            else
+            {
+                receivedTransaction.Status = "rejected";
+                RejectPaymentForOrder(receivedTransaction);
+            }
+        }
+
         /// <summary>
         /// Handels the Pending transaction received event by calling the appropriate callback methods on the <see cref="ITransactionManager"/> Interface. 
         /// </summary>
@@ -347,7 +374,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual bool RequestRefundForOrder(Order order, decimal amountToRefund)
+        internal virtual bool RequestRefundForOrder(Order order, decimal amountToRefund, List<string> transacitonIdsToRefund)
         {
             Transaction returnedTransaction = null;
             Transaction refundTransaction = new Transaction()
@@ -360,14 +387,12 @@ namespace DoshiiDotNetIntegration.Controllers
                 PartnerInitiated = false,
                 Invoice = string.Empty,
                 PaymentAmount = amountToRefund,
-                Reference = string.Empty
+                Reference = string.Empty,
+                LinkedTrxIds = transacitonIdsToRefund
             };
             try
             {
-                //as the transaction cannot currently be changed on doshii and transacitons are only created when a payment is made with an order the line below is not necessary unitll
-                //doshii is enhanced to allow modifying of transactions. 
-                //transaction.Version = TransactionManager.RetrieveTransactionVersion(transaction.Id);
-                returnedTransaction = _httpComs.PutTransaction(refundTransaction);
+                returnedTransaction = _httpComs.PostTransaction(refundTransaction);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -406,9 +431,6 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(returnedTransaction);
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
-                //returnedTransaction.OrderId = transaction.OrderId;
-                _controllersCollection.TransactionManager.RecordSuccessfulPayment(returnedTransaction);
-                _controllersCollection.TransactionManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
                 return true;
             }
             else
