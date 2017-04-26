@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="CommunicationLogic\CommunicationEventArgs\BookingEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\MemberEventArgs.cs" />
+    <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderUpdatedEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderCreatedEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\TransactionEventArgs.cs" />
     <Compile Include="CommunicationLogic\DoshiHttpResponseMessage.cs" />

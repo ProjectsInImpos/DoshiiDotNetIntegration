@@ -159,11 +159,30 @@ namespace DoshiiDotNetIntegration.Models.Json
             set { _log = value; }
         }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "RejectionReason")]
+        public string RejectionReason { get; set; }
+
+
         #region serialize methods
 
         public bool ShouldSerializeConsumer()
         {
             return (Consumer != null);
+        }
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
         }
 
         #endregion

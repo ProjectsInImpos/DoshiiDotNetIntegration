@@ -346,5 +346,79 @@ namespace DoshiiDotNetIntegration.Controllers
                 RejectPaymentForOrder(receivedTransaction);
             }
         }
+
+        internal virtual bool RequestRefundForOrder(Order order, decimal amountToRefund)
+        {
+            Transaction returnedTransaction = null;
+            Transaction refundTransaction = new Transaction()
+            {
+                AcceptLess = false,
+                CreatedAt = null,
+                Id = string.Empty,
+                OrderId = order.Id,
+                Partner = string.Empty,
+                PartnerInitiated = false,
+                Invoice = string.Empty,
+                PaymentAmount = amountToRefund,
+                Reference = string.Empty
+            };
+            try
+            {
+                //as the transaction cannot currently be changed on doshii and transacitons are only created when a payment is made with an order the line below is not necessary unitll
+                //doshii is enhanced to allow modifying of transactions. 
+                //transaction.Version = TransactionManager.RetrieveTransactionVersion(transaction.Id);
+                returnedTransaction = _httpComs.PutTransaction(refundTransaction);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                if (rex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for order.Id{0}", refundTransaction.OrderId), rex);
+                }
+                else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
+                {
+                    // this just means that the partner failed to claim payment when requested
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
+                        string.Format("Doshii: The partner could not refund the payment for for order.Id{0}", refundTransaction.OrderId), rex);
+                }
+                else
+                {
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
+                        string.Format("Doshii: There was an unknown exception while attempting to get a refund from doshii"), rex);
+                }
+                _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
+                return false;
+            }
+            catch (NullResponseDataReturnedException)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", refundTransaction.OrderId));
+                _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", refundTransaction.OrderId, ex));
+                _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
+                return false;
+            }
+
+            if (returnedTransaction != null)
+            {
+                var jsonTransaction = Mapper.Map<JsonTransaction>(returnedTransaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
+                //returnedTransaction.OrderId = transaction.OrderId;
+                _controllersCollection.TransactionManager.RecordSuccessfulPayment(returnedTransaction);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
+                return true;
+            }
+            else
+            {
+                _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
+                return false;
+            }
+            
+        }
+
+        
     }
 }

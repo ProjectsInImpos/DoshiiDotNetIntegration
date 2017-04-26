@@ -76,6 +76,14 @@ namespace DoshiiDotNetIntegration.Models.Json
 			set { _items = value; } 
         }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "RejectionReason")]
+        public string RejectionReason { get; set; }
+
         #region serializeMembers
 
         public override string ToJsonString()
@@ -117,6 +125,16 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeCheckinId()
         {
             return (!string.IsNullOrEmpty(CheckinId));
+        }
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
         }
 
         #endregion

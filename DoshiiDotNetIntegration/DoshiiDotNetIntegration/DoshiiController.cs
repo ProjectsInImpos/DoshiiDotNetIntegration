@@ -415,6 +415,7 @@ namespace DoshiiDotNetIntegration
                 UnsubscribeFromSocketEvents();
 				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Subscribing to socket events");
                 m_SocketComs.OrderCreatedEvent += new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+                m_SocketComs.OrderUpdatedEvent += new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
                 m_SocketComs.TransactionCreatedEvent += new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
                 m_SocketComs.TransactionUpdatedEvent += new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
 				m_SocketComs.SocketCommunicationEstablishedEvent += new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
@@ -434,6 +435,7 @@ namespace DoshiiDotNetIntegration
         {
 			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
             m_SocketComs.OrderCreatedEvent -= new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+            m_SocketComs.OrderUpdatedEvent -= new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
             m_SocketComs.TransactionCreatedEvent -= new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
             m_SocketComs.TransactionUpdatedEvent -= new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
             m_SocketComs.SocketCommunicationEstablishedEvent -= new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
@@ -462,7 +464,23 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to retrieve all the orders from Doshii.", ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to refresh all the orders from Doshii.", ex);
+            }
+            try
+            {
+                _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to refresh all the bookings from Doshii.", ex);
+            }
+            try
+            {
+                _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to refresh all the bookings from Doshii.", ex);
             }
             
         }
@@ -495,7 +513,17 @@ namespace DoshiiDotNetIntegration
             _controllersCollection.OrderingController.HandleOrderCreated(e.Order, e.TransactionList.ToList());
         }
 
-        
+        /// <summary>
+        /// Handles a SocketComs_OrderUpdatedEvent, 
+        /// Records the Order.UpdatedAt value and calls the appropriate method on the OrderingInterface to act on the check. 
+        /// <exception cref="NotSupportedException">When a partial payment is attempted during Bistro Mode.</exception>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        internal virtual void SocketComsOrderUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderUpdatedEventArgs e)
+        {
+            _controllersCollection.OrderingController.HandleOrderUpdated(e.Order);
+        }
 
         
         /// <summary>
@@ -722,6 +750,25 @@ namespace DoshiiDotNetIntegration
             }
             _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
         }
+
+
+	    public virtual bool RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund)
+	    {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RequestRefundFromPartner"));
+            }
+            try
+            {
+                return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, amountToRefund);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Attempts to add a pos transaction to doshii

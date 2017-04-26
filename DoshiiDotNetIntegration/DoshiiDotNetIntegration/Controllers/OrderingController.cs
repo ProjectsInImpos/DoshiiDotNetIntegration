@@ -308,53 +308,81 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="transactionList">
         /// The transaction list for the new created order. 
         /// </param>
-        internal virtual void HandleOrderCreated(Models.Order orderWithConsumer, List<Transaction> transactionList)
+        internal virtual void HandleOrderCreated(Models.Order order, List<Transaction> transactionList)
         {
-            var orderWithoutConsumer = Mapper.Map<Models.Order>(orderWithConsumer);
             if (transactionList == null)
             {
                 transactionList = new List<Transaction>();
             }
-            if (orderWithConsumer.Consumer == null)
+            if (order.Consumer == null)
             {
-                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: An order created event was received with DoshiiId - {0} but the order does not have a consumer, the Order has been rejected", orderWithoutConsumer.DoshiiId));
-                RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: An order created event was received with DoshiiId - {0} but the order does not have a consumer, the Order has been rejected", order.DoshiiId));
+                RejectOrderFromOrderCreateMessage(order, transactionList);
                 return;
             }
             if (transactionList.Count > 0)
             {
 
-                if (orderWithConsumer.Type == "delivery")
+                if (order.Type == "delivery")
                 {
-                    _controllersCollection.OrderingManager.ConfirmNewDeliveryOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
+                    _controllersCollection.OrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, order.Consumer, transactionList);
                 }
-                else if (orderWithConsumer.Type == "pickup")
+                else if (order.Type == "pickup")
                 {
-                    _controllersCollection.OrderingManager.ConfirmNewPickupOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
+                    _controllersCollection.OrderingManager.ConfirmNewPickupOrderWithFullPayment(order, order.Consumer, transactionList);
+                }
+                else if (order.Type == "dinein")
+                {
+                    _controllersCollection.OrderingManager.ConfirmNewDineInOrderWithFullPayment(order, order.Consumer, transactionList);
                 }
                 else
                 {
-                    _controllersCollection.OrderingManager.ConfirmNewUnknownTypeOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
+                    _controllersCollection.OrderingManager.ConfirmNewUnknownTypeOrderWithFullPayment(order, order.Consumer, transactionList);
                 }
-
             }
             else
             {
-                if (orderWithConsumer.Type == "delivery")
+                if (order.Type == "delivery")
                 {
 
-                    _controllersCollection.OrderingManager.ConfirmNewDeliveryOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
+                    _controllersCollection.OrderingManager.ConfirmNewDeliveryOrder(order, order.Consumer);
                 }
-                else if (orderWithConsumer.Type == "pickup")
+                else if (order.Type == "pickup")
                 {
-                    _controllersCollection.OrderingManager.ConfirmNewPickupOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
+                    _controllersCollection.OrderingManager.ConfirmNewPickupOrder(order, order.Consumer);
+                }
+                else if (order.Type == "dinein")
+                {
+                    _controllersCollection.OrderingManager.ConfirmNewDineInOrder(order, order.Consumer);
                 }
                 else
                 {
-                    _controllersCollection.OrderingManager.ConfirmNewUnknownTypeOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
+                    _controllersCollection.OrderingManager.ConfirmNewUnknownTypeOrder(order, order.Consumer);
                 }
 
             }
+        }
+
+        /// <summary>
+        /// This method calls the appropriate callback method on the <see cref="Interfaces.IOrderingManager"/> to confirm an order when an order created event is received from Doshii. 
+        /// </summary>
+        /// <param name="order">
+        /// the order that has been created
+        /// </param>
+        /// <param name="transactionList">
+        /// The transaction list for the new created order. 
+        /// </param>
+        internal virtual void HandleOrderUpdated(Models.Order order)
+        {
+            if (order.Status == "venue_cancelled")
+            {
+                _controllersCollection.OrderingManager.ProcessVenueCanceledOrderUpdate(order);
+            }
+            else
+            {
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("A socket message was received from Doshii for an order update, the order status was {0}. This status is not currently supported for order updates.", order.Status));
+            }
+            
         }
 
         /// <summary>

@@ -78,6 +78,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal event OrderCreatedEventHandler OrderCreatedEvent;
 
+        internal delegate void OrderUpdatedEventHandler(object sender, CommunicationEventArgs.OrderUpdatedEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when an order message has been received from Doshii.
+        /// </summary>
+        internal event OrderUpdatedEventHandler OrderUpdatedEvent;
+
         internal delegate void TransactionCreatedEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
         
         /// <summary>
@@ -440,6 +447,25 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         }
                     }
                     
+                    break;
+                case "order_updated":
+                    var orderUpdatedEventArgs = new CommunicationEventArgs.OrderUpdatedEventArgs();
+                    orderUpdatedEventArgs.Order = _controllersCollection.OrderingController.GetOrderFromDoshiiOrderId(messageData.Id);
+                    if (orderUpdatedEventArgs.Order != null)
+                    {
+                        orderUpdatedEventArgs.OrderId = messageData.Id;
+                        orderUpdatedEventArgs.Status = messageData.Status;
+
+                        if (OrderUpdatedEvent != null)
+                        {
+                            OrderUpdatedEvent(this, orderUpdatedEventArgs);
+                        }
+                        else
+                        {
+                            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the OrderUpdatedEvent"));
+                        }
+                    }
+
                     break;
                 case "transaction_created":
                     CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();

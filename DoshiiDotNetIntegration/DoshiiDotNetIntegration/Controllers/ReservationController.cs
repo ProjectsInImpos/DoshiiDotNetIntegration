@@ -90,6 +90,24 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
+        internal virtual List<Booking> GetBookingsFrom1hrAgoToMaxDate()
+        {
+            try
+            {
+                return _httpComs.GetBookings(DateTime.Now.AddHours(-1), DateTime.MaxValue).ToList();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
+        /// <summary>
+        /// get all the bookings from Doshii for a venue within the provided dateTime range. 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         internal virtual List<Booking> GetBookings(DateTime from, DateTime to)
         {
             try
@@ -201,6 +219,77 @@ namespace DoshiiDotNetIntegration.Controllers
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// syncs the pos members with the Doshii members, 
+        /// NOTE: members that exist on the pos but do not exist on doshii will be deleted from the pos with a call to <see cref="IRewardManager.DeleteMemberOnPos"/>
+        /// </summary>
+        /// <returns></returns>
+        internal virtual bool SyncDoshiiBookingsWithPosBookings()
+        {
+            try
+            {
+                List<Booking> DoshiiBookingList = GetBookingsFrom1hrAgoToMaxDate().ToList();
+                List<Booking> PosBookingList = _controllersCollection.ReservationManager.GetBookingsFromPos().ToList();
+
+                var doshiiBookingHashSet = new HashSet<string>(DoshiiBookingList.Select(p => p.Id));
+                var posBookingHashSet = new HashSet<string>(PosBookingList.Select(p => p.Id));
+
+                var bookingsNotInDoshii = PosBookingList.Where(p => !doshiiBookingHashSet.Contains(p.Id));
+                foreach (var book in bookingsNotInDoshii)
+                {
+                    try
+                    {
+                        _controllersCollection.ReservationManager.DeleteBookingOnPos(book);
+                    }
+                    catch (Exception ex)
+                    {
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting a booking on the pos with doshii BookingId {0}", book.Id), ex);
+                    }
+
+                }
+
+                var bookingsInPos = DoshiiBookingList.Where(p => posBookingHashSet.Contains(p.Id));
+                foreach (var book in bookingsInPos)
+                {
+                    Booking posBooking = PosBookingList.FirstOrDefault(p => p.Id == book.Id);
+                    if (!book.Equals(posBooking))
+                    {
+                        try
+                        {
+                            _controllersCollection.ReservationManager.UpdateBookingOnPos(book);
+                        }
+                        catch (Exception ex)
+                        {
+                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating a booking on the pos with doshii bookingId {0}", book.Id), ex);
+                        }
+
+                    }
+                }
+
+                var bookingsNotInPos = DoshiiBookingList.Where(p => !posBookingHashSet.Contains(p.Id));
+                foreach (var book in bookingsNotInPos)
+                {
+                    try
+                    {
+                        _controllersCollection.ReservationManager.CreateBookingOnPos(book);
+                    }
+                    catch (Exception ex)
+                    {
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a booking on the pos with doshii bookingId {0}", book.Id), ex);
+                    }
+
+                }
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii bookings with the pos"), ex);
+                return false;
+            }
         }
     }
 }

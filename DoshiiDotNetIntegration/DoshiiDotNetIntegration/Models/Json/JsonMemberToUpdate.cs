@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonMemberToUpdate : JsonSerializationBase<JsonMemberToUpdate>
+    internal class JsonMemberToUpdate : JsonBaseStatus<JsonMemberToUpdate>
     {
         [DataMember]
         [JsonProperty(PropertyName = "name")]
