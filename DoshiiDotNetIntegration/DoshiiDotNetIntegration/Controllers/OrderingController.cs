@@ -105,7 +105,19 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             try
             {
-                return _httpComs.GetOrder(orderId);
+                return  PopupateAppIdPropsInOrder(_httpComs.GetOrder(orderId));
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal virtual List<Log> GetOrderLog(string doshiiOrderId)
+        {
+            try
+            {
+                return  _httpComs.GetOrderLog(doshiiOrderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -126,11 +138,11 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual Models.Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual Models.Order GetUnlinkedOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             try
             {
-                return _httpComs.GetOrderFromDoshiiOrderId(doshiiOrderId);
+                return PopupateAppIdPropsInOrder(_httpComs.GetOrderFromDoshiiOrderId(doshiiOrderId));
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -212,7 +224,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0}", order.Id), ex);
             }
 
-            return returnedOrder;
+            return PopupateAppIdPropsInOrder(returnedOrder);
         }
 
         /// <summary>
@@ -263,7 +275,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0}", order.Id), ex);
             }
 
-            return returnedOrder;
+            return PopupateAppIdPropsInOrder(returnedOrder);
         }
 
         /// <summary>
@@ -392,7 +404,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns></returns>
         internal virtual bool AcceptOrderAheadCreation(Models.Order orderToAccept)
         {
-            Models.Order orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
+            Models.Order orderOnDoshii = GetUnlinkedOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
             List<Transaction> transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
 
             //test on doshii has changed. 
@@ -498,6 +510,37 @@ namespace DoshiiDotNetIntegration.Controllers
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a checkinId for an order on the pos, Order.Id - {0}, checkinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
                 //maybe we should call reject order here. 
             }
+        }
+        
+        internal virtual Order PopupateAppIdPropsInOrder(Order order)
+        {
+            List<Log> logList = new List<Log>();
+            if (order == null)
+            {
+                return null;
+            }
+            try
+            {
+                logList = _httpComs.GetOrderLog(order.DoshiiId);
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("There was an exception getting the logs for on order with doshiiId = {0}. The partner Id will not be populated on this order.", order.DoshiiId));
+                return order;
+            }
+            
+            var orderLogForCreated = logList.FirstOrDefault(l => l.Action == "order_created");
+            if (orderLogForCreated != null)
+            {
+                order.OrderCreatedByAppId = orderLogForCreated.AppId;
+            }
+            var orderLogForUpdated = logList.LastOrDefault(l => l.Action == "order_updated");
+            if (orderLogForUpdated != null)
+            {
+                order.OrderCreatedByAppId = orderLogForUpdated.AppId;
+            }
+
+            return order;
         }
     }
 }

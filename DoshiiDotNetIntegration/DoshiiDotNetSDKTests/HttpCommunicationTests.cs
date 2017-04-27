@@ -199,7 +199,7 @@ namespace DoshiiDotNetSDKTests
         {
             MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
-            MockHttpComs.GetOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
+            MockHttpComs.GetUnlinkedOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
         }
 
@@ -210,7 +210,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var orderrResponse = MockHttpComs.GetOrderFromDoshiiOrderId(orderInput.Id);
+            var orderrResponse = MockHttpComs.GetUnlinkedOrderFromDoshiiOrderId(orderInput.Id);
 
             Assert.AreEqual(orderInput.Id, orderrResponse.Id);
         }
@@ -224,7 +224,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
             _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
 
-            MockHttpComs.GetOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
+            MockHttpComs.GetUnlinkedOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
             MockHttpComs.VerifyAllExpectations();
             _controller._logger.VerifyAllExpectations();
@@ -240,7 +240,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
             _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
 
-            MockHttpComs.GetOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId.ToString());
+            MockHttpComs.GetUnlinkedOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId.ToString());
 
             MockHttpComs.VerifyAllExpectations();
             _controller._logger.VerifyAllExpectations();

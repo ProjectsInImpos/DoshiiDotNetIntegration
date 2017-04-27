@@ -45,6 +45,8 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string AppName { get; set; }
 
+        public string AppId { get; set; }
+
         /// <summary>
         /// the last time the reward was updated. 
         /// </summary>

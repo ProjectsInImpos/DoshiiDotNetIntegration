@@ -580,10 +580,10 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Expect(x => x.GetOrderFromDoshiiOrderId("1")).Throw(new RestfulApiErrorResponseException())
+            MockHttpComs.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId("1")).Throw(new RestfulApiErrorResponseException())
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderReadyToPay());
 
-            _mockController.GetOrderFromDoshiiOrderId("1");
+            _mockController.GetUnlinkedOrderFromDoshiiOrderId("1");
         }
 
         [Test]
@@ -863,7 +863,7 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.GetOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
+            _mockController.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
             _mockController.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(new List<Transaction>());
             _mockController.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos)).Return(orderReturnedFromPos);
 
@@ -884,7 +884,7 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.GetOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
+            _mockController.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
             _mockController.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(transactionList);
             _mockController.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos)).Return(orderReturnedFromPos);
             _mockController.Expect(x => x.RequestPaymentForOrderExistingTransaction(Arg<Transaction>.Is.Anything)).Return(true);
@@ -2049,7 +2049,7 @@ namespace DoshiiDotNetSDKTests
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
             var pr = new PointsRedeem()
             {
-                AppId = app.Id,
+                OrderCreatedByAppId = app.Id,
                 OrderId = order.Id,
                 Points = points
             };
@@ -2073,7 +2073,7 @@ namespace DoshiiDotNetSDKTests
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
             var pr = new PointsRedeem()
             {
-                AppId = app.Id,
+                OrderCreatedByAppId = app.Id,
                 OrderId = order.Id,
                 Points = points
             };

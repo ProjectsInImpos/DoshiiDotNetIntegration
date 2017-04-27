@@ -168,6 +168,13 @@ namespace DoshiiDotNetIntegration.Models
 
         public string RejectionReason { get; set; }
 
+        /// <summary>
+        /// The OrderCreatedByAppId will be populated by the sdk when orders are created or updated with the appId of the app that created or updated the order for order creted events or order updated events. 
+        /// </summary>
+        public string OrderCreatedByAppId { get; set; }
+
+        public string OrderLastUpdateByAppId { get; set; }
+
 		#region ICloneable Members
 
 		/// <summary>

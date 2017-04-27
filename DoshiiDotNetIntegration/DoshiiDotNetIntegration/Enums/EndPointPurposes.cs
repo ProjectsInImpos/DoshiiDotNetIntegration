@@ -144,7 +144,9 @@ namespace DoshiiDotNetIntegration.Enums
 
         Employee = 28,
 
-        Orginisation = 29
+        Orginisation = 29,
+
+        OrderLog = 30
 
     }
 }

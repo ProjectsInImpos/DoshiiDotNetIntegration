@@ -776,6 +776,16 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        public virtual List<Log> GetOrderLog(string doshiiOrderId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RecordPosTransactionOnDoshii"));
+            }
+            return _controllersCollection.OrderingController.GetOrderLog(doshiiOrderId);
+        }
+
 
         /// <summary>
         /// Attempts to add a pos transaction to doshii

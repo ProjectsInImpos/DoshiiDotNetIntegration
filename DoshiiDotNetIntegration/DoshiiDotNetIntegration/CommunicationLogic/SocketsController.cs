@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DoshiiDotNetIntegration.Models.Json;
 using System;
+using System.Linq;
 using System.Threading;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
@@ -430,7 +431,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 case "order_created":
                     var orderStatusEventArgs = new CommunicationEventArgs.OrderCreatedEventArgs();
-                    orderStatusEventArgs.Order = _controllersCollection.OrderingController.GetOrderFromDoshiiOrderId(messageData.Id);
+                    orderStatusEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id);
+                    
                     if (orderStatusEventArgs.Order != null)
                     {
                         orderStatusEventArgs.TransactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id);
@@ -450,7 +452,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "order_updated":
                     var orderUpdatedEventArgs = new CommunicationEventArgs.OrderUpdatedEventArgs();
-                    orderUpdatedEventArgs.Order = _controllersCollection.OrderingController.GetOrderFromDoshiiOrderId(messageData.Id);
+                    orderUpdatedEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id);
                     if (orderUpdatedEventArgs.Order != null)
                     {
                         orderUpdatedEventArgs.OrderId = messageData.Id;

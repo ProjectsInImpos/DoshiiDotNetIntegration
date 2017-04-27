@@ -37,6 +37,9 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "appName")]
         public string AppName { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "appId")]
+        public string AppId { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "updatedAt")]
