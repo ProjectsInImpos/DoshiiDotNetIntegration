@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// the criteria for a table in a venue. 
     /// </summary>
-    public class TableCriteria
+    public class TableCriteria : ICloneable
     {
         /// <summary>
         /// flag indicating if the table is communal. 
@@ -30,5 +30,43 @@ namespace DoshiiDotNetIntegration.Models
         /// flag indicating if the table is outdoors. 
         /// </summary>
         public bool IsOutdoor { get; set; }
+
+        protected bool Equals(TableCriteria other)
+        {
+            return IsCommunal == other.IsCommunal && CanMerge == other.CanMerge && IsSmoking == other.IsSmoking && IsOutdoor == other.IsOutdoor;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((TableCriteria) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = IsCommunal.GetHashCode();
+                hashCode = (hashCode*397) ^ CanMerge.GetHashCode();
+                hashCode = (hashCode*397) ^ IsSmoking.GetHashCode();
+                hashCode = (hashCode*397) ^ IsOutdoor.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        protected void Clear()
+        {
+            this.IsCommunal = false;
+            this.CanMerge = false;
+            this.IsSmoking = false;
+            this.IsOutdoor = false;
+        }
+
+        public object Clone()
+        {
+            return (TableCriteria)this.MemberwiseClone();
+        }
     }
 }

@@ -36,11 +36,6 @@ namespace DoshiiDotNetIntegration.Enums
         TransactionFromDoshiiOrderId = 5,
 
         /// <summary>
-        /// Requests for transactions where the order already linked to the pos. 
-        /// </summary>
-        TransactionFromPosOrderId = 25,
-
-        /// <summary>
         /// Requests for orders where the order is currently unlinked to the pos.
         /// </summary>
         UnlinkedOrders = 6,
@@ -133,7 +128,25 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// requests for booking checkins. 
         /// </summary>
-        BookingsCheckin = 24
+        BookingsCheckin = 24,
+
+        /// <summary>
+        /// Requests for transactions where the order already linked to the pos. 
+        /// </summary>
+        TransactionFromPosOrderId = 25,
+
+        /// <summary>
+        /// requests for partner app details. 
+        /// </summary>
+        App = 26,
+
+        RejectionCodes = 27,
+
+        Employee = 28,
+
+        Orginisation = 29,
+
+        OrderLog = 30
 
     }
 }

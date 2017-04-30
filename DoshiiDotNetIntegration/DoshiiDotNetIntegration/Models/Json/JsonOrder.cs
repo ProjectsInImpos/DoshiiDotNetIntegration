@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
+using Rhino.Mocks.Constraints;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -11,7 +13,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract(Name = "order")]
     [Serializable]
-    internal class JsonOrder : JsonSerializationBase<JsonOrder>
+    internal class JsonOrder : JsonBaseStatus<JsonOrder>
     {
         /// <summary>
         /// id
@@ -20,6 +22,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "consumer")]
+        public JsonConsumer Consumer { get; set; }
+
         /// <summary>
         /// Order id
         /// </summary>
@@ -27,13 +33,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "doshiiId")]
         public string DoshiiId { get; set; }
         
-
-        /// <summary>
-        /// Order status
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
 
         /// <summary>
         /// Order Type 'delivery' or 'pickup'
@@ -99,12 +98,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "version")]
 		public string Version { get; set; }
 
-		/// <summary>
-		/// The URI of the order
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "uri")]
-		public string Uri { get; set; }
+		
 
         /// <summary>
         /// the dateTime the order is Required
@@ -112,6 +106,21 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "requiredAt")]
         public DateTime? RequiredAt { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "manuallyAccepted")]
+        public bool ManuallyAccepted { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "transactionsUri")]
+        public string TransactionsUri { get; set; }
+        
+        /// <summary>
+        /// the dateTime the order is Required
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "availableEta")]
+        public DateTime? AvailableEta { get; set; }
 
         private List<JsonOrderProduct> _items;
         
@@ -132,5 +141,50 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
 			set { _items = value; } 
         }
+
+        private List<JsonLog> _log;
+
+        [DataMember]
+        [JsonProperty(PropertyName = "log")]
+        public List<JsonLog> Log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new List<JsonLog>();
+                }
+                return _log;
+            }
+            set { _log = value; }
+        }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "RejectionReason")]
+        public string RejectionReason { get; set; }
+
+
+        #region serialize methods
+
+        public bool ShouldSerializeConsumer()
+        {
+            return (Consumer != null);
+        }
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
+        }
+
+        #endregion
     }
 }

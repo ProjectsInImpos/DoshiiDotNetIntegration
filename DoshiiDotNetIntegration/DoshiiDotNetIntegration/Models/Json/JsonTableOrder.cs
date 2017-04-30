@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -31,7 +32,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "order")]
-		public JsonOrderToPut Order
+		public JsonOrderToPut JsonOrder
 		{
 			get;
 			set;

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
 	/// <summary>
 	/// An object representing a doshii booking
 	/// </summary>
-    public class Booking
+    public class Booking : BaseCreatedAt, ICloneable
 	{
 		/// <summary>
 		/// the Id of the booking
@@ -24,7 +25,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// the dateTime of the booking. 
         /// </summary>
-		public DateTime Date { get; set; }
+		public DateTime? Date { get; set; }
 
         /// <summary>
         /// the amount of covers associated with the booking. 
@@ -42,19 +43,57 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
 		public String App { get; set; }
 
-        /// <summary>
-        /// the last time the booking was updated
-        /// </summary>
-		public DateTime UpdatedAt { get; set; }
+        protected void Clear()
+        {
+            this.Id = string.Empty;
+            this.TableNames.Clear();
+            this.Date = null;
+            this.Covers = 0;
+            this.Consumer = new Consumer();
+            this.CheckinId = string.Empty;
+            this.App = string.Empty;
+        }
+        
+        protected bool Equals(Booking other)
+	    {
+	        return string.Equals(Id, other.Id) && Equals(TableNames, other.TableNames) && Date.Equals(other.Date) && Covers == other.Covers && Equals(Consumer, other.Consumer) && string.Equals(CheckinId, other.CheckinId) && string.Equals(App, other.App);
+	    }
 
-        /// <summary>
-        /// the time the booking as created.
-        /// </summary>
-		public DateTime CreatedAt { get; set; }
+	    public override bool Equals(object obj)
+	    {
+	        if (ReferenceEquals(null, obj)) return false;
+	        if (ReferenceEquals(this, obj)) return true;
+	        if (obj.GetType() != this.GetType()) return false;
+	        return Equals((Booking) obj);
+	    }
 
-        /// <summary>
-        /// the Uri to retreive the booking. 
-        /// </summary>
-		public Uri Uri { get; set; }
+	    public override int GetHashCode()
+	    {
+	        unchecked
+	        {
+	            var hashCode = (Id != null ? Id.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ (TableNames != null ? TableNames.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ Date.GetHashCode();
+	            hashCode = (hashCode*397) ^ Covers;
+	            hashCode = (hashCode*397) ^ (Consumer != null ? Consumer.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ (CheckinId != null ? CheckinId.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ (App != null ? App.GetHashCode() : 0);
+	            return hashCode;
+	        }
+	    }
+
+	    public object Clone()
+	    {
+            var booking = (Booking)this.MemberwiseClone();
+            var tnames = new List<string>();
+            foreach (var tname in this.TableNames)
+            {
+                tnames.Add((string)tname.Clone());
+            }
+            booking.TableNames = tnames;
+
+            return booking;
+	    }
+
 	}
 }

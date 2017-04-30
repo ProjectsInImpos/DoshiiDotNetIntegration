@@ -17,9 +17,9 @@ namespace DoshiiDotNetIntegration.Controllers
     internal class RewardController
     {
         /// <summary>
-        /// prop for the local <see cref="Controllers"/> instance. 
+        /// prop for the local <see cref="ControllersCollection"/> instance. 
         /// </summary>
-        internal Models.Controllers _controllers;
+        internal Models.ControllersCollection _controllersCollection;
 
         /// <summary>
         /// prop for the local <see cref="HttpController"/> instance.
@@ -29,32 +29,32 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <summary>
         /// constructor 
         /// </summary>
-        /// <param name="controller"></param>
+        /// <param name="controllerCollection"></param>
         /// <param name="httpComs"></param>
-        internal RewardController(Models.Controllers controller, HttpController httpComs)
+        internal RewardController(Models.ControllersCollection controllerCollection, HttpController httpComs)
         {
-            if (controller == null)
+            if (controllerCollection == null)
             {
                 throw new NullReferenceException("controller cannot be null");
             }
-            _controllers = controller;
-            if (_controllers.LoggingController == null)
+            _controllersCollection = controllerCollection;
+            if (_controllersCollection.LoggingController == null)
             {
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
-            if (_controllers.OrderingController == null)
+            if (_controllersCollection.OrderingController == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager cannot be null");
                 throw new NullReferenceException("orderingManager cannot be null");
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - rewardManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - rewardManager cannot be null");
                 throw new NullReferenceException("rewardManager cannot be null");
             }
             if (httpComs == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -150,7 +150,7 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 List<Member> DoshiiMembersList = GetMembers().ToList();
-                List<Member> PosMembersList = _controllers.RewardManager.GetMembersFromPos().ToList();
+                List<Member> PosMembersList = _controllersCollection.RewardManager.GetMembersFromPos().ToList();
 
                 var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
                 var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
@@ -160,11 +160,11 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     try
                     {
-                        _controllers.RewardManager.DeleteMemberOnPos(mem);
+                        _controllersCollection.RewardManager.DeleteMemberOnPos(mem);
                     }
                     catch (Exception ex)
                     {
-                        _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting a member on the pos with doshii memberId {0}", mem.Id), ex);
                     }
                    
                 }
@@ -177,11 +177,11 @@ namespace DoshiiDotNetIntegration.Controllers
                     {
                         try
                         {
-                            _controllers.RewardManager.UpdateMemberOnPos(mem);
+                            _controllersCollection.RewardManager.UpdateMemberOnPos(mem);
                         }
                         catch (Exception ex)
                         {
-                            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating a member on the pos with doshii memberId {0}", mem.Id), ex);
                         }
                         
                     }
@@ -192,11 +192,11 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     try
                     {
-                        _controllers.RewardManager.CreateMemberOnPos(mem);
+                        _controllersCollection.RewardManager.CreateMemberOnPos(mem);
                     }
                     catch(Exception ex)
                     {
-                        _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
                     }
 
                 }
@@ -206,7 +206,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
                 return false;
             }
         }
@@ -241,16 +241,16 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             try
             {
-                var returnedOrder = _controllers.OrderingController.UpdateOrder(order);
+                var returnedOrder = _controllersCollection.OrderingController.UpdateOrder(order);
                 if (returnedOrder == null)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
                 return false;
             }
             try
@@ -312,16 +312,16 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             try
             {
-                order = _controllers.OrderingController.UpdateOrder(order);
+                order = _controllersCollection.OrderingController.UpdateOrder(order);
                 if (order == null)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the order on Doshii, so the points can't re redeemed."));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the order on Doshii, so the points can't re redeemed."));
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
                 return false;
             }
             PointsRedeem pr = new PointsRedeem()

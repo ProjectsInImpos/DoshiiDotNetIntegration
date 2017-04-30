@@ -9,8 +9,13 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// represents an app that a member is registered with. 
     /// </summary>
-    public class App
+    public class App : ICloneable
     {
+        public App()
+        {
+            _types = new List<string>();
+        }
+
         /// <summary>
         /// the Id of the partner app
         /// </summary>
@@ -25,5 +30,66 @@ namespace DoshiiDotNetIntegration.Models
         /// the amount of points available for the member on this app
         /// </summary>
         public decimal Points { get; set; }
+
+        private List<string> _types;
+
+        public List<string> Types
+        {
+            get
+            {
+                if (_types == null)
+                {
+                    _types = new List<string>();
+                }
+                return _types;
+            }
+            set { _types = value.ToList<string>(); }
+        }
+
+        protected void Clear()
+        {
+           this._types.Clear();
+           this.Id = String.Empty;
+           this.Name = string.Empty;
+           this.Points = 0;
+        }
+
+        protected bool Equals(App other)
+        {
+            return Equals(_types, other._types) && string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && Points == other.Points;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((App) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (_types != null ? _types.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Points.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public object Clone()
+        {
+            var app = (App)this.MemberwiseClone();
+            var types = new List<string>();
+            foreach (var type in this.Types)
+            {
+                types.Add((string)type.Clone());
+            }
+            app.Types = types;
+
+            return app;
+        }
     }
 }

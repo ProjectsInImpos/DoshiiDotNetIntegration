@@ -45,8 +45,19 @@ namespace DoshiiDotNetIntegration.Controllers
 		/// <param name="ex">An optional exception associated with the log message.</param>
 		internal virtual void LogMessage(Type type, DoshiiLogLevels level, string message, Exception ex = null)
 		{
-			if (mLog != null)
-				mLog.LogDoshiiMessage(type, level, message, ex);
+		    if (mLog != null)
+		    {
+                mLog.LogDoshiiMessage(type, level, message, ex);
+		    }
+				
 		}
+
+	    internal virtual void RecordSocketMessage(string messageType, string messageData)
+	    {
+	        if (mLog != null)
+	        {
+	            mLog.RecordSocketMessage(messageType, messageData);
+	        }
+	    }
 	}
 }

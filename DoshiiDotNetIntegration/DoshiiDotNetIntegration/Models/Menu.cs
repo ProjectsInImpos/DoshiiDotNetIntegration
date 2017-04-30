@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// This class represents the pos menu as it is stored on Doshii
     /// </summary>
-    public class Menu
+    public class Menu : ICloneable
     {
         /// <summary>
         /// default constructor
@@ -65,6 +65,46 @@ namespace DoshiiDotNetIntegration.Models
                 return _products;
             }
             set { _products = value.ToList<Product>(); }
-        } 
+        }
+
+        protected bool Equals(Menu other)
+        {
+            return Equals(_surcounts, other._surcounts) && Equals(_products, other._products);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Menu) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((_surcounts != null ? _surcounts.GetHashCode() : 0)*397) ^ (_products != null ? _products.GetHashCode() : 0);
+            }
+        }
+
+        public object Clone()
+        {
+            var menu = (Menu)this.MemberwiseClone();
+            var surcounts = new List<Surcount>();
+            var products = new List<Product>();
+            foreach (var surcount in this.Surcounts)
+            {
+                surcounts.Add((Surcount)surcount.Clone());
+            }
+            menu.Surcounts = surcounts;
+            foreach (var product in this.Products)
+            {
+                products.Add((Product)product.Clone());
+            }
+            menu.Products = products;
+
+            return menu;
+        }
     }
 }

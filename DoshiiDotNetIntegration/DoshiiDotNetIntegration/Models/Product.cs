@@ -39,6 +39,8 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public decimal UnitPrice { get; set; }
 
+        public string Uuid { get; set; }
+
         private List<string> _Tags;
         
         /// <summary>
@@ -112,7 +114,55 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
-        public decimal Quantity { get; set; }
+        public int Quantity { get; set; }
+
+        /// <summary>
+        /// the following are valid strings for type 'single' - a regular item, 'bundle' - an item with sub products.  
+        /// </summary>
+        public string Type { get; set; }
+
+        private List<Product> _includedItems;
+
+        /// <summary>
+        /// A list of Surcharges available / selected for this product on the product.
+        /// </summary>
+        public List<Product> IncludedItems
+        {
+            get
+            {
+                if (_includedItems == null)
+                {
+                    _includedItems = new List<Product>();
+                }
+                return _includedItems;
+            }
+            set
+            {
+                _includedItems = value.ToList<Product>();
+            }
+        }
+
+
+        private List<string> _menuDir;
+
+        /// <summary>
+        /// A list of Surcharges available / selected for this product on the product.
+        /// </summary>
+        public List<string> MenuDir
+        {
+            get
+            {
+                if (_menuDir == null)
+                {
+                    _menuDir = new List<string>();
+                }
+                return _menuDir;
+            }
+            set
+            {
+                _menuDir = value.ToList<string>();
+            }
+        }
 
         /// <summary>
         /// Constructor
@@ -121,6 +171,7 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			_Tags = new List<string>();
 			_ProductOptions = new List<ProductOptions>();
+		    _menuDir = new List<string>();
 			Clear();
 		}
 
@@ -137,7 +188,10 @@ namespace DoshiiDotNetIntegration.Models
 			_Tags.Clear();
 			_ProductOptions.Clear();
 			PosId = String.Empty;
-            Quantity = 0.0M;
+		    Uuid = string.Empty;
+            _includedItems.Clear();
+            Quantity = 0;
+		    Type = string.Empty;
 		}
 
 		#region ICloneable Members
@@ -151,18 +205,64 @@ namespace DoshiiDotNetIntegration.Models
 			var product = (Product)this.MemberwiseClone();
 
 			var tags = new List<string>();
-			foreach (string tag in this.Tags)
-				tags.Add(tag);
+		    foreach (string tag in this.Tags)
+		    {
+                tags.Add(tag);
+		    }
 			product.Tags = tags;
 
 			var options = new List<ProductOptions>();
-			foreach (var option in this.ProductOptions)
-				options.Add((ProductOptions)option.Clone());
+		    foreach (var option in this.ProductOptions)
+		    {
+                options.Add((ProductOptions)option.Clone());
+		    }
 			product.ProductOptions = options;
+
+		    var includeItems = new List<Product>();
+		    foreach (var pro in this.IncludedItems)
+		    {
+		        includeItems.Add((Product)pro.Clone());
+		    }
+		    product.IncludedItems = includeItems;
 
 			return product;
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(Product other)
+        {
+            return Equals(_Tags, other._Tags) && Equals(_ProductOptions, other._ProductOptions) && Equals(_ProductSurcounts, other._ProductSurcounts) && Equals(_includedItems, other._includedItems) && Equals(_menuDir, other._menuDir) && string.Equals(Name, other.Name) && string.Equals(Description, other.Description) && TotalBeforeSurcounts == other.TotalBeforeSurcounts && TotalAfterSurcounts == other.TotalAfterSurcounts && UnitPrice == other.UnitPrice && string.Equals(Uuid, other.Uuid) && string.Equals(PosId, other.PosId) && Quantity == other.Quantity && string.Equals(Type, other.Type);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Product) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (_Tags != null ? _Tags.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_ProductOptions != null ? _ProductOptions.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_ProductSurcounts != null ? _ProductSurcounts.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_includedItems != null ? _includedItems.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_menuDir != null ? _menuDir.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Description != null ? Description.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ TotalBeforeSurcounts.GetHashCode();
+                hashCode = (hashCode*397) ^ TotalAfterSurcounts.GetHashCode();
+                hashCode = (hashCode*397) ^ UnitPrice.GetHashCode();
+                hashCode = (hashCode*397) ^ (Uuid != null ? Uuid.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (PosId != null ? PosId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Quantity;
+                hashCode = (hashCode*397) ^ (Type != null ? Type.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }

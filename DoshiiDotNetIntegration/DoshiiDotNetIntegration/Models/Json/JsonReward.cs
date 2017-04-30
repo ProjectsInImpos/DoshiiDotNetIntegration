@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models.Json
@@ -36,6 +37,9 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "appName")]
         public string AppName { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "appId")]
+        public string AppId { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "updatedAt")]

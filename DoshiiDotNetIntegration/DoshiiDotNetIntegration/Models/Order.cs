@@ -3,18 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// A Doshii order
+    /// A Doshii order with a counsumer
     /// </summary>
-    public class Order : ICloneable
+    public class Order : BaseStatus, ICloneable
     {
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public Order()
+        public Order()
 		{
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
@@ -34,13 +35,22 @@ namespace DoshiiDotNetIntegration.Models
 			LocationId = String.Empty;
 			_surcounts.Clear();
 			Version = String.Empty;
-			Uri = String.Empty;
+			Uri = new Uri("");
 		    MemberId = string.Empty;
 		    Phase = string.Empty;
 			_items.Clear();
 		    RequiredAt = null;
+		    AvailableEta = null;
+		    ManuallyAccepted = false;
+            _log.Clear();
+		    RejectionCode = string.Empty;
+		    RejectionReason = string.Empty;
+		    Consumer = null;
 		}
 
+
+        public Consumer Consumer { get; set; }
+        
         /// <summary>
         /// Order id
         /// </summary>
@@ -50,11 +60,6 @@ namespace DoshiiDotNetIntegration.Models
         /// The Doshii Id for the order, this is used to get unlinked orders
         /// </summary>
         public string DoshiiId { get; set; }
-
-        /// <summary>
-        /// Order status
-        /// </summary>
-        public string Status { get; set; }
 
         /// <summary>
         /// type of order 'delivery' or 'pickup'
@@ -110,15 +115,14 @@ namespace DoshiiDotNetIntegration.Models
 		public string Version { get; set; }
 
 		/// <summary>
-		/// The URI of the order
-		/// </summary>
-		public string Uri { get; set; }
-
-        /// <summary>
         /// the time the order is required if it is required in the future, 
         /// string will be empty is it is required now. 
         /// </summary>
         public DateTime? RequiredAt { get; set; }
+
+        public DateTime? AvailableEta { get; set; }
+
+
         
         private List<Product> _items;
         
@@ -137,6 +141,40 @@ namespace DoshiiDotNetIntegration.Models
             set { _items = value.ToList<Product>(); } 
         }
 
+        private List<Log> _log;
+
+        /// <summary>
+        /// A list of all the items included in the order. 
+        /// </summary>
+        public List<Log> Log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new List<Log>();
+                }
+                return _log;
+            }
+            set { _log = value.ToList<Log>(); }
+        }
+
+
+        public bool ManuallyAccepted { get; set; }
+
+        public Uri TransactionsUri { get; set; }
+
+        public string RejectionCode { get; set; }
+
+        public string RejectionReason { get; set; }
+
+        /// <summary>
+        /// The OrderCreatedByAppId will be populated by the sdk when orders are created or updated with the appId of the app that created or updated the order for order creted events or order updated events. 
+        /// </summary>
+        public string OrderCreatedByAppId { get; set; }
+
+        public string OrderLastUpdateByAppId { get; set; }
+
 		#region ICloneable Members
 
 		/// <summary>
@@ -149,7 +187,6 @@ namespace DoshiiDotNetIntegration.Models
 
 			// Memberwise clone doesn't handle recursive cloning of internal properties such as lists
 			// here I am overwriting the list with cloned copies of the list items
-			var payments = new List<Transaction>();
 			var surcounts = new List<Surcount>();
 			foreach (var surcount in this.Surcounts)
 			{
@@ -159,6 +196,46 @@ namespace DoshiiDotNetIntegration.Models
             return order;
 		}
 
-		#endregion
+        protected bool Equals(Order other)
+        {
+            return Equals(_surcounts, other._surcounts) && Equals(_items, other._items) && Equals(_log, other._log) && Equals(Consumer, other.Consumer) && string.Equals(Id, other.Id) && string.Equals(DoshiiId, other.DoshiiId) && string.Equals(Type, other.Type) && string.Equals(InvoiceId, other.InvoiceId) && string.Equals(MemberId, other.MemberId) && string.Equals(Phase, other.Phase) && string.Equals(CheckinId, other.CheckinId) && string.Equals(LocationId, other.LocationId) && string.Equals(Version, other.Version) && RequiredAt.Equals(other.RequiredAt) && AvailableEta.Equals(other.AvailableEta) && ManuallyAccepted == other.ManuallyAccepted && Equals(TransactionsUri, other.TransactionsUri) && string.Equals(RejectionCode, other.RejectionCode) && string.Equals(RejectionReason, other.RejectionReason);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Order) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (_surcounts != null ? _surcounts.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_items != null ? _items.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (_log != null ? _log.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Consumer != null ? Consumer.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (DoshiiId != null ? DoshiiId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Type != null ? Type.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (InvoiceId != null ? InvoiceId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (MemberId != null ? MemberId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Phase != null ? Phase.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (CheckinId != null ? CheckinId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (LocationId != null ? LocationId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ RequiredAt.GetHashCode();
+                hashCode = (hashCode*397) ^ AvailableEta.GetHashCode();
+                hashCode = (hashCode*397) ^ ManuallyAccepted.GetHashCode();
+                hashCode = (hashCode*397) ^ (TransactionsUri != null ? TransactionsUri.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (RejectionCode != null ? RejectionCode.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (RejectionReason != null ? RejectionReason.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        #endregion
 	}
 }

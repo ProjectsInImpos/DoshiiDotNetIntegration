@@ -51,5 +51,12 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// should be thrown when there is no booking in the POS with the corresponding 
         /// <paramref name="bookingId"/>.</exception>
         void RecordCheckinForBooking(string bookingId, string checkinId);
+
+        /// <summary>
+        /// This method should retreive all the Bookings from the pos. 
+        /// </summary>
+        /// <param name="DoshiiMemberId"></param>
+        /// <returns></returns>
+        IEnumerable<DoshiiDotNetIntegration.Models.Booking> GetBookingsFromPos();
     }
 }

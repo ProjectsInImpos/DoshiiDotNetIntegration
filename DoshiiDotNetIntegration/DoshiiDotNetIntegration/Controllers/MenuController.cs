@@ -16,9 +16,9 @@ namespace DoshiiDotNetIntegration.Controllers
     {
 
         /// <summary>
-        /// prop for the local <see cref="Controllers"/> instance. 
+        /// prop for the local <see cref="ControllersCollection"/> instance. 
         /// </summary>
-        internal Models.Controllers _controllers;
+        internal Models.ControllersCollection _controllersCollection;
 
         /// <summary>
         /// prop for the local <see cref="HttpController"/> instance.
@@ -28,22 +28,22 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <summary>
         /// constructor
         /// </summary>
-        /// <param name="controller"></param>
+        /// <param name="controllerCollection"></param>
         /// <param name="httpComs"></param>
-        internal MenuController(Models.Controllers controller, HttpController httpComs)
+        internal MenuController(Models.ControllersCollection controllerCollection, HttpController httpComs)
         {
-            if (controller == null)
+            if (controllerCollection == null)
             {
                 throw new NullReferenceException("controller cannot be null");
             }
-            _controllers = controller;
-            if (_controllers.LoggingController == null)
+            _controllersCollection = controllerCollection;
+            if (_controllersCollection.LoggingController == null)
             {
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
             if (httpComs == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -59,7 +59,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The Doshii menu is successful and null if not successful. 
         /// </returns>
-        public virtual Menu UpdateMenu(Menu menu)
+        internal virtual Menu UpdateMenu(Menu menu)
         {
             Menu returnedMenu = null;
             try
@@ -93,7 +93,7 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             if (surcount.Id == null || string.IsNullOrEmpty(surcount.Id))
             {
-                _controllers.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Surcounts must have an Id to be created or updated on Doshii");
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Surcounts must have an Id to be created or updated on Doshii");
             }
             Surcount returnedSurcharge = null;
             try
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             if (product.PosId == null || string.IsNullOrEmpty(product.PosId))
             {
-                _controllers.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
             }
             Product returnedProduct = null;
             try

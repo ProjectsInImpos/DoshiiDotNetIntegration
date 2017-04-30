@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace DoshiiDotNetIntegration.Models.Json
+namespace DoshiiDotNetIntegration.Models.Json.JsonBase
 {
     /// <summary>
     /// A base class to make available json.net serialization functions. 

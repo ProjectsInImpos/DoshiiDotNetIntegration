@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -130,6 +131,63 @@ namespace DoshiiDotNetIntegration.Models.Json
                 _ProductSurcounts = value;
             }
         }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+
+        private List<string> _menuDir;
+
+        /// <summary>
+        /// A list of surcounts that can / are applied to the product.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "menuDir")]
+        public List<string> MenuDir
+        {
+            get
+            {
+                if (_menuDir == null)
+                {
+                    _menuDir = new List<string>();
+                }
+                return _menuDir;
+            }
+            set
+            {
+                _menuDir = value;
+            }
+        }
+
+        private List<JsonMenuProduct> _includedItems;
+
+        /// <summary>
+        /// A list of surcounts that can / are applied to the product.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "includedItems")]
+        public List<JsonMenuProduct> IncludedItems
+        {
+            get
+            {
+                if (_includedItems == null)
+                {
+                    _includedItems = new List<JsonMenuProduct>();
+                }
+                return _includedItems;
+            }
+            set
+            {
+                _includedItems = value;
+            }
+        }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "includedItems")]
+        public string Uuid { get; set; }
+
+
 
 		/// <summary>
 		/// The POS Id of the product

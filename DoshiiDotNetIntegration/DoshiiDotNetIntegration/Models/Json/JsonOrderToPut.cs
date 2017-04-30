@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -11,15 +12,8 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonOrderToPut : JsonSerializationBase<JsonOrderToPut>
+    internal class JsonOrderToPut : JsonBaseStatus<JsonOrderToPut>
     {
-        /// <summary>
-        /// Order status
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-
         [DataMember]
         [JsonProperty(PropertyName = "phase")]
         public string Phase { get; set; }
@@ -82,6 +76,14 @@ namespace DoshiiDotNetIntegration.Models.Json
 			set { _items = value; } 
         }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "RejectionReason")]
+        public string RejectionReason { get; set; }
+
         #region serializeMembers
 
         public override string ToJsonString()
@@ -98,6 +100,11 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
             return json;
 
+        }
+
+        public bool ShouldSerializeUri()
+        {
+            return false;
         }
 
         public bool ShouldSerializeVersion()
@@ -118,6 +125,16 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeCheckinId()
         {
             return (!string.IsNullOrEmpty(CheckinId));
+        }
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
         }
 
         #endregion

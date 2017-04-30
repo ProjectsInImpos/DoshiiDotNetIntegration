@@ -38,7 +38,7 @@ namespace DoshiiDotNetSDKTests
         TableController _tableController;
         TransactionController _transactionController;
         DoshiiController _mockDoshiiController;
-        Controllers _controllers;
+        ControllersCollection _controllersCollection;
         HttpController _mockHttpController;
 
         [SetUp]
@@ -68,48 +68,48 @@ namespace DoshiiDotNetSDKTests
             _configurationManager.Stub(x => x.GetVendorFromPos()).Return(GenerateObjectsAndStringHelper.TestVendor);
 
 
-            _controllers = new Controllers();
+            _controllersCollection = new ControllersCollection();
 
             
 
             _loggingController = MockRepository.GeneratePartialMock<LoggingController>(_logger);
-            _controllers.LoggingController = _loggingController;
-            _controllers.OrderingManager = _orderingManager;
-            _controllers.TransactionManager = _paymentManager;
-            _controllers.RewardManager = _membershipManager;
-            _controllers.ReservationManager = _reservationManager;
+            _controllersCollection.LoggingController = _loggingController;
+            _controllersCollection.OrderingManager = _orderingManager;
+            _controllersCollection.TransactionManager = _paymentManager;
+            _controllersCollection.RewardManager = _membershipManager;
+            _controllersCollection.ReservationManager = _reservationManager;
                 
             
-            _controllers.ConfigurationManager = _configurationManager;
-            _mockHttpController = MockRepository.GeneratePartialMock<HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, _controllers);
+            _controllersCollection.ConfigurationManager = _configurationManager;
+            _mockHttpController = MockRepository.GeneratePartialMock<HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, _controllersCollection);
 
             _doshiiController = new DoshiiController(_configurationManager);
             //_mockDoshiiController = MockRepository.GeneratePartialMock<DoshiiController>(_configurationManager);
             _doshiiController.Initialize(false);
             
-            _doshiiController._controllers = _controllers;
+            _doshiiController._controllersCollection = _controllersCollection;
 
-            _checkinController = MockRepository.GeneratePartialMock<CheckinController>(_controllers, _mockHttpController);
-            _consumerController = MockRepository.GeneratePartialMock<ConsumerController>(_controllers, _mockHttpController);
+            _checkinController = MockRepository.GeneratePartialMock<CheckinController>(_controllersCollection, _mockHttpController);
+            _consumerController = MockRepository.GeneratePartialMock<ConsumerController>(_controllersCollection, _mockHttpController);
             
-            _menuController = MockRepository.GeneratePartialMock<MenuController>(_controllers, _mockHttpController);
-            _transactionController = MockRepository.GeneratePartialMock<TransactionController>(_controllers, _mockHttpController);
-            _controllers.TransactionController = _transactionController;
-            _orderingController = MockRepository.GeneratePartialMock<OrderingController>(_controllers, _mockHttpController);
-            _controllers.OrderingController = _orderingController;
-            _reservationController = MockRepository.GeneratePartialMock<ReservationController>(_controllers, _mockHttpController);
-            _rewardController = MockRepository.GeneratePartialMock<RewardController>(_controllers, _mockHttpController);
-            _tableController = MockRepository.GeneratePartialMock<TableController>(_controllers, _mockHttpController);
+            _menuController = MockRepository.GeneratePartialMock<MenuController>(_controllersCollection, _mockHttpController);
+            _transactionController = MockRepository.GeneratePartialMock<TransactionController>(_controllersCollection, _mockHttpController);
+            _controllersCollection.TransactionController = _transactionController;
+            _orderingController = MockRepository.GeneratePartialMock<OrderingController>(_controllersCollection, _mockHttpController);
+            _controllersCollection.OrderingController = _orderingController;
+            _reservationController = MockRepository.GeneratePartialMock<ReservationController>(_controllersCollection, _mockHttpController);
+            _rewardController = MockRepository.GeneratePartialMock<RewardController>(_controllersCollection, _mockHttpController);
+            _tableController = MockRepository.GeneratePartialMock<TableController>(_controllersCollection, _mockHttpController);
             
             
-            _doshiiController._controllers.OrderingController = _orderingController;
-            _doshiiController._controllers.MenuController = _menuController;
-            _doshiiController._controllers.TableController = _tableController;
-            _doshiiController._controllers.CheckinController = _checkinController;
-            _doshiiController._controllers.ConsumerController = _consumerController;
+            _doshiiController._controllersCollection.OrderingController = _orderingController;
+            _doshiiController._controllersCollection.MenuController = _menuController;
+            _doshiiController._controllersCollection.TableController = _tableController;
+            _doshiiController._controllersCollection.CheckinController = _checkinController;
+            _doshiiController._controllersCollection.ConsumerController = _consumerController;
             
-            _doshiiController._controllers.ReservationController = _reservationController;
-            _doshiiController._controllers.RewardController = _rewardController;
+            _doshiiController._controllersCollection.ReservationController = _reservationController;
+            _doshiiController._controllersCollection.RewardController = _rewardController;
         }
 
 
@@ -644,7 +644,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void GetMember_RewardInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.GetMember("12");
         }
@@ -681,7 +681,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void GetMembers_RewardInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.GetMembers();
         }
@@ -720,7 +720,7 @@ namespace DoshiiDotNetSDKTests
         public void DeleteMember_RewardInitilizationFailed_exceptionThrown()
         {
             Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.DeleteMember(memberToUpdate);
         }
@@ -760,7 +760,7 @@ namespace DoshiiDotNetSDKTests
         public void UpdateMember_RewardInitilizationFailed_exceptionThrown()
         {
             Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.UpdateMember(memberToUpdate);
         }
@@ -807,7 +807,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void SyncDoshiiWithPosMembers_RewardInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.SyncDoshiiMembersWithPosMembers();
         }
@@ -834,7 +834,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void GetRewardsForMember_RewardInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.GetRewardsForMember("1", "2", 3);
         }
@@ -879,7 +879,7 @@ namespace DoshiiDotNetSDKTests
             Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn);
         }
@@ -918,7 +918,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void RedeemRewardForMemberCancel_RewardInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.RedeemRewardForMemberCancel("1", "2", "test");
         }
@@ -954,7 +954,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void RedeemRewardForMemberConfirm_RewardInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.RedeemRewardForMemberConfirm("1", "2");
         }
@@ -1002,7 +1002,7 @@ namespace DoshiiDotNetSDKTests
             int PointsToRedeem = 200;
             App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem);
         }
@@ -1042,7 +1042,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void RedeemPointsForMemberCancel_PointsInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.RedeemPointsForMemberCancel("1", "test");
         }
@@ -1078,7 +1078,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void RedeemPointsForMemberConfirm_PointsInitilizationFailed_exceptionThrown()
         {
-            _doshiiController._controllers.RewardManager = null;
+            _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.RedeemPointsForMemberConfirm("1");
         }
