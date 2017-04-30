@@ -122,6 +122,28 @@ namespace DoshiiDotNetIntegration.Models
         public object Clone()
         {
             return (Member)this.MemberwiseClone();
+            if (this.Ref != memberToTest.Ref)
+            {
+                return false;
+            }
+
+            if (memberToTest.Apps.Count() != this.Apps.Count())
+            {
+                return false;
+            }
+
+            if (this.Apps.Where(i => !memberToTest.Apps.Contains(i)).ToList().Count > 0)
+            {
+                return false;
+            }
+            if (memberToTest.Apps.Where(i => !this.Apps.Contains(i)).ToList().Count > 0)
+            {
+                return false;
+            }
+            
+            
+            return true;
         }
     }
 }
+
