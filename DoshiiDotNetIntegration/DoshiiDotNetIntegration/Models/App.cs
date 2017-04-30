@@ -91,5 +91,7 @@ namespace DoshiiDotNetIntegration.Models
 
             return app;
         }
+
+        public decimal Ref { get; set; }
     }
 }
