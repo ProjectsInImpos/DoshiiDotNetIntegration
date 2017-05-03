@@ -102,6 +102,7 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ (Phone != null ? Phone.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Address != null ? Address.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Ref != null ? Ref.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Apps != null ? Apps.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -117,32 +118,19 @@ namespace DoshiiDotNetIntegration.Models
             this.Phone = string.Empty;
             this.Address = new Address();
             this.Ref = string.Empty;
+            
         }
 
         public object Clone()
         {
-            return (Member)this.MemberwiseClone();
-            if (this.Ref != memberToTest.Ref)
+            var returnMember = (Member)this.MemberwiseClone();
+            var apps = new List<App>();
+            foreach (var app in this.Apps)
             {
-                return false;
+                apps.Add((App)app.Clone());
             }
-
-            if (memberToTest.Apps.Count() != this.Apps.Count())
-            {
-                return false;
-            }
-
-            if (this.Apps.Where(i => !memberToTest.Apps.Contains(i)).ToList().Count > 0)
-            {
-                return false;
-            }
-            if (memberToTest.Apps.Where(i => !this.Apps.Contains(i)).ToList().Count > 0)
-            {
-                return false;
-            }
-            
-            
-            return true;
+            returnMember.Apps = apps;
+            return returnMember;
         }
     }
 }

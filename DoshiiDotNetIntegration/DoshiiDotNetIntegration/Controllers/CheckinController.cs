@@ -60,7 +60,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the close was successful
         /// False if the close was not successful. 
         /// </returns>
-        internal virtual bool CloseCheckin(string checkinId)
+        internal virtual ActionResultBasic CloseCheckin(string checkinId)
         {
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));
 

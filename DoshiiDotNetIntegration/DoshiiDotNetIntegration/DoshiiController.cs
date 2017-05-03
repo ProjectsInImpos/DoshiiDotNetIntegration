@@ -16,6 +16,7 @@ using System.Text;
 using NUnit.Framework;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
+using DoshiiDotNetIntegration.Models.ActionResults;
 using Order = DoshiiDotNetIntegration.Models.Order;
 
 namespace DoshiiDotNetIntegration
@@ -195,6 +196,7 @@ namespace DoshiiDotNetIntegration
             _controllersCollection.OrderingManager = configurationManager.GetOrderingManagerFromPos();
             _controllersCollection.RewardManager = configurationManager.GetRewardManagerFromPos();
             _controllersCollection.ReservationManager = configurationManager.GetReservationManagerFromPos();
+            _controllersCollection.AppManager = configurationManager.GetAppManagerFromPos();
 
             if (configurationManager.GetLoggingManagerFromPos() == null)
             {
@@ -468,7 +470,10 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
+                if (_controllersCollection.ReservationManager != null)
+                {
+                    _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
+                }
             }
             catch (Exception ex)
             {
@@ -476,11 +481,27 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
+                if (_controllersCollection.RewardManager != null)
+                {
+                    _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
+                }
+                
             }
             catch (Exception ex)
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to refresh all the bookings from Doshii.", ex);
+            }
+            try
+            {
+                if (_controllersCollection.AppManager != null)
+                {
+                    _controllersCollection.AppController.SyncDoshiiAppsWithPosApps();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to refresh all the apps from Doshii.", ex);
             }
             
         }
@@ -730,7 +751,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool AcceptOrderAheadCreation(Order orderToAccept)
+        public virtual OrderActionResult AcceptOrderAheadCreation(Order orderToAccept)
         {
             if (!m_IsInitalized)
             {
@@ -759,7 +780,7 @@ namespace DoshiiDotNetIntegration
         }
 
 
-	    public virtual bool RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
+        public virtual ActionResultBasic RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
 	    {
             if (!m_IsInitalized)
             {
@@ -776,14 +797,15 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual List<Log> GetOrderLog(string doshiiOrderId)
+        public virtual List<Log> GetOrderLog(Order order)
         {
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "RecordPosTransactionOnDoshii"));
             }
-            return _controllersCollection.OrderingController.GetOrderLog(doshiiOrderId);
+            return _controllersCollection.OrderingController.GetOrderLog(order);
+            
         }
 
 
@@ -1054,7 +1076,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual bool DeleteMember(Member member)
+        public virtual ActionResultBasic DeleteMember(Member member)
         {
             if (!m_IsInitalized)
             {
@@ -1171,7 +1193,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
+        public virtual ActionResultBasic RedeemRewardForMember(Member member, Reward reward, Order order)
         {
             if (!m_IsInitalized)
             {
@@ -1199,7 +1221,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        public virtual ActionResultBasic RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
             if (!m_IsInitalized)
             {
@@ -1232,7 +1254,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        public virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
             if (!m_IsInitalized)
             {
@@ -1267,7 +1289,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
+        public virtual ActionResultBasic RedeemPointsForMember(Member member, App app, Order order, int points)
         {
             if (!m_IsInitalized)
             {
@@ -1297,7 +1319,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemPointsForMemberConfirm(string memberId)
+        public virtual ActionResultBasic RedeemPointsForMemberConfirm(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1321,7 +1343,7 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
+        public virtual ActionResultBasic RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             if (!m_IsInitalized)
             {
@@ -1349,7 +1371,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="OrderDoesNotExistOnPosException">Thrown when the order corresponding to the posOrderId parameter cannot be retrieved from the pos.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
-        public virtual bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
+        public virtual ActionResultBasic SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
             if (!m_IsInitalized)
             {
@@ -1380,7 +1402,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
-        public virtual bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
+        public virtual ActionResultBasic ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
             if (!m_IsInitalized)
             {
@@ -1410,7 +1432,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
-        public virtual bool CloseCheckin(string checkinId)
+        public virtual ActionResultBasic CloseCheckin(string checkinId)
         {
             if (!m_IsInitalized)
             {
@@ -1504,7 +1526,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>false if the surcount was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool DeleteSurcount(string posId)
+        public virtual ActionResultBasic DeleteSurcount(string posId)
         {
             if (!m_IsInitalized)
             {
@@ -1525,7 +1547,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the product was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool DeleteProduct(string posId)
+        public virtual ActionResultBasic DeleteProduct(string posId)
         {
             if (!m_IsInitalized)
             {
@@ -1702,7 +1724,7 @@ namespace DoshiiDotNetIntegration
           /// <param name="checkin">the checkin that should be associated with the booking</param>
           /// <param name="posOrderId">the posOrderId for the booking that will be seated, this can be NULL if there is no order associated with the table.</param>
           /// <returns>True if the booking was seated.</returns>
-        public bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
+        public ActionResultBasic SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
             if (!m_IsInitalized)
             {
@@ -1792,7 +1814,7 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public virtual bool DeleteEmployee(Employee employee)
+        public virtual ActionResultBasic DeleteEmployee(Employee employee)
         {
             if (!m_IsInitalized)
             {

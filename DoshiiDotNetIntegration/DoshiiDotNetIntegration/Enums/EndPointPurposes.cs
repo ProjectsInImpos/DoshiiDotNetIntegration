@@ -146,7 +146,9 @@ namespace DoshiiDotNetIntegration.Enums
 
         Orginisation = 29,
 
-        OrderLog = 30
+        OrderLog = 30,
+
+        UnlinkedOrderLog = 31
 
     }
 }

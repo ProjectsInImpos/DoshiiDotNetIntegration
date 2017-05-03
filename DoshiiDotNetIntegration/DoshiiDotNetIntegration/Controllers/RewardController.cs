@@ -99,7 +99,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="member"></param>
         /// <returns></returns>
-        internal virtual bool DeleteMember(Member member)
+        internal virtual ActionResultBasic DeleteMember(Member member)
         {
             try
             {
@@ -237,7 +237,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="reward"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        internal virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
+        internal virtual ActionResultBasic RedeemRewardForMember(Member member, Reward reward, Order order)
         {
             try
             {
@@ -270,7 +270,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="rewardId"></param>
         /// <param name="cancelReason"></param>
         /// <returns></returns>
-        internal virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        internal virtual ActionResultBasic RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
             try
             {
@@ -288,7 +288,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="memberId"></param>
         /// <param name="rewardId"></param>
         /// <returns></returns>
-        internal virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        internal virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
             try
             {
@@ -308,7 +308,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="order"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        internal virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
+        internal virtual ActionResultBasic RedeemPointsForMember(Member member, App app, Order order, int points)
         {
             try
             {
@@ -345,7 +345,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="memberId"></param>
         /// <returns></returns>
-        internal virtual bool RedeemPointsForMemberConfirm(string memberId)
+        internal virtual ActionResultBasic RedeemPointsForMemberConfirm(string memberId)
         {
             try
             {
@@ -363,7 +363,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="memberId"></param>
         /// <param name="cancelReason"></param>
         /// <returns></returns>
-        public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
+        public virtual ActionResultBasic RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             try
             {

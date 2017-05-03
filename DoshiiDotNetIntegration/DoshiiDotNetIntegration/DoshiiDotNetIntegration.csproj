@@ -151,6 +151,7 @@
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
     <Compile Include="Helpers\ConsumerExtension.cs" />
     <Compile Include="Helpers\DateTimeExtension.cs" />
+    <Compile Include="Interfaces\IAppManager.cs" />
     <Compile Include="Interfaces\IConfigurationManager.cs" />
     <Compile Include="Interfaces\ILoggingManager.cs" />
     <Compile Include="Interfaces\IRewardManager.cs" />
@@ -158,6 +159,8 @@
     <Compile Include="Interfaces\ITransactionManager.cs" />
     <Compile Include="Interfaces\IReservationManager.cs" />
     <Compile Include="Interfaces\NamespaceDoc.cs" />
+    <Compile Include="Models\ActionResults\ActionResultBasic.cs" />
+    <Compile Include="Models\ActionResults\OrderActionResult.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
     <Compile Include="Models\Base\BaseCreatedAt.cs" />

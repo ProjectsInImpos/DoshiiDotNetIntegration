@@ -158,7 +158,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the surcount on Doshii was updated. 
         /// False if the surcount on doshii was not updated. 
         /// </returns>
-        internal virtual bool DeleteSurcount(string posId)
+        internal virtual ActionResultBasic DeleteSurcount(string posId)
         {
             bool success;
             try
@@ -182,7 +182,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the product was deleted 
         /// False if the product was not deleted. 
         /// </returns>
-        internal virtual bool DeleteProduct(string posId)
+        internal virtual ActionResultBasic DeleteProduct(string posId)
         {
             bool success;
             try

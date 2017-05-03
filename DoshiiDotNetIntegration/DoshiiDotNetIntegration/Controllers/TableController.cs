@@ -124,7 +124,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
+        internal virtual ActionResultBasic SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
         {
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", tableNames[0], posOrderId));
 
@@ -187,7 +187,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
+        internal virtual ActionResultBasic ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
             StringBuilder tableNameStringBuilder = new StringBuilder();
             for (int i = 0; i < tableNames.Count(); i++)

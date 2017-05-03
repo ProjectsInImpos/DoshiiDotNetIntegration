@@ -697,7 +697,7 @@ namespace DoshiiDotNetIntegration.Helpers
             return amount.ToString();
         }
 
-        private static string MapQuantityToString(int quantity)
+        private static string MapQuantityToString(decimal quantity)
         {
             return quantity.ToString();
         }

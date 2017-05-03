@@ -36,6 +36,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "firstName")]
+        public string FirstName { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "lastName")]
+        public string LastName { get; set; }
+
         /// <summary>
         /// the consumers phone number
         /// </summary>
@@ -62,5 +70,19 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "notes")]
         public string Notes { get; set; }
+
+        #region Serialize methods
+
+        public bool ShouldSerializeFirstName()
+        {
+            return (!string.IsNullOrEmpty(FirstName));
+        }
+
+        public bool ShouldSerializeLastName()
+        {
+            return (!string.IsNullOrEmpty(LastName));
+        }
+
+        #endregion
     }
 }

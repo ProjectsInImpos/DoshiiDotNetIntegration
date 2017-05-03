@@ -96,7 +96,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal bool DeleteEmployee(Employee employee)
+        internal ActionResultBasic DeleteEmployee(Employee employee)
         {
             if (string.IsNullOrEmpty(employee.Id))
             {

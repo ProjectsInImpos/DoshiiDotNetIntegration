@@ -10,6 +10,7 @@ using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetIntegration.Controllers
@@ -113,11 +114,19 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual List<Log> GetOrderLog(string doshiiOrderId)
+        internal virtual List<Log> GetOrderLog(Order order)
         {
             try
             {
-                return  _httpComs.GetOrderLog(doshiiOrderId);
+                if (string.IsNullOrEmpty(order.Id))
+                {
+                    return _httpComs.GetUnlinkedOrderLog(order.DoshiiId);
+                }
+                else
+                {
+                    return _httpComs.GetOrderLog(order.Id);
+                }
+                
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -402,7 +411,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="orderToAccept"></param>
         /// <returns></returns>
-        internal virtual bool AcceptOrderAheadCreation(Models.Order orderToAccept)
+        internal virtual OrderActionResult AcceptOrderAheadCreation(Models.Order orderToAccept)
         {
             Models.Order orderOnDoshii = GetUnlinkedOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
             List<Transaction> transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();

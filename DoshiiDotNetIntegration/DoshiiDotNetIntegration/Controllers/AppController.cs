@@ -57,5 +57,71 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw rex;
             }
         }
+
+        internal virtual bool SyncDoshiiAppsWithPosApps()
+        {
+            try
+            {
+                List<App> DoshiiMembersList = GetApps().ToList();
+                List<App> PosMembersList = _controllersCollection.AppManager.GetAppsFromPos().ToList();
+
+                var doshiiAppsHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
+                var posAppsHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
+
+                var appsNotInDoshii = PosMembersList.Where(p => !doshiiAppsHashSet.Contains(p.Id));
+                foreach (var mem in appsNotInDoshii)
+                {
+                    try
+                    {
+                        _controllersCollection.AppManager.DeleteAppOnPos(mem);
+                    }
+                    catch (Exception ex)
+                    {
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting an app on the pos with doshii memberId {0}", mem.Id), ex);
+                    }
+
+                }
+
+                var membersInPos = DoshiiMembersList.Where(p => posAppsHashSet.Contains(p.Id));
+                foreach (var mem in membersInPos)
+                {
+                    App posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if (!mem.Equals(posMember))
+                    {
+                        try
+                        {
+                            _controllersCollection.AppManager.UpdateAppOnPos(mem);
+                        }
+                        catch (Exception ex)
+                        {
+                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating an app on the pos with doshii memberId {0}", mem.Id), ex);
+                        }
+
+                    }
+                }
+
+                var membersNotInPos = DoshiiMembersList.Where(p => !posAppsHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInPos)
+                {
+                    try
+                    {
+                        _controllersCollection.AppManager.CreateAppOnPos(mem);
+                    }
+                    catch (Exception ex)
+                    {
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                    }
+
+                }
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
+                return false;
+            }
+        }
     }
 }

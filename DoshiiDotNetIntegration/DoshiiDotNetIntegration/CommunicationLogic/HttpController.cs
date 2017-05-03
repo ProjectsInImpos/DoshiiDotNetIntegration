@@ -80,14 +80,54 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region order methods
 
-        
-        internal virtual List<Log> GetOrderLog(string doshiiOrderId)
+        internal virtual List<Log> GetUnlinkedOrderLog(string doshiiOrderId)
         {
             var retreivedLogList = new List<Models.Log>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.OrderLog), WebRequestMethods.Http.Get, doshiiOrderId);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrderLog), WebRequestMethods.Http.Get, doshiiOrderId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonLog>>(responseMessage.Data);
+                        retreivedLogList = Mapper.Map<List<Models.Log>>(jsonList);
+                    }
+                    else
+                    {
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
+                    }
+
+                }
+                else
+                {
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
+                }
+            }
+            else
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
+            }
+
+            return retreivedLogList;
+        }
+        
+        internal virtual List<Log> GetOrderLog(string orderId)
+        {
+            var retreivedLogList = new List<Models.Log>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.OrderLog), WebRequestMethods.Http.Get, orderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1296,7 +1336,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return false;
         }
 
-        internal virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        internal virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
 
             DoshiHttpResponseMessage responseMessage;
@@ -2970,6 +3010,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case EndPointPurposes.OrderLog:
                     newUrlbuilder.AppendFormat("/orders/{0}/log", identification);
+                    break;
+                case EndPointPurposes.UnlinkedOrderLog:
+                    newUrlbuilder.AppendFormat("/unlinkedOrders/{0}/log", identification);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

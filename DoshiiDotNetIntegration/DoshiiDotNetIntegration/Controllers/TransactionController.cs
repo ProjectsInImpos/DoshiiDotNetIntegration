@@ -374,7 +374,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual bool RequestRefundForOrder(Order order, decimal amountToRefund, List<string> transacitonIdsToRefund)
+        internal virtual ActionResultBasic RequestRefundForOrder(Order order, decimal amountToRefund, List<string> transacitonIdsToRefund)
         {
             Transaction returnedTransaction = null;
             Transaction refundTransaction = new Transaction()

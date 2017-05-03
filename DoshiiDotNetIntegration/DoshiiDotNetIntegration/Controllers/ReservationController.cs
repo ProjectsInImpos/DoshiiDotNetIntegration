@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="checkin"></param>
         /// <param name="posOrderId"></param>
         /// <returns></returns>
-        internal bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
+        internal ActionResultBasic SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos Seating Booking '{0}'", bookingId));
 

@@ -18,6 +18,7 @@ namespace DoshiiDotNetIntegration.Models
         internal IRewardManager RewardManager;
         internal IReservationManager ReservationManager;
         internal IConfigurationManager ConfigurationManager;
+        internal IAppManager AppManager;
         
         internal OrderingController OrderingController;
         internal TransactionController TransactionController;
@@ -32,5 +33,6 @@ namespace DoshiiDotNetIntegration.Models
         internal LocationController LocationController;
         internal EmployeeController EmployeeController;
         internal RejectionCodeController RejectionCodeController;
+        
     }
 }
