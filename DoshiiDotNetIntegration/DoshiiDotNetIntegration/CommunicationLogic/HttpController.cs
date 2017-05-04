@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Web;
 using DoshiiDotNetIntegration.Controllers;
 using JWT;
 using DoshiiDotNetIntegration.Helpers;
@@ -2313,7 +2314,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
-
+            if (!string.IsNullOrEmpty(identification))
+            {
+                identification = System.Uri.EscapeDataString(identification);   
+            }
+            if (!string.IsNullOrEmpty(secondIdentification))
+            {
+                secondIdentification = System.Uri.EscapeDataString(secondIdentification);
+            }
             if (string.IsNullOrWhiteSpace(_doshiiUrlBase))
             {
 				_controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error, "Doshii: The HttpController class was not initialized correctly, the base URl is null or white space");
@@ -2435,7 +2443,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     throw new NotSupportedException(purpose.ToString());
             }
 
-            return newUrlbuilder.ToString();
+            return    newUrlbuilder.ToString();
         }
 
         /// <summary>
