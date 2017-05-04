@@ -33,7 +33,7 @@ namespace DoshiiDotNetIntegration.Models
         private List<Surcount> _surcounts;
 
         /// <summary>
-        /// a list of all the order level surcounts on the pos menu
+        /// a list of all the Order level surcounts on the pos menu
         /// </summary>
         public IEnumerable<Surcount> Surcounts
         {

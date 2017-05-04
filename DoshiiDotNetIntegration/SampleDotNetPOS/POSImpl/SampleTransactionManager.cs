@@ -15,7 +15,7 @@ namespace SampleDotNetPOS.POSImpl
 	/// <remarks>
 	/// As the POS provider, your job will be to implement the <see cref="ITransactionManager"/>
 	/// interface in such a way that orders are paid for in the POS via the calls coming from the Doshii SDK.
-	/// This sample doesn't actually do anything except update the order status accordingly.
+	/// This sample doesn't actually do anything except update the Order status accordingly.
 	/// </remarks>
 	public class SampleTransactionManager : ITransactionManager, IDisposable
 	{
@@ -142,11 +142,11 @@ namespace SampleDotNetPOS.POSImpl
 		#endregion
 
 		/// <summary>
-		/// Returns a blank order with the new status for testing purposes.
+		/// Returns a blank Order with the new status for testing purposes.
 		/// </summary>
-		/// <param name="orderId">The ID of the order.</param>
-		/// <param name="status">The new status of the order.</param>
-		/// <returns>The order details.</returns>
+		/// <param name="orderId">The ID of the Order.</param>
+		/// <param name="status">The new status of the Order.</param>
+		/// <returns>The Order details.</returns>
 		private Order UpdateOrder(string orderId, string status)
 		{
 			var result = new Order();

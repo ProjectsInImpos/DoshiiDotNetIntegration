@@ -24,7 +24,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Id { get; set; }
 
         /// <summary>
-        /// identify the order this transaction relates to
+        /// identify the Order this transaction relates to
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "orderId")]
@@ -73,7 +73,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Partner { get; set; }
 
         /// <summary>
-        /// An obfuscated string representation of the version of the order in Doshii.
+        /// An obfuscated string representation of the version of the Order in Doshii.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "version")]
@@ -86,7 +86,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         private List<string> _linkedTrxIds;
 
         /// <summary>
-        /// A list of all surcounts applied at and order level
+        /// A list of all surcounts applied at and Order level
         /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
         [DataMember]

@@ -233,7 +233,7 @@ namespace DoshiiDotNetSDKTests
 
             _Logger.Expect(
                 x =>
-                    x.LogDoshiiMessage(Arg<Type>.Is.Anything, Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Info), Arg<String>.Is.Equal(string.Format("Doshii: Attempted to update an order version that does not exist on the Pos, OrderId - {0}, version - {1}", GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.TestVersion)), Arg<Exception>.Is.Anything));
+                    x.LogDoshiiMessage(Arg<Type>.Is.Anything, Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Info), Arg<String>.Is.Equal(string.Format("Doshii: Attempted to update an Order version that does not exist on the Pos, OrderId - {0}, version - {1}", GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.TestVersion)), Arg<Exception>.Is.Anything));
 
 
             _mockController.RecordOrderVersion(GenerateObjectsAndStringHelper.TestOrderId,
@@ -589,21 +589,21 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void RecordCheckinForOrder_ThrowsTransactionNotFoundException()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
-            orderingManager.Expect(x => x.RecordCheckinForOrder(order.Id, order.CheckinId))
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            orderingManager.Expect(x => x.RecordCheckinForOrder(Order.Id, Order.CheckinId))
                 .Throw(new OrderDoesNotExistOnPosException());
 
-            _mockController.RecordOrderCheckinId(order.Id, checkinId);
+            _mockController.RecordOrderCheckinId(Order.Id, checkinId);
         }
 
         [Test]
         public void RecordCheckinForOrder_ThrowsException()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
-            orderingManager.Expect(x => x.RecordCheckinForOrder(order.Id, order.CheckinId))
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            orderingManager.Expect(x => x.RecordCheckinForOrder(Order.Id, Order.CheckinId))
                 .Throw(new Exception());
 
-            _mockController.RecordOrderCheckinId(order.Id, checkinId);
+            _mockController.RecordOrderCheckinId(Order.Id, checkinId);
         }
 
 
@@ -613,17 +613,17 @@ namespace DoshiiDotNetSDKTests
         public void HandleOrderCreated_withTransactions_WrongType()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            order.Type = "wrongType";
+            Order Order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order.Type = "wrongType";
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(order, transactionList));
+            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(Order, transactionList));
             
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -632,17 +632,17 @@ namespace DoshiiDotNetSDKTests
         public void HandleOrderCreated_withNoTransactions_WrongType()
         {
             List<Transaction> transactionList = new List<Transaction>();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            order.Type = "wrongType";
+            Order Order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order.Type = "wrongType";
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
             
-            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(order, transactionList));
+            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(Order, transactionList));
 
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -651,17 +651,17 @@ namespace DoshiiDotNetSDKTests
         public void HandleOrderCreated_withNoTransactions_WrongType_NullTransactionList()
         {
             List<Transaction> transactionList = null;
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            order.Type = "wrongType";
+            Order Order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order.Type = "wrongType";
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(order, new List<Transaction>()));
+            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(Order, new List<Transaction>()));
 
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -687,16 +687,16 @@ namespace DoshiiDotNetSDKTests
         public void HandleDeliveryOrderCreated_withTransactions_PosReturnsNull()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            orderingManager.Expect(x => x.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList));
-            _mockController.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
-            _mockController.HandleOrderCreated(order, transactionList);
+            orderingManager.Expect(x => x.ConfirmNewDeliveryOrderWithFullPayment(Order, consumer, transactionList));
+            _mockController.Expect(x => x.GetConsumerForOrderCreated(Order, transactionList)).Return(consumer);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -705,19 +705,19 @@ namespace DoshiiDotNetSDKTests
         public void HandleDeliveryOrderCreated_NullConsumerReturned()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(null);
+            _mockController.Expect(x => x.GetConsumerForOrderCreated(Order, transactionList)).Return(null);
             orderingManager.Expect(
                 x =>
                     x.ConfirmNewDeliveryOrderWithFullPayment(Arg<Order>.Is.Anything, Arg<Consumer>.Is.Anything,
                         Arg<List<Transaction>>.Is.Anything)).Repeat.Never();
             
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -726,14 +726,14 @@ namespace DoshiiDotNetSDKTests
         public void GetConsumerForOrderCreated_GetConsumerSuccess()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
 
-            _mockController.Expect(x => x.GetConsumerFromCheckinId(order.CheckinId)).Throw(new Exception());
-            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(order, transactionList));
+            _mockController.Expect(x => x.GetConsumerFromCheckinId(Order.CheckinId)).Throw(new Exception());
+            _mockController.Expect(x => x.RejectOrderFromOrderCreateMessage(Order, transactionList));
             
-            _mockController.GetConsumerForOrderCreated(order, transactionList);
+            _mockController.GetConsumerForOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -794,17 +794,17 @@ namespace DoshiiDotNetSDKTests
         public void HandleDeliveryOrderCreated_withoutTransactions_PosReturnsNull()
         {
             List<Transaction> transactionList = new List<Transaction>();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            orderingManager.Expect(x => x.ConfirmNewDeliveryOrder(order, consumer));
-            _mockController.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
+            orderingManager.Expect(x => x.ConfirmNewDeliveryOrder(Order, consumer));
+            _mockController.Expect(x => x.GetConsumerForOrderCreated(Order, transactionList)).Return(consumer);
             
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -813,7 +813,7 @@ namespace DoshiiDotNetSDKTests
         public void HandleDeliveryOrderCreated_withTransactions_Success()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
@@ -821,11 +821,11 @@ namespace DoshiiDotNetSDKTests
             _mockController.IsInitalized = true;
 
 
-            orderingManager.Expect(x => x.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList));
-            _mockController.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
+            orderingManager.Expect(x => x.ConfirmNewDeliveryOrderWithFullPayment(Order, consumer, transactionList));
+            _mockController.Expect(x => x.GetConsumerForOrderCreated(Order, transactionList)).Return(consumer);
             MockHttpComs.Expect(x => x.PutOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
 
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -834,18 +834,18 @@ namespace DoshiiDotNetSDKTests
         public void HandlePickupOrderCreated_withTransactions_Success()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            orderingManager.Expect(x => x.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList));
-            _mockController.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
+            orderingManager.Expect(x => x.ConfirmNewPickupOrderWithFullPayment(Order, consumer, transactionList));
+            _mockController.Expect(x => x.GetConsumerForOrderCreated(Order, transactionList)).Return(consumer);
             
             
-            _mockController.HandleOrderCreated(order, transactionList);
+            _mockController.HandleOrderCreated(Order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
         }
@@ -854,7 +854,7 @@ namespace DoshiiDotNetSDKTests
         public void AcceptOrderAheadCreation_withoutTransactions()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
             
@@ -863,7 +863,7 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
+            _mockController.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(Order);
             _mockController.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(new List<Transaction>());
             _mockController.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos)).Return(orderReturnedFromPos);
 
@@ -875,7 +875,7 @@ namespace DoshiiDotNetSDKTests
         public void AcceptOrderAheadCreation_withTransactions()
         {
             List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order Order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
             Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
 
@@ -884,7 +884,7 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
+            _mockController.Expect(x => x.GetUnlinkedOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(Order);
             _mockController.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(transactionList);
             _mockController.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos)).Return(orderReturnedFromPos);
             _mockController.Expect(x => x.RequestPaymentForOrderExistingTransaction(Arg<Transaction>.Is.Anything)).Return(true);
@@ -929,15 +929,15 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void PutOrderCreatedResult_Success()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
 
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockController);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Expect(x => x.PutOrderCreatedResult(order)).Return(order);
+            MockHttpComs.Expect(x => x.PutOrderCreatedResult(Order)).Return(Order);
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
             MockHttpComs.VerifyAllExpectations();
         }
 
@@ -945,22 +945,22 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(OrderUpdateException))]
         public void PutOrderCreatedResult_SuccessfulOrderNoPosId()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
-            order.Status = "accepted";
-            order.Id = null;
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order.Status = "accepted";
+            Order.Id = null;
             
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockController);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
         }
 
         [Test]
         [ExpectedException(typeof(OrderUpdateException))]
         public void PutOrderCreatedResult_SuccessfulOrder_ReturnedOrderNoPosId()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             returnedOrder.Status = "accepted";
             returnedOrder.Id = "0";
@@ -970,16 +970,16 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Return(returnedOrder);
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(Order)).Return(Order).Return(returnedOrder);
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
         }
 
         [Test]
         [ExpectedException(typeof(OrderUpdateException))]
         public void PutOrderCreatedResult_SuccessfulOrder_RestfulApiErrorResponseException()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             returnedOrder.Status = "accepted";
             returnedOrder.Id = "0";
@@ -989,16 +989,16 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new RestfulApiErrorResponseException());
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(Order)).Return(Order).Throw(new RestfulApiErrorResponseException());
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
         }
 
         [Test]
         [ExpectedException(typeof(ConflictWithOrderUpdateException))]
         public void PutOrderCreatedResult_SuccessfulOrder_Conflict()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             returnedOrder.Status = "accepted";
             returnedOrder.Id = "0";
@@ -1008,16 +1008,16 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new RestfulApiErrorResponseException(){StatusCode = HttpStatusCode.Conflict});
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(Order)).Return(Order).Throw(new RestfulApiErrorResponseException(){StatusCode = HttpStatusCode.Conflict});
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
         }
 
         [Test]
         [ExpectedException(typeof(OrderUpdateException))]
         public void PutOrderCreatedResult_SuccessfulOrder_NullResponse()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             returnedOrder.Status = "accepted";
             returnedOrder.Id = "0";
@@ -1027,16 +1027,16 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new NullResponseDataReturnedException());
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(Order)).Return(Order).Throw(new NullResponseDataReturnedException());
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
         }
 
         [Test]
         [ExpectedException(typeof(OrderUpdateException))]
         public void PutOrderCreatedResult_SuccessfulOrder_GeneralException()
         {
-            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order Order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
             returnedOrder.Status = "accepted";
             returnedOrder.Id = "0";
@@ -1046,9 +1046,9 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new Exception());
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(Order)).Return(Order).Throw(new Exception());
 
-            _mockController.PutOrderCreatedResult(order);
+            _mockController.PutOrderCreatedResult(Order);
         }
 
         [Test]
@@ -1607,7 +1607,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void ReddemRewardForMember_returnedOrderIsNull()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
 
@@ -1615,9 +1615,9 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Return(null);
+            _mockController.Expect(x => x.UpdateOrder(Order)).Return(null);
 
-            var result = _mockController.RedeemRewardForMember(member, reward, order);
+            var result = _mockController.RedeemRewardForMember(member, reward, Order);
 
             _mockController.VerifyAllExpectations();
             Assert.AreEqual(false, result);
@@ -1626,7 +1626,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void ReddemRewardForMember_UpdateOrderThrowsException()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
 
@@ -1634,9 +1634,9 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Throw(new Exception());
+            _mockController.Expect(x => x.UpdateOrder(Order)).Throw(new Exception());
 
-            var result = _mockController.RedeemRewardForMember(member, reward, order);
+            var result = _mockController.RedeemRewardForMember(member, reward, Order);
 
             _mockController.VerifyAllExpectations();
             Assert.AreEqual(false, result);
@@ -1646,7 +1646,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void ReddemRewardForMember_RedeemRewardForOrderThrowsException()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
 
@@ -1654,16 +1654,16 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Return(order);
-            MockHttpComs.Expect(x => x.RedeemRewardForMember(member.Id, reward.Id, order)).Throw(new RestfulApiErrorResponseException());
+            _mockController.Expect(x => x.UpdateOrder(Order)).Return(Order);
+            MockHttpComs.Expect(x => x.RedeemRewardForMember(member.Id, reward.Id, Order)).Throw(new RestfulApiErrorResponseException());
 
-            _mockController.RedeemRewardForMember(member, reward, order);
+            _mockController.RedeemRewardForMember(member, reward, Order);
         }
 
         [Test]
         public void ReddemRewardForMember_Success()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
 
@@ -1671,10 +1671,10 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Return(order);
-            MockHttpComs.Expect(x => x.RedeemRewardForMember(member.Id, reward.Id, order)).Return(true);
+            _mockController.Expect(x => x.UpdateOrder(Order)).Return(Order);
+            MockHttpComs.Expect(x => x.RedeemRewardForMember(member.Id, reward.Id, Order)).Return(true);
 
-            var result = _mockController.RedeemRewardForMember(member, reward, order);
+            var result = _mockController.RedeemRewardForMember(member, reward, Order);
 
             MockHttpComs.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();
@@ -1780,7 +1780,7 @@ namespace DoshiiDotNetSDKTests
 
             var memberId = GenerateObjectsAndStringHelper.TestMemberId;
             var rewardId = GenerateObjectsAndStringHelper.TestRewardId;
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
@@ -2002,7 +2002,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void ReddemPointsForMember_returnedOrderIsNull()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var app = GenerateObjectsAndStringHelper.GenerateApp1();
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
@@ -2011,9 +2011,9 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Return(null);
+            _mockController.Expect(x => x.UpdateOrder(Order)).Return(null);
 
-            var result = _mockController.RedeemPointsForMember(member, app, order, points);
+            var result = _mockController.RedeemPointsForMember(member, app, Order, points);
 
             _mockController.VerifyAllExpectations();
             Assert.AreEqual(false, result);
@@ -2022,7 +2022,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void ReddemPointsForMember_UpdateOrderThrowsException()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var app = GenerateObjectsAndStringHelper.GenerateApp1();
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
@@ -2031,9 +2031,9 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Throw(new Exception());
+            _mockController.Expect(x => x.UpdateOrder(Order)).Throw(new Exception());
 
-            var result = _mockController.RedeemPointsForMember(member, app, order, points);
+            var result = _mockController.RedeemPointsForMember(member, app, Order, points);
 
             _mockController.VerifyAllExpectations();
             Assert.AreEqual(false, result);
@@ -2043,14 +2043,14 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void ReddemPointsForMember_RedeemPointsForOrderThrowsException()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var app = GenerateObjectsAndStringHelper.GenerateApp1();
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
             var pr = new PointsRedeem()
             {
                 OrderCreatedByAppId = app.Id,
-                OrderId = order.Id,
+                OrderId = Order.Id,
                 Points = points
             };
 
@@ -2058,23 +2058,23 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Return(order);
+            _mockController.Expect(x => x.UpdateOrder(Order)).Return(Order);
             MockHttpComs.Expect(x => x.RedeemPointsForMember(Arg<PointsRedeem>.Is.Anything, Arg<Member>.Is.Anything)).Return(true);
 
-            _mockController.RedeemPointsForMember(member, app, order, points);
+            _mockController.RedeemPointsForMember(member, app, Order, points);
         }#1#
 
         [Test]
         public void ReddemPointsForMember_Success()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var member = GenerateObjectsAndStringHelper.GenerateMember1();
             var app = GenerateObjectsAndStringHelper.GenerateApp1();
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
             var pr = new PointsRedeem()
             {
                 OrderCreatedByAppId = app.Id,
-                OrderId = order.Id,
+                OrderId = Order.Id,
                 Points = points
             };
 
@@ -2082,10 +2082,10 @@ namespace DoshiiDotNetSDKTests
             _mockController._httpComs = MockHttpComs;
             _mockController.IsInitalized = true;
 
-            _mockController.Expect(x => x.UpdateOrder(order)).Return(order);
+            _mockController.Expect(x => x.UpdateOrder(Order)).Return(Order);
             MockHttpComs.Expect(x => x.RedeemPointsForMember(Arg<PointsRedeem>.Is.Anything, Arg<Member>.Is.Anything)).Return(true);
 
-            var result = _mockController.RedeemPointsForMember(member, app, order, points);
+            var result = _mockController.RedeemPointsForMember(member, app, Order, points);
 
             MockHttpComs.VerifyAllExpectations();
             _mockController.VerifyAllExpectations();

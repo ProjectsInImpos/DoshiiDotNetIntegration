@@ -52,9 +52,9 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Adds an order to the list.
+		/// Adds an Order to the list.
 		/// </summary>
-		/// <param name="order">The order to be added to the view.</param>
+		/// <param name="order">The Order to be added to the view.</param>
 		public void AddOrder(Order order)
 		{
 			int index = dgvOrders.Rows.Add(
@@ -136,7 +136,7 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Callback for when the selected order changes.
+		/// Callback for when the selected Order changes.
 		/// </summary>
 		/// <param name="sender">The source of the event.</param>
 		/// <param name="e">The event arguments.</param>
@@ -168,7 +168,7 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// Updates the current items, surcharges and payments in the view.
 		/// </summary>
-		/// <param name="order">The current order to be displayed.</param>
+		/// <param name="order">The current Order to be displayed.</param>
 		private void UpdateOrderChildViews(Order order)
 		{
 			foreach (var item in order.Items)

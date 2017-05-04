@@ -36,7 +36,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
-		/// A list of all surcounts applied at and order level
+		/// A list of all surcounts applied at and Order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
 		[DataMember]
@@ -55,7 +55,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		}
         
         /// <summary>
-		/// An obfuscated string representation of the version of the order in Doshii.
+		/// An obfuscated string representation of the version of the Order in Doshii.
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "version")]
@@ -64,7 +64,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonOrderProduct> _items;
         
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]

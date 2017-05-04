@@ -9,6 +9,6 @@ namespace DoshiiDotNetIntegration.Models
     public class ActionResultBasic
     {
         public bool Success { get; set; }
-        public bool FailReason { get; set; }
+        public string FailReason { get; set; }
     }
 }

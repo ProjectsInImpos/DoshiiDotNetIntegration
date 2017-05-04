@@ -60,7 +60,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public Address Address { get; set; }
 
         /// <summary>
-        /// Notes specific to this order, 
+        /// Notes specific to this Order, 
         /// this may include:
         /// Notes about delivery location,
         /// Notes about allergies,

@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace DoshiiDotNetIntegration.Models.ActionResults
 {
-    public class OrderActionResult : ActionResultBasic
+    public class SurcountActionResult: ActionResultBasic
     {
-        public Order Order { get; set; }
-        public string OrderId { get; set; }
+        public Surcount Surcount { get; set; }
+        public string SurcountId { get; set; }
+        
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -96,12 +97,15 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal ActionResultBasic DeleteEmployee(Employee employee)
+        internal EmployeeActionResult DeleteEmployee(Employee employee)
         {
+            var actionResult = new EmployeeActionResult();
             if (string.IsNullOrEmpty(employee.Id))
             {
                 _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, "you are attempting to delete an employee without a doshii Id.");
-                return false;
+                actionResult.Success = false;
+                actionResult.Employee = employee;
+                actionResult.EmployeeId = employee.Id;
             }
             else
             {
@@ -114,6 +118,8 @@ namespace DoshiiDotNetIntegration.Controllers
                     throw rex;
                 }
             }
+            return actionResult;
+            
         }
     }
 }

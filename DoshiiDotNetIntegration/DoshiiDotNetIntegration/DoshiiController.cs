@@ -88,7 +88,7 @@ namespace DoshiiDotNetIntegration
     /// <list type="bullet">
     ///     <item>Get the rewards / Points available for a given member using <see cref="GetRewardsForMember"/> for rewards and <see cref="GetMember"/> for points</item> 
     ///     <item>Ensure that the rewards / points are still available to be redeemed by the member with <see cref="RedeemRewardForMember"/> for rewards and <see cref="RedeemPointsForMember"/></item> 
-    ///     <item>If the above method returns true you should apply the reward / points to the order on the pos and within 30 - 60 secs call (If the time limit expires the redemption transaction is cancelled by Doshii and the pos user must start the redemption again)</item> 
+    ///     <item>If the above method returns true you should apply the reward / points to the Order on the pos and within 30 - 60 secs call (If the time limit expires the redemption transaction is cancelled by Doshii and the pos user must start the redemption again)</item> 
     ///     <item><see cref="RedeemPointsForMemberConfirm"/> for points or <see cref="RedeemRewardForMemberConfirm"/> to confirm use of the reward.</item> 
     ///     <item>When the above step is completed there is no longer a method to give the points or rewards back to a member.</item>
     /// </list>
@@ -102,7 +102,7 @@ namespace DoshiiDotNetIntegration
     /// The DoshiiController supports two communication protocols HTTP and Websockets. 
     /// The websockets protocol is used to open a websocket connection with the DoshiiAPI and once it is open, 
     /// the DoshiiController receives the notification event messages from DoshiiAPI. Events include when a user 
-    /// creates an order event ect.. The HTTP protocol is used for all other operations including creating orders, 
+    /// creates an Order event ect.. The HTTP protocol is used for all other operations including creating orders, 
     /// update orders, creating products e.t.c.)
     /// </remarks>
     public class DoshiiController : IDisposable
@@ -528,8 +528,8 @@ namespace DoshiiDotNetIntegration
         {
 			if (!String.IsNullOrEmpty(e.Order.Id))
             {
-                _controllersCollection.LoggingController.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting order was passed to the order created event handler.");
-                throw new NotSupportedException("Developer Error, An order with a posId was passed to the CreatedOrderEventHandler");
+                _controllersCollection.LoggingController.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting Order was passed to the Order created event handler.");
+                throw new NotSupportedException("Developer Error, An Order with a posId was passed to the CreatedOrderEventHandler");
             }
             _controllersCollection.OrderingController.HandleOrderCreated(e.Order, e.TransactionList.ToList());
         }
@@ -556,7 +556,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTransactionCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
-			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for Order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             switch (e.Transaction.Status)
             {
                 case "pending":
@@ -712,7 +712,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTransactionUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for Order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             
             switch (e.Transaction.Status)
             {
@@ -737,18 +737,18 @@ namespace DoshiiDotNetIntegration
         #region ordering And Transaction
 
         /// <summary>
-        /// call this method to accept an order created by an order ahead partner, 
-        /// <para/>this method will test that the order on doshii has not changed since it was original received by the pos. 
-        /// <para/>It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
+        /// call this method to accept an Order created by an Order ahead partner, 
+        /// <para/>this method will test that the Order on doshii has not changed since it was original received by the pos. 
+        /// <para/>It is the responsibility of the pos to ensure that the products on the Order were not changed during the confirmation process as this will not 
         /// <para/>be checked by this method. 
-        /// <para/>If this method is not successful then the order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
+        /// <para/>If this method is not successful then the Order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
         /// </summary>
         /// <param name="orderToAccept">
-        /// The order that is being accepted
+        /// The Order that is being accepted
         /// </param>
         /// <returns>
-        /// True if the order was recorded as accepted on Doshii
-        /// <para/>False if the order was not recorded as accepted on Doshii.
+        /// True if the Order was recorded as accepted on Doshii
+        /// <para/>False if the Order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual OrderActionResult AcceptOrderAheadCreation(Order orderToAccept)
@@ -763,10 +763,10 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// Call this method to reject an order created by an order ahead partner,
+        /// Call this method to reject an Order created by an Order ahead partner,
         /// </summary>
         /// <param name="orderToReject">
-        /// The pending Doshii order that will be rejected
+        /// The pending Doshii Order that will be rejected
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual void RejectOrderAheadCreation(Order orderToReject)
@@ -831,14 +831,14 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// This method returns an order from Doshii corresponding to the OrderId
+        /// This method returns an Order from Doshii corresponding to the OrderId
         /// </summary>
         /// <param name="orderId">
-        /// The Id of the order that is being requested. 
+        /// The Id of the Order that is being requested. 
         /// </param>
         /// <returns>
-        /// The order with the corresponding Id
-        /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
+        /// The Order with the corresponding Id
+        /// <para/>If there is no Order corresponding to the Id, a blank Order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
@@ -883,7 +883,7 @@ namespace DoshiiDotNetIntegration
         }
         
 		/// <summary>
-		/// Retrieves the current order list from Doshii.
+		/// Retrieves the current Order list from Doshii.
 		/// <para/>This method will only return orders that are linked to pos ordered in Doshii
 		/// <para/>To get a list of unlinked orders call<see cref="GetUnlinkedOrders"/>
 		/// </summary>
@@ -926,11 +926,11 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// This method returns a transaction from Doshii corresponding to the order with the doshiiOrderId
+        /// This method returns a transaction from Doshii corresponding to the Order with the doshiiOrderId
         /// <para/>This method should only be called in relation to unlinkedOrders as this method will not return transactions related to linked orders. 
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// The DoshiiId of the order that is being requested. 
+        /// The DoshiiId of the Order that is being requested. 
         /// </param>
         /// <returns>
         /// <see cref="Transaction"/> that relate to the doshiiOrderId. 
@@ -949,10 +949,10 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// This method returns a transaction from Doshii corresponding to the order with the posOrderId
+        /// This method returns a transaction from Doshii corresponding to the Order with the posOrderId
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// The DoshiiId of the order that is being requested. 
+        /// The DoshiiId of the Order that is being requested. 
         /// </param>
         /// <returns>
         /// <see cref="Transaction"/> that relate to the doshiiOrderId. 
@@ -990,19 +990,19 @@ namespace DoshiiDotNetIntegration
         /// This method will update the Order on the Doshii API
         /// <para/>This can be used to update / create orders on Doshii that have been modified / created on the pos.
         /// <para/>This method should not be used to accept or reject pending orders from doshii.
-        /// <para/>To accept a pending order ahead order from Doshii use <see cref="AcceptOrderAheadCreation"/>
-        /// <para/>To reject a pending order ahead order from Doshii use <see cref="RejectOrderAheadCreation"/>
+        /// <para/>To accept a pending Order ahead Order from Doshii use <see cref="AcceptOrderAheadCreation"/>
+        /// <para/>To reject a pending Order ahead Order from Doshii use <see cref="RejectOrderAheadCreation"/>
         /// </summary>
         /// <param name="order">
-        /// The order must contain all the products / items,
+        /// The Order must contain all the products / items,
         /// <para/>All surcharges,
         /// <para/>All discounts,
-        /// <para/>Included in the check as this method will overwrite the order currently on Doshii 
+        /// <para/>Included in the check as this method will overwrite the Order currently on Doshii 
         /// </param>
         /// <returns>
-        /// The order that Doshii has recorded after the update.
+        /// The Order that Doshii has recorded after the update.
         /// </returns>
-        /// <exception cref="OrderUpdateException">There was an issue updating the order on Doshii, See exception for details.</exception>
+        /// <exception cref="OrderUpdateException">There was an issue updating the Order on Doshii, See exception for details.</exception>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual Order UpdateOrder(Order order)
         {
@@ -1150,13 +1150,13 @@ namespace DoshiiDotNetIntegration
         /// This method will return all the rewards available for a member of the orginisation on Doshii.
         /// The following process is used to retreive the rewards.
         /// <list type="bullet">
-        ///   <item>Retreives the order from the pos with the orderId and attempts to update the order on Doshii</item>
+        ///   <item>Retreives the Order from the pos with the orderId and attempts to update the Order on Doshii</item>
         ///   <item>Requests the rewards from Doshii with the provided memberId, and orderTotal.</item>
         /// </list>
         /// </summary>
         /// <param name="memberId">The Id of the member to request rewards for</param>
-        /// <param name="orderId">The Id of the order that the member may use the requested rewards on</param>
-        /// <param name="orderTotal">The current total of the order the member may use the rewards on</param>
+        /// <param name="orderId">The Id of the Order that the member may use the requested rewards on</param>
+        /// <param name="orderTotal">The current total of the Order the member may use the rewards on</param>
         /// <returns></returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
@@ -1177,17 +1177,17 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order.
+        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the Order.
         /// after calling this method successfully the pas must 
         /// <list type="bullet">
-        ///   <item>apply the reward to the order</item>
-        ///   <item>accept payment for the order from the customer.</item>
+        ///   <item>apply the reward to the Order</item>
+        ///   <item>accept payment for the Order from the customer.</item>
         ///   <item>call <see cref="RedeemRewardForMemberConfirm"/> to confirm the use of the redard</item>
         /// </list>
         /// </summary>
         /// <param name="member">The member attempting to redeem the reward.</param>
         /// <param name="reward">The rewards the member is attempting to redeem.</param>
-        /// <param name="order">The order the reward should be applied to.</param>
+        /// <param name="order">The Order the reward should be applied to.</param>
         /// <returns>
         /// true - when the reward can be redeemed - the pos must  
         /// </returns>
@@ -1274,14 +1274,14 @@ namespace DoshiiDotNetIntegration
         /// This method should be called to confirm that the points the member is attempting to redeem are still available. 
         /// after calling this method successfully the pas must 
         /// <list type="bullet">
-        ///   <item>apply the points to the order</item>
-        ///   <item>accept payment for the order from the customer.</item>
+        ///   <item>apply the points to the Order</item>
+        ///   <item>accept payment for the Order from the customer.</item>
         ///   <item>call <see cref="RedeemPointsForMemberConfirm"/> to confirm the use of the points</item>
         /// </list>
         /// </summary>
         /// <param name="member">the member that would like to redeem points.</param>
         /// <param name="app">The app that has the points that the member wishes to redeem</param>
-        /// <param name="order">The order that the member wishes to redeem the points against.</param>
+        /// <param name="order">The Order that the member wishes to redeem the points against.</param>
         /// <param name="points">The amount of points the member wishes to redeem</param>
         /// <returns>
         /// True if the points are still available to redeem
@@ -1363,13 +1363,13 @@ namespace DoshiiDotNetIntegration
         #region tableAllocation and consumers
 
         /// <summary>
-		/// Called by POS to add a table allocation to an order.
+		/// Called by POS to add a table allocation to an Order.
 		/// </summary>
-		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
+		/// <param name="posOrderId">The unique identifier of the Order on the POS.</param>
         /// <param name="tableNames">A list of the tables to add to the allocaiton, if you want to remove the table allocaiton you should pass an empty list into this param.</param>
-		/// <returns>The current order details in Doshii after upload.</returns>
+		/// <returns>The current Order details in Doshii after upload.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        /// <exception cref="OrderDoesNotExistOnPosException">Thrown when the order corresponding to the posOrderId parameter cannot be retrieved from the pos.</exception>
+        /// <exception cref="OrderDoesNotExistOnPosException">Thrown when the Order corresponding to the posOrderId parameter cannot be retrieved from the pos.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
         public virtual ActionResultBasic SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
@@ -1451,9 +1451,9 @@ namespace DoshiiDotNetIntegration
         /// This method is used to update the pos menu on doshii,
         /// <para/>Calls to this method will replace the existing pos menu. 
         /// <para/>If you wish to update or create single products you should use <see cref="UpdateProduct"/> method
-        /// <para/>If you wish to update or create single order level surcharges you should use the <see cref="UpdateSurcount"/> method
+        /// <para/>If you wish to update or create single Order level surcharges you should use the <see cref="UpdateSurcount"/> method
         /// <para/>if you wish to delete a single product you should use the <see cref="DeleteProduct "/> method
-        /// <para/>if you wish to delete a single order level surcharge you should use the <see cref="DeleteSurcount "/> method
+        /// <para/>if you wish to delete a single Order level surcharge you should use the <see cref="DeleteSurcount "/> method
         /// </summary>
         /// <param name="menu">
         /// The full pos menu to be updated to doshii
@@ -1722,7 +1722,7 @@ namespace DoshiiDotNetIntegration
           /// </summary>
           /// <param name="bookingId">the id of the booking to be seated</param>
           /// <param name="checkin">the checkin that should be associated with the booking</param>
-          /// <param name="posOrderId">the posOrderId for the booking that will be seated, this can be NULL if there is no order associated with the table.</param>
+          /// <param name="posOrderId">the posOrderId for the booking that will be seated, this can be NULL if there is no Order associated with the table.</param>
           /// <returns>True if the booking was seated.</returns>
         public ActionResultBasic SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {

@@ -150,7 +150,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 if (order == null)
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during seating");
-                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during seating", new OrderUpdateException());
+                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null Order during seating", new OrderUpdateException());
                 }
 
                 if (!String.IsNullOrEmpty(order.CheckinId))

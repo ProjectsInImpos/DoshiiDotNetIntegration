@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models
     public class RedeemOrderResult : ICloneable
     {
         /// <summary>
-        /// the order will be Null if the request to redeem the order was not successfull. 
+        /// the Order will be Null if the request to redeem the Order was not successfull. 
         /// </summary>
         Order order;
 

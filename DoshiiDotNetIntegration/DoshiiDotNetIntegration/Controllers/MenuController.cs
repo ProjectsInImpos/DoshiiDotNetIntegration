@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -158,18 +160,19 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the surcount on Doshii was updated. 
         /// False if the surcount on doshii was not updated. 
         /// </returns>
-        internal virtual ActionResultBasic DeleteSurcount(string posId)
+        internal virtual SurcountActionResult DeleteSurcount(string posId)
         {
-            bool success;
+            var actionResult = new SurcountActionResult();
             try
             {
-                success = _httpComs.DeleteSurcount(posId);
+                actionResult = _httpComs.DeleteSurcount(posId);
             }
             catch (Exception ex)
             {
-                return false;
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString("delete surcount");
             }
-            return success;
+            return actionResult;
         }
 
         /// <summary>

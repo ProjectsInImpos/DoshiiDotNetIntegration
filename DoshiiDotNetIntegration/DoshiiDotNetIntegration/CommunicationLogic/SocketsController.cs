@@ -75,14 +75,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderCreatedEventArgs e);
         
         /// <summary>
-        /// Event will be raised when the state of an order created message is received from Doshii.
+        /// Event will be raised when the state of an Order created message is received from Doshii.
         /// </summary>
         internal event OrderCreatedEventHandler OrderCreatedEvent;
 
         internal delegate void OrderUpdatedEventHandler(object sender, CommunicationEventArgs.OrderUpdatedEventArgs e);
 
         /// <summary>
-        /// Event will be raised when an order message has been received from Doshii.
+        /// Event will be raised when an Order message has been received from Doshii.
         /// </summary>
         internal event OrderUpdatedEventHandler OrderUpdatedEvent;
 

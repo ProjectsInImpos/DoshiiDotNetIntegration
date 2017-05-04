@@ -16,6 +16,8 @@ using DoshiiDotNetIntegration.Controllers;
 using JWT;
 using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
+using DoshiiDotNetIntegration.Models.ActionResults;
+using DoshiiDotNetIntegration.Models.Base;
 using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
@@ -78,7 +80,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             _doshiiUrlBase = urlBase;
         }
 
-        #region order methods
+        #region Order methods
 
         internal virtual List<Log> GetUnlinkedOrderLog(string doshiiOrderId)
         {
@@ -121,8 +123,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedLogList;
         }
         
-        internal virtual List<Log> GetOrderLog(string orderId)
+        internal virtual LogActionResult GetOrderLog(string orderId)
         {
+            var actionResult = new LogActionResult();
             var retreivedLogList = new List<Models.Log>();
             DoshiHttpResponseMessage responseMessage;
             try
@@ -147,33 +150,38 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
                     }
-
+                    actionResult.Success = true;
+                    actionResult.LogList = retreivedLogList;
                 }
                 else
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
                 }
             }
             else
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString("get order log");
             }
 
-            return retreivedLogList;
+            return actionResult;
         }
 
 
         /// <summary>
-        /// This method is used to retrieve the order from Doshii matching the provided orderId (the pos identifier for the order),
+        /// This method is used to retrieve the Order from Doshii matching the provided orderId (the pos identifier for the Order),
         /// </summary>
         /// <param name="orderId">
-        /// The pos identifier for the order
+        /// The pos identifier for the Order
         /// </param>
         /// <returns>
-        /// If an order if found matching the orderId the order is returned,
-        /// If on order matching the orderId is not found a new order is returned. 
+        /// If an Order if found matching the orderId the Order is returned,
+        /// If on Order matching the orderId is not found a new Order is returned. 
         /// </returns>
-        internal virtual Models.Order GetOrder(string orderId)
+        internal virtual OrderActionResult GetOrder(string orderId)
         {
             var retreivedOrder = new Models.Order();
             DoshiHttpResponseMessage responseMessage;
@@ -216,16 +224,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId (the doshii identifier for the order),
-        /// This method should only be used with trying to retreive orders from Doshii that are not currently linked to a pos order, 
+        /// This method is used to retrieve the Order from Doshii matching the provided doshiiOrderId (the doshii identifier for the Order),
+        /// This method should only be used with trying to retreive orders from Doshii that are not currently linked to a pos Order, 
         /// If the orders are currently linked on the Pos <see cref="GetOrder"/> should be used. 
         /// </summary>
         /// <param name="orderId">
-        /// The pos identifier for the order
+        /// The pos identifier for the Order
         /// </param>
         /// <returns>
-        /// If an order if found matching the orderId the order is returned,
-        /// If on order matching the orderId is not found a new order is returned. 
+        /// If an Order if found matching the orderId the Order is returned,
+        /// If on Order matching the orderId is not found a new Order is returned. 
         /// </returns>
         internal virtual Models.Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
@@ -255,9 +263,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         {
                             _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
                                 string.Format(
-                                    "Doshii: An order received from Doshii could not be processed, A Price value in the order could not be converted into a decimal, the order will be rejected by the SDK: ",
+                                    "Doshii: An Order received from Doshii could not be processed, A Price value in the Order could not be converted into a decimal, the Order will be rejected by the SDK: ",
                                     jsonOrder),ex);
-                            //reject the order. 
+                            //reject the Order. 
                             var orderToReject = Mapper.Map<Models.Order>(jsonOrder);
                             _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
                             retreivedOrder = null;
@@ -287,7 +295,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// Gets all the current active linked orders in Doshii.
-        /// To get all order including unlinked orders you must also call <see cref="GetUnlinkedOrders"/>
+        /// To get all Order including unlinked orders you must also call <see cref="GetUnlinkedOrders"/>
         /// </summary>
         /// <returns>
         /// A list of all currently active linked orders from Doshii
@@ -342,7 +350,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// Gets all the current active unlinked orders in Doshii.
-        /// To get all order including linked orders you must also call <see cref="GetOrders"/>
+        /// To get all Order including linked orders you must also call <see cref="GetOrders"/>
         /// </summary>
         /// <returns>
         /// A list of all currently active unlinked orders from Doshii
@@ -399,20 +407,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// completes the Put or Post request to update an Order with Doshii. 
         /// </summary>
         /// <param name="order">
-        /// The order to by updated on Doshii
+        /// The Order to by updated on Doshii
         /// </param>
         /// <param name="method">
         /// The HTTP verb to be used (in the current version the only acceptable verb is PUT)
         /// </param>
         /// <returns>
-        /// The order returned from the request. 
+        /// The Order returned from the request. 
         /// </returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal virtual Models.Order PutPostOrder(Models.Order order, string method)
+        internal virtual OrderActionResult PutPostOrder(Models.Order order, string method)
         {
+            var actionResult = new OrderActionResult();
             if (!method.Equals(WebRequestMethods.Http.Put))
             {
                 throw new NotSupportedException("Method Not Supported");
@@ -420,7 +429,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             var returnOrder = new Models.Order();
             DoshiHttpResponseMessage responseMessage;
-
             try
             {
                 var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(order);
@@ -437,21 +445,32 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 throw rex;
             }
+            if (responseMessage.Status == HttpStatusCode.OK)
+            {
+                
+                var dto = new JsonOrder();
+                actionResult.Success = true;
+                actionResult.Order = HandleOrderResponse<Models.Order, JsonOrder>(order.Id, responseMessage, out dto);;
+                actionResult.OrderId = returnOrder.Id;
+            }
+            else
+            {
+                actionResult.Success = false;
+                actionResult.Order = order;
+                actionResult.OrderId = order.Id;
+            }
 
-            var dto = new JsonOrder();
-            returnOrder = HandleOrderResponse<Models.Order, JsonOrder>(order.Id, responseMessage, out dto);
-
-            return returnOrder;
+            return actionResult;
         }
 
         /// <summary>
-        /// This method is specifically called to confirm an order created on an orderAhead partner.
+        /// This method is specifically called to confirm an Order created on an orderAhead partner.
         /// </summary>
         /// <param name="order">
-        /// The order to be confirmed
+        /// The Order to be confirmed
         /// </param>
         /// <returns>
-        /// The order that was returned from the PUT request to Doshii. 
+        /// The Order that was returned from the PUT request to Doshii. 
         /// </returns>
         internal virtual Models.Order PutOrderCreatedResult(Models.Order order)
         {
@@ -479,7 +498,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// This function takes the supplied <paramref name="responseMessage"/> received from the RESTful Doshii API and translates it
-        /// into some sort of order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
+        /// into some sort of Order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
         /// JSON data transfer object (<typeparamref name="DTO"/>). The data transfer object type should be an extension of the 
         /// <see cref="JsonSerializationBase{TSelf}<TSelf>"/> class.
         /// </summary>
@@ -491,16 +510,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// namespace that is mapped to the <typeparamref name="DTO"/> type via the <see cref="DoshiiDotNetIntegration.Helpers.AutoMapperConfigurator"/>
         /// helper class.</typeparam>
         /// <typeparam name="DTO">The corresponding data type object used by the communication with the API for the action.</typeparam>
-        /// <param name="orderId">The POS identifier for the order.</param>
+        /// <param name="orderId">The POS identifier for the Order.</param>
         /// <param name="responseMessage">The current response message to be parsed.</param>
         /// <param name="jsonDto">When this function returns, this output parameter will be the data transfer object used in communication with the API.</param>
-        /// <returns>The details of the order in the Doshii API.</returns>
+        /// <returns>The details of the Order in the Doshii API.</returns>
         internal T HandleOrderResponse<T, DTO>(string orderId, DoshiHttpResponseMessage responseMessage, out DTO jsonDto)
         {
             jsonDto = default(DTO); // null since its an object
             T returnObj = default(T); // null since its an object
 
-            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message has been returned to the put order function"));
+            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message has been returned to the put Order function"));
 
             if (responseMessage != null)
             {
@@ -511,7 +530,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response order data was not null"));
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response Order data was not null"));
                         jsonDto = JsonConvert.DeserializeObject<DTO>(responseMessage.Data);
                         returnObj = Mapper.Map<T>(jsonDto);
                     }
@@ -540,16 +559,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// A call to this function updates the order version in the POS. The generic nature of this function is due to the fact that
-        /// we might be dealing with different actual model objects. This function can be used to update the POS version of the order
+        /// A call to this function updates the Order version in the POS. The generic nature of this function is due to the fact that
+        /// we might be dealing with different actual model objects. This function can be used to update the POS version of the Order
         /// regardless of the actual type used.
         /// </summary>
         /// <remarks>
-        /// NOTE: The SDK implementer must update this call for any new model types that make use of the order version.
+        /// NOTE: The SDK implementer must update this call for any new model types that make use of the Order version.
         /// </remarks>
         /// <typeparam name="T">The type of model object being updated. In this case, the type should be a derivative of an
-        /// <see cref="DoshiiDotNetIntegration.Models.Order"/> or a class that contains a reference to an order.</typeparam>
-        /// <param name="orderDetails">The details of the order.</param>
+        /// <see cref="DoshiiDotNetIntegration.Models.Order"/> or a class that contains a reference to an Order.</typeparam>
+        /// <param name="orderDetails">The details of the Order.</param>
         internal virtual void UpdateOrderVersion<T>(T orderDetails)
         {
             if (orderDetails != null)
@@ -581,15 +600,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// This method is used to confirm or reject or update an order when the order has an OrderId
+        /// This method is used to confirm or reject or update an Order when the Order has an OrderId
         /// </summary>
         /// <param name="order">
-        /// The order to be updated
+        /// The Order to be updated
         /// </param>
         /// <returns>
-        /// If the request is not successful a new order will be returned - you can check the order.Id in the returned order to confirm it is a valid response. 
+        /// If the request is not successful a new Order will be returned - you can check the Order.Id in the returned Order to confirm it is a valid response. 
         /// </returns>
-        internal virtual Models.Order PutOrder(Models.Order order)
+        internal virtual OrderActionResult PutOrder(Models.Order order)
         {
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
@@ -685,15 +704,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #region transaction methods
 
         /// <summary>
-        /// This method is used to retrieve a list of transaction related to an order with the doshiiOrderId
-        /// This method will only retreive transactions for unlinked orders on Doshii - if the order is linked to a pos order there is no method to retreive the transaction in the OrderAhead implementation. 
+        /// This method is used to retrieve a list of transaction related to an Order with the doshiiOrderId
+        /// This method will only retreive transactions for unlinked orders on Doshii - if the Order is linked to a pos Order there is no method to retreive the transaction in the OrderAhead implementation. 
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// the doshiiOrderId for the order. 
+        /// the doshiiOrderId for the Order. 
         /// </param>
         /// <returns>
-        /// A list of transactions associated with the order,
-        /// If there are no transaction associated with the order an empty list is returned. 
+        /// A list of transactions associated with the Order,
+        /// If there are no transaction associated with the Order an empty list is returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
         internal virtual IEnumerable<Transaction> GetTransactionsFromDoshiiOrderId(string doshiiOrderId)
@@ -738,14 +757,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// This method is used to retrieve a list of transaction related to an order with the posOrderId
+        /// This method is used to retrieve a list of transaction related to an Order with the posOrderId
         /// </summary>
         /// <param name="posOrderId">
-        /// the posOrderId for the order. 
+        /// the posOrderId for the Order. 
         /// </param>
         /// <returns>
-        /// A list of transactions associated with the order,
-        /// If there are no transaction associated with the order an empty list is returned. 
+        /// A list of transactions associated with the Order,
+        /// If there are no transaction associated with the Order an empty list is returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
         internal virtual IEnumerable<Transaction> GetTransactionsFromPosOrderId(string posOrderId)
@@ -1190,9 +1209,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnedMember;
         }
 
-        internal virtual bool DeleteMember(Member member)
+        internal virtual MemberActionResult DeleteMember(Member member)
         {
-            var returnedMember = new Member();
+            var actionResult = new MemberActionResult()
+            {
+                Member = member,
+                MemberId = member.Id
+            };
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -1209,13 +1232,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                    
-
+                    actionResult.Success = true;
                 }
                 else
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.Members, member.Id)));
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
                 }
             }
             else
@@ -1223,7 +1246,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Members, member.Id)));
                 throw new NullResponseDataReturnedException();
             }
-            return false;
+            return actionResult;
         }
 
         internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
@@ -1528,8 +1551,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedConsumer;
         }
 
-        internal virtual Checkin PostCheckin(Checkin checkin)
+        internal virtual CheckinActionResult PostCheckin(Checkin checkin)
         {
+            var actionResult = new CheckinActionResult();
             var retreivedCheckin = new Checkin();
             DoshiHttpResponseMessage responseMessage;
             try
@@ -1556,19 +1580,29 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins)));
                     }
-
+                    actionResult.Success = true;
+                    actionResult.Checkin = retreivedCheckin;
+                    actionResult.CheckinId = retreivedCheckin.Id;
                 }
                 else
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins)));
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
+                    actionResult.Checkin = checkin;
+                    actionResult.CheckinId = checkin.Id;
                 }
             }
             else
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins)));
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString("create checkin");
+                actionResult.Checkin = checkin;
+                actionResult.CheckinId = checkin.Id;
             }
 
-            return retreivedCheckin;
+            return actionResult;
         }
 
         internal virtual Checkin PutCheckin(Checkin checkin)
@@ -1614,8 +1648,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedCheckin;
         }
 
-        internal virtual Checkin DeleteCheckin(string checkinId)
+        internal virtual CheckinActionResult DeleteCheckin(string checkinId)
         {
+            var actionResult = new CheckinActionResult();
             var retreivedCheckin = new Checkin();
             DoshiHttpResponseMessage responseMessage;
             try
@@ -1641,19 +1676,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
                     }
+                    actionResult.Success = true;
+                    actionResult.CheckinId = checkinId;
+                    actionResult.Checkin = retreivedCheckin;
 
                 }
                 else
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
+                    actionResult.CheckinId = checkinId;
                 }
             }
             else
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString("delete checkin");
+                actionResult.CheckinId = checkinId;
             }
 
-            return retreivedCheckin;
+            return actionResult;
         }
 
         internal virtual Checkin GetCheckin(string checkinId)
@@ -1858,9 +1902,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <returns></returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual bool DeleteSurcount(string posId)
+        internal virtual SurcountActionResult DeleteSurcount(string posId)
         {
-            var returedMenu = new Menu();
+            var actionResult = new SurcountActionResult();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -1872,11 +1916,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             if (responseMessage.Status == HttpStatusCode.OK)
             {
-                return true;
+                actionResult.Success = true;
             }
             else
             {
-                return false;
+                actionResult.Success = false;
+                actionResult.FailReason = responseMessage.ErrorMessage;
             }
         }
 
@@ -2813,10 +2858,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedEmployee;
         }
 
-        internal virtual bool DeleteEmployee(Employee employee)
+        internal virtual EmployeeActionResult DeleteEmployee(Employee employee)
         {
-            var retreivedEmployee = new Models.Employee();
-            var employeeToPost = Mapper.Map<JsonEmployee>(employee);
+            var actionResult = new EmployeeActionResult()
+            {
+                Employee = employee,
+                EmployeeId = employee.Id
+            };
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -2831,21 +2879,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    return true;
+                    actionResult.Success = true;
                 }
                 else
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                    return false;
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
                 }
             }
             else
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                return false;
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString("delete employee");
             }
 
-            return false;
+            return actionResult;
         }
 
         #endregion
@@ -2862,7 +2912,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <param name="identification">
         /// An optional identifier used in the request 
-        /// eg, the orderId for a get order request
+        /// eg, the orderId for a get Order request
         /// </param>
         /// <returns>
         /// The Url required to make the desiered request. 
@@ -3037,7 +3087,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <param name="data">
         /// The data that will be sent with the request. 
-        /// eg, a JSON representation of the order that should be send to Doshii with a PUT order request. 
+        /// eg, a JSON representation of the Order that should be send to Doshii with a PUT Order request. 
         /// </param>
         /// <returns></returns>
         /// <exception cref="RestfulApiErrorResponseException">Is thrown when any of the following responses are received.
@@ -3152,6 +3202,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                                         errorResponce));
                             }
                         }
+                        
+                        responceMessage.Status = httpResponse.StatusCode;
+                        responceMessage.StatusDescription = httpResponse.StatusDescription;
+                        var theErrorMessage = DoshiiHttpErrorMessage.deseralizeFromJson(errorResponce);
+                        responceMessage.ErrorMessage = theErrorMessage.Message;
                         if (httpResponse.StatusCode == HttpStatusCode.BadRequest ||
                             httpResponse.StatusCode == HttpStatusCode.Unauthorized ||
                             httpResponse.StatusCode == HttpStatusCode.Forbidden ||

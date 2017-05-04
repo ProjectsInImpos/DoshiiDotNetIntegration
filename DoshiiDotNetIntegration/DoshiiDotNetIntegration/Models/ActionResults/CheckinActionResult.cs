@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DoshiiDotNetIntegration.Models.ActionResults
 {
-    public class OrderActionResult : ActionResultBasic
+    public class CheckinActionResult : ActionResultBasic
     {
-        public Order Order { get; set; }
-        public string OrderId { get; set; }
+        public Checkin Checkin { get; set; }
+        public string CheckinId { get; set; }
     }
 }

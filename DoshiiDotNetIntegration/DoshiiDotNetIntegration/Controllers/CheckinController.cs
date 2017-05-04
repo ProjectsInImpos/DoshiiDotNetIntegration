@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -60,18 +62,17 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the close was successful
         /// False if the close was not successful. 
         /// </returns>
-        internal virtual ActionResultBasic CloseCheckin(string checkinId)
+        internal virtual CheckinActionResult CloseCheckin(string checkinId)
         {
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));
 
-            Checkin checkinCreateResult = null;
+            CheckinActionResult checkinCreateResult = new CheckinActionResult();
             try
             {
                 checkinCreateResult = _httpComs.DeleteCheckin(checkinId);
-                if (checkinCreateResult == null)
+                if (!checkinCreateResult.Success)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error attempting to close a checkin."));
-                    return false;
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("{0}{1}", DoshiiStrings.DoshiiLogPrefix, DoshiiStrings.GetUnknownErrorString("Close Checkin")));
                 }
             }
             catch (Exception ex)
@@ -79,7 +80,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
                 throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
-            return true;
+            return checkinCreateResult;
         }
     }
 }

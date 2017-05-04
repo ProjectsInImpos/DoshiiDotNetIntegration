@@ -61,7 +61,7 @@ namespace DoshiiDotNetIntegration.Controllers
         }
 
         /// <summary>
-        /// calls the appropriate callback method on <see cref="ITransactionManager"/> to record the order version.
+        /// calls the appropriate callback method on <see cref="ITransactionManager"/> to record the Order version.
         /// </summary>
         /// <param name="transaction">
         /// the transaction to be recorded
@@ -128,7 +128,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         /// <summary>
         /// get a list of transactions from Doshii related to the DoshiiOrderId provided, 
-        /// This method is primarily used to get the transactions for unlinked orders before the pos is alerted to the creation of the order. 
+        /// This method is primarily used to get the transactions for unlinked orders before the pos is alerted to the creation of the Order. 
         /// </summary>
         /// <param name="doshiiOrderId"></param>
         /// <returns></returns>
@@ -140,7 +140,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                //this means there were no transactions for the unlinked order. 
+                //this means there were no transactions for the unlinked Order. 
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
                     List<Transaction> emplyTransactionList = new List<Transaction>();
@@ -166,7 +166,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                //this means there were no transactions for the unlinked order. 
+                //this means there were no transactions for the unlinked Order. 
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
                     List<Transaction> emplyTransactionList = new List<Transaction>();
@@ -197,7 +197,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         /// <summary>
         /// This method requests a payment from Doshii
-        /// It is currently not supported to request a payment from doshii from the pos without first receiving an order with a 'ready to pay' status so this method should not be called directly from the POS
+        /// It is currently not supported to request a payment from doshii from the pos without first receiving an Order with a 'ready to pay' status so this method should not be called directly from the POS
         /// </summary>
         /// <param name="transaction">
         /// The transaction that should be paid
@@ -212,7 +212,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
             try
             {
-                //as the transaction cannot currently be changed on doshii and transacitons are only created when a payment is made with an order the line below is not necessary unitll
+                //as the transaction cannot currently be changed on doshii and transacitons are only created when a payment is made with an Order the line below is not necessary unitll
                 //doshii is enhanced to allow modifying of transactions. 
                 //transaction.Version = TransactionManager.RetrieveTransactionVersion(transaction.Id);
                 returnedTransaction = _httpComs.PutTransaction(transaction);
@@ -221,13 +221,13 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for order.Id{0}", transaction.OrderId), rex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for Order.Id{0}", transaction.OrderId), rex);
                 }
                 else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
                 {
                     // this just means that the partner failed to claim payment when requested
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
-                        string.Format("Doshii: The partner could not claim the payment for for order.Id{0}", transaction.OrderId), rex);
+                        string.Format("Doshii: The partner could not claim the payment for for Order.Id{0}", transaction.OrderId), rex);
                 }
                 else
                 {
@@ -239,13 +239,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (NullResponseDataReturnedException)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for Order.Id{0}", transaction.OrderId));
                 _controllersCollection.TransactionManager.CancelPayment(transaction);
                 return false;
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", transaction.OrderId, ex));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for Order.Id {0} : {1}", transaction.OrderId, ex));
                 _controllersCollection.TransactionManager.CancelPayment(transaction);
                 return false;
             }
@@ -268,15 +268,15 @@ namespace DoshiiDotNetIntegration.Controllers
 
         /// <summary>
         /// This method requests a payment from Doshii
-        /// calls <see cref="m_DoshiiInterface.CheckOutConsumerWithCheckInId"/> when order update was reject by doshii for a reason that means it should not be retired. 
+        /// calls <see cref="m_DoshiiInterface.CheckOutConsumerWithCheckInId"/> when Order update was reject by doshii for a reason that means it should not be retired. 
         /// calls <see cref="m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) "/> 
         /// or <see cref="m_DoshiiInterface.RecordPartialCheckPayment(ref order) "/> 
         /// or <see cref="m_DoshiiInterface.RecordFullCheckPayment(ref order)"/>
         /// to record the payment in the pos. 
-        /// It is currently not supported to request a payment from doshii from the pos without first receiving an order with a 'ready to pay' status so this method should not be called directly from the POS
+        /// It is currently not supported to request a payment from doshii from the pos without first receiving an Order with a 'ready to pay' status so this method should not be called directly from the POS
         /// </summary>
         /// <param name="transaction">
-        /// The order that should be paid
+        /// The Order that should be paid
         /// </param>
         /// <returns>
         /// True on successful payment; false otherwise.
@@ -323,7 +323,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (OrderDoesNotExistOnPosException)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an Order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
                 receivedTransaction.Status = "rejected";
                 RejectPaymentForOrder(receivedTransaction);
                 return;
@@ -356,7 +356,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (OrderDoesNotExistOnPosException)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an Order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
                 receivedTransaction.Status = "rejected";
                 RejectPaymentForOrder(receivedTransaction);
                 return;
@@ -398,13 +398,13 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for order.Id{0}", refundTransaction.OrderId), rex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for Order.Id{0}", refundTransaction.OrderId), rex);
                 }
                 else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
                 {
                     // this just means that the partner failed to claim payment when requested
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
-                        string.Format("Doshii: The partner could not refund the payment for for order.Id{0}", refundTransaction.OrderId), rex);
+                        string.Format("Doshii: The partner could not refund the payment for for Order.Id{0}", refundTransaction.OrderId), rex);
                 }
                 else
                 {
@@ -416,13 +416,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (NullResponseDataReturnedException)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", refundTransaction.OrderId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for Order.Id{0}", refundTransaction.OrderId));
                 _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
                 return false;
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", refundTransaction.OrderId, ex));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for Order.Id {0} : {1}", refundTransaction.OrderId, ex));
                 _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
                 return false;
             }

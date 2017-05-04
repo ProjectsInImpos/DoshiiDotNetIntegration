@@ -8,6 +8,7 @@ using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -99,7 +100,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="member"></param>
         /// <returns></returns>
-        internal virtual ActionResultBasic DeleteMember(Member member)
+        internal virtual MemberActionResult DeleteMember(Member member)
         {
             try
             {
@@ -244,13 +245,13 @@ namespace DoshiiDotNetIntegration.Controllers
                 var returnedOrder = _controllersCollection.OrderingController.UpdateOrder(order);
                 if (returnedOrder == null)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The Order was not successfully sent to Doshii so the reward could not be redeemed."));
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and Order to Doshii for a rewards redeem"), ex);
                 return false;
             }
             try
@@ -315,13 +316,13 @@ namespace DoshiiDotNetIntegration.Controllers
                 order = _controllersCollection.OrderingController.UpdateOrder(order);
                 if (order == null)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the order on Doshii, so the points can't re redeemed."));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the Order on Doshii, so the points can't re redeemed."));
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and Order to Doshii for a rewards redeem"), ex);
                 return false;
             }
             PointsRedeem pr = new PointsRedeem()

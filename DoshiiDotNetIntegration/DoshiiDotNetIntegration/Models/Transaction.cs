@@ -52,7 +52,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// identify the order this transaction relates to
+        /// identify the Order this transaction relates to
         /// </summary>
         public string OrderId { get; set; }
 
@@ -87,14 +87,14 @@ namespace DoshiiDotNetIntegration.Models
         public string Partner { get; set; }
 
         /// <summary>
-        /// An obfuscated string representation of the version for the order in Doshii.
+        /// An obfuscated string representation of the version for the Order in Doshii.
         /// </summary>
         public string Version { get; set; }
 
         private List<string> _linkedTrxIds;
 
         /// <summary>
-        /// A list of all surcounts applied at and order level
+        /// A list of all surcounts applied at and Order level
         /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
         public List<string> LinkedTrxIds

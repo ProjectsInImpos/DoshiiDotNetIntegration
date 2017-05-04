@@ -90,25 +90,25 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void PutOrder_SuccessfullResponse_ReturnsResponseOrder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
+            responseMessage.Data = Mapper.Map<JsonOrder>(Order).ToJsonString();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var responseOrder = MockHttpComs.PutOrder(order);
+            var responseOrder = MockHttpComs.PutOrder(Order);
 
-            Assert.AreEqual(responseOrder.Id, order.Id);
+            Assert.AreEqual(responseOrder.Id, Order.Id);
         }
 
         [Test]
         public void PutOrder_OrderToPutStatus_EqualsOrderStatus_Accepted()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
+            responseMessage.Data = Mapper.Map<JsonOrder>(Order).ToJsonString();
             MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Matches(data => data.Contains("accepted")))).Return(responseMessage);
 
-            MockHttpComs.PutOrder(order);
+            MockHttpComs.PutOrder(Order);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -117,12 +117,12 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullResponseDataReturnedException))]
         public void PutOrder_NullOrderReturned_ExceptionThrown()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
+            responseMessage.Data = Mapper.Map<JsonOrder>(Order).ToJsonString();
             MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
 
-            MockHttpComs.PutOrder(order);
+            MockHttpComs.PutOrder(Order);
 
         }
 
