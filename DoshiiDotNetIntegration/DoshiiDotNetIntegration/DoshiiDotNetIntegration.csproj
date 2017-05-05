@@ -149,6 +149,7 @@
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Helpers\AuthHelper.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
+    <Compile Include="Helpers\AutoMapperGenericsHelper.cs" />
     <Compile Include="Helpers\ConsumerExtension.cs" />
     <Compile Include="Helpers\DateTimeExtension.cs" />
     <Compile Include="Helpers\DoshiiStrings.cs" />
@@ -161,12 +162,7 @@
     <Compile Include="Interfaces\IReservationManager.cs" />
     <Compile Include="Interfaces\NamespaceDoc.cs" />
     <Compile Include="Models\ActionResults\ActionResultBasic.cs" />
-    <Compile Include="Models\ActionResults\CheckinActionResult.cs" />
-    <Compile Include="Models\ActionResults\EmployeeActionResult.cs" />
-    <Compile Include="Models\ActionResults\LogActionResult.cs" />
-    <Compile Include="Models\ActionResults\MemberActionResult.cs" />
-    <Compile Include="Models\ActionResults\OrderActionResult.cs" />
-    <Compile Include="Models\ActionResults\SurcountActionResult.cs" />
+    <Compile Include="Models\ActionResults\ObjectActionResult.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
     <Compile Include="Models\Base\BaseCreatedAt.cs" />

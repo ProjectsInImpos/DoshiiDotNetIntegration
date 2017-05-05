@@ -39,7 +39,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -77,7 +77,7 @@ namespace DoshiiDotNetIntegration.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting an app on the pos with doshii memberId {0}", mem.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception deleting an app on the pos with doshii memberId {0}", mem.Id), ex);
                     }
 
                 }
@@ -94,7 +94,7 @@ namespace DoshiiDotNetIntegration.Controllers
                         }
                         catch (Exception ex)
                         {
-                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating an app on the pos with doshii memberId {0}", mem.Id), ex);
+                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception updating an app on the pos with doshii memberId {0}", mem.Id), ex);
                         }
 
                     }
@@ -109,7 +109,7 @@ namespace DoshiiDotNetIntegration.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
                     }
 
                 }
@@ -119,7 +119,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception while attempting to sync Doshii members with the pos"), ex);
                 return false;
             }
         }

@@ -216,7 +216,7 @@ namespace DoshiiDotNetSDKTests
 
             _Logger.Expect(
                 x =>
-                    x.LogDoshiiMessage(Arg<Type>.Is.Equal(typeof(DoshiiController)), Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Error), Arg<String>.Is.Equal("Doshii: SocketComsTimeoutValueReached"), Arg<Exception>.Is.Anything));
+                    x.LogDoshiiMessage(Arg<Type>.Is.Equal(typeof(DoshiiController)), Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Error), Arg<String>.Is.Equal(" SocketComsTimeoutValueReached"), Arg<Exception>.Is.Anything));
 
             _mockController.SocketComsTimeOutValueReached(MockSocketComs, new EventArgs());
 
@@ -233,7 +233,7 @@ namespace DoshiiDotNetSDKTests
 
             _Logger.Expect(
                 x =>
-                    x.LogDoshiiMessage(Arg<Type>.Is.Anything, Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Info), Arg<String>.Is.Equal(string.Format("Doshii: Attempted to update an Order version that does not exist on the Pos, OrderId - {0}, version - {1}", GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.TestVersion)), Arg<Exception>.Is.Anything));
+                    x.LogDoshiiMessage(Arg<Type>.Is.Anything, Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Info), Arg<String>.Is.Equal(string.Format(" Attempted to update an Order version that does not exist on the Pos, OrderId - {0}, version - {1}", GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.TestVersion)), Arg<Exception>.Is.Anything));
 
 
             _mockController.RecordOrderVersion(GenerateObjectsAndStringHelper.TestOrderId,

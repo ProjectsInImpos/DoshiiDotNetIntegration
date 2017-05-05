@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         internal virtual ActionResultBasic SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
         {
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to Order '{1}'", tableNames[0], posOrderId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos Allocating table '{0}' to Order '{1}'", tableNames[0], posOrderId));
             var actionResult = new ActionResultBasic();
             Order order = null;
             try
@@ -139,7 +139,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (OrderDoesNotExistOnPosException dne)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, " Order does not exist on POS during table allocation");
                 throw dne;
             }
 
@@ -159,12 +159,12 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation Order.Id{0} : {1}", order.Id, ex));
-                    throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting to create a checkin for Order.Id{0}", order.Id), ex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting a table allocation Order.Id{0} : {1}", order.Id, ex));
+                    throw new CheckinUpdateException(string.Format(" a exception was thrown during a attempting to create a checkin for Order.Id{0}", order.Id), ex);
                 }
                 if (checkinCreateResult.Success)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now"));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Order found, allocating table now"));
 
                     order.CheckinId = checkinCreateResult.CheckinId;
                     OrderActionResult returnedOrderResult = _controllersCollection.OrderingController.UpdateOrder(order);
@@ -194,7 +194,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 tableNameStringBuilder.Append(tableNames[i]);
             }
 
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos modifying table allocation table '{0}' to checkin '{1}'", tableNameStringBuilder, checkinId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos modifying table allocation table '{0}' to checkin '{1}'", tableNameStringBuilder, checkinId));
 
             //create checkin
             Checkin checkinCreateResult = null;
@@ -207,14 +207,14 @@ namespace DoshiiDotNetIntegration.Controllers
                 checkinCreateResult = _httpComs.PutCheckin(newCheckin);
                 if (checkinCreateResult == null)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error modifying a checkin through Doshii, modifying the table allocation could not be completed."));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an error modifying a checkin through Doshii, modifying the table allocation could not be completed."));
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
-                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
+                throw new CheckinUpdateException(string.Format(" a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
             }
             return true;
         }

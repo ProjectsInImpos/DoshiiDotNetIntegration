@@ -1,6 +1,7 @@
 ﻿using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Interfaces;
 using System;
+using DoshiiDotNetIntegration.Helpers;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -45,9 +46,10 @@ namespace DoshiiDotNetIntegration.Controllers
 		/// <param name="ex">An optional exception associated with the log message.</param>
 		internal virtual void LogMessage(Type type, DoshiiLogLevels level, string message, Exception ex = null)
 		{
-		    if (mLog != null)
+		    var messageString = string.Format("{0} {1}", DoshiiStrings.DoshiiLogPrefix, message);
+            if (mLog != null)
 		    {
-                mLog.LogDoshiiMessage(type, level, message, ex);
+                mLog.LogDoshiiMessage(type, level, messageString, ex);
 		    }
 				
 		}

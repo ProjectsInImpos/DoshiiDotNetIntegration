@@ -47,7 +47,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -64,7 +64,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </returns>
         internal virtual CheckinActionResult CloseCheckin(string checkinId)
         {
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos closing checkin '{0}'", checkinId));
 
             CheckinActionResult checkinCreateResult = new CheckinActionResult();
             try
@@ -77,8 +77,8 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
-                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
+                throw new CheckinUpdateException(string.Format(" a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
             return checkinCreateResult;
         }

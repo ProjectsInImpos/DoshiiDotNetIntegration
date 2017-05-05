@@ -49,17 +49,17 @@ namespace DoshiiDotNetIntegration.Controllers
             if (_controllersCollection.OrderingManager == null)
             {
 
-                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - IOrderingManager cannot be null");
                 throw new NullReferenceException("orderingManager cannot be null");
             }
             if (_controllersCollection.TransactionController == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - TransactionController cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - TransactionController cannot be null");
                 throw new NullReferenceException("transactionController cannot be null");
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -83,11 +83,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (OrderDoesNotExistOnPosException nex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update an Order version that does not exist on the Pos, OrderId - {0}, version - {1}", posOrderId, version));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format(" Attempted to update an Order version that does not exist on the Pos, OrderId - {0}, version - {1}", posOrderId, version));
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update an Order version on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" Exception while attempting to update an Order version on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
             }
         }
 
@@ -206,7 +206,7 @@ namespace DoshiiDotNetIntegration.Controllers
             var actionResult = new OrderActionResult();
             order.Version = _controllersCollection.OrderingManager.RetrieveOrderVersion(order.Id);
             var jsonOrder = Mapper.Map<JsonOrder>(order);
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating Order - '{0}'", jsonOrder.ToJsonString()));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos updating Order - '{0}'", jsonOrder.ToJsonString()));
 
             var returnedOrder = new Models.Order();
 
@@ -215,8 +215,8 @@ namespace DoshiiDotNetIntegration.Controllers
                 actionResult = _httpComs.PutOrder(order);
                 if (actionResult.Order.Id == "0" && actionResult.Order.DoshiiId == "0")
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format("Doshii: Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
-                    throw new OrderUpdateException(string.Format("Doshii: Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
+                    throw new OrderUpdateException(string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
                 }
             }
             catch (RestfulApiErrorResponseException rex)
@@ -225,13 +225,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (NullResponseDataReturnedException Nex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for Order.Id{0}", order.Id));
-                throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for Order.Id{0}", order.Id), Nex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a Null response was returned during a putOrder for Order.Id{0}", order.Id));
+                throw new OrderUpdateException(string.Format(" a Null response was returned during a putOrder for Order.Id{0}", order.Id), Nex);
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for Order.Id{0} : {1}", order.Id, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for Order.Id{0}", order.Id), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown during a putOrder for Order.Id{0} : {1}", order.Id, ex));
+                throw new OrderUpdateException(string.Format(" a exception was thrown during a putOrder for Order.Id{0}", order.Id), ex);
             }
 
             if (actionResult.Success)
@@ -269,8 +269,8 @@ namespace DoshiiDotNetIntegration.Controllers
                 returnedOrder = _httpComs.PutOrderCreatedResult(order);
                 if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format("Doshii: Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
-                    throw new OrderUpdateException(string.Format("Doshii: Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
+                    throw new OrderUpdateException(string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
                 }
             }
             catch (RestfulApiErrorResponseException rex)
@@ -284,13 +284,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (NullResponseDataReturnedException Nex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for Order.Id{0}", order.Id));
-                throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for Order.Id{0}", order.Id), Nex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a Null response was returned during a putOrder for Order.Id{0}", order.Id));
+                throw new OrderUpdateException(string.Format(" a Null response was returned during a putOrder for Order.Id{0}", order.Id), Nex);
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for Order.Id{0} : {1}", order.Id, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for Order.Id{0}", order.Id), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown during a putOrder for Order.Id{0} : {1}", order.Id, ex));
+                throw new OrderUpdateException(string.Format(" a exception was thrown during a putOrder for Order.Id{0}", order.Id), ex);
             }
 
             return PopupateAppIdPropsInOrder(returnedOrder);
@@ -346,7 +346,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (order.Consumer == null)
             {
-                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: An Order created event was received with DoshiiId - {0} but the Order does not have a consumer, the Order has been rejected", order.DoshiiId));
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format(" An Order created event was received with DoshiiId - {0} but the Order does not have a consumer, the Order has been rejected", order.DoshiiId));
                 RejectOrderFromOrderCreateMessage(order, transactionList);
                 return;
             }
@@ -520,12 +520,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (OrderDoesNotExistOnPosException nex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format("Doshii: Attempted to update a checkinId for an Order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", posOrderId, checkinId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Attempted to update a checkinId for an Order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", posOrderId, checkinId));
                 //maybe we should call reject Order here. 
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a checkinId for an Order on the pos, Order.Id - {0}, checkinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" Exception while attempting to update a checkinId for an Order on the pos, Order.Id - {0}, checkinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
                 //maybe we should call reject Order here. 
             }
         }

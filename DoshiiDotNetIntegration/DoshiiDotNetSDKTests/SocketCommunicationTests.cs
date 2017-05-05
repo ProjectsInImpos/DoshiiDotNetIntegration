@@ -169,7 +169,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void Connect_WhenWebSocketsConnectionIsNull_ShouldLog()
         {
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(SocketsController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object")));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(SocketsController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Error, string.Format(" Attempted to open a web socket connection before initializing the was object")));
             
             MockSocketComs._webSocketsConnection = null;
             MockSocketComs.Connect();

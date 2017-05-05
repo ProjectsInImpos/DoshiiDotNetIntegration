@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace DoshiiDotNetIntegration.Models.ActionResults
 {
-    public class MemberActionResult : ActionResultBasic
+    public class ObjectActionResult<T>:ActionResultBasic
     {
-        public Member Member { get; set; }
-        public string MemberId { get; set; }
+        public T ReturnObject { get; set; }
     }
 }
