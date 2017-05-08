@@ -8,6 +8,7 @@ using AutoMapper;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.ActionResults;
@@ -445,11 +446,11 @@ namespace DoshiiDotNetIntegration.Controllers
         /// use to reject an Order created by a partner through the orderAhead interface. 
         /// </summary>
         /// <param name="orderToReject"></param>
-        internal virtual void RejectOrderAheadCreation(Models.Order orderToReject)
+        internal virtual ActionResultBasic RejectOrderAheadCreation(Models.Order orderToReject)
         {
             List<Transaction> transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ReturnObject;
             //test Order to accept is equal to the Order on doshii
-            RejectOrderFromOrderCreateMessage(orderToReject, transactionList);
+            return RejectOrderFromOrderCreateMessage(orderToReject, transactionList);
         }
 
         /// <summary>
@@ -461,7 +462,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="transactionList">
         /// The transaction list to be rejected
         /// </param>
-        internal virtual void RejectOrderFromOrderCreateMessage(Models.Order order, List<Transaction> transactionList)
+        internal virtual ActionResultBasic RejectOrderFromOrderCreateMessage(Models.Order order, List<Transaction> transactionList)
         {
             //set Order status to rejected post to doshii
             order.Status = "rejected";
@@ -471,6 +472,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exception ex)
             {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format("There was an exception rejecting an order with Order.id - {0} - {1}", order.Id, ex.ToString()));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("rejecting an order")
+                };
                 //although there could be an conflict exception from this method it is not currently possible for partners to update Order ahead orders so for the time being we don't need to handle it. 
             }
             foreach (Transaction tran in transactionList)
@@ -482,9 +489,19 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
                 catch (Exception ex)
                 {
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format("There was an exception rejecting a transaction with Order.id - {0} transaction.Id - {1} - {2}", order.Id, tran.Id, ex.ToString()));
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("rejecting an order")
+                    };
                     //although there could be an conflict exception from this method it is not currently possible for partners to update Order ahead orders so for the time being we don't need to handle it. 
                 }
             }
+            return new ActionResultBasic()
+            {
+                Success = true
+            };
         }
 
         /// <summary>

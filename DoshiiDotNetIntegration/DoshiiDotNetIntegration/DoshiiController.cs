@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
@@ -755,11 +757,15 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AcceptOrderAheadCreation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 
             return _controllersCollection.OrderingController.AcceptOrderAheadCreation(orderToAccept);
+        }
+
+        public Task<ActionResultBasic> AcceptOrderAheadAsync(Order orderToAccept)
+        {
+            return Task.Run(() => AcceptOrderAheadCreation(orderToAccept));
         }
 
         /// <summary>
@@ -769,14 +775,18 @@ namespace DoshiiDotNetIntegration
         /// The pending Doshii Order that will be rejected
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual void RejectOrderAheadCreation(Order orderToReject)
+        public virtual ActionResultBasic RejectOrderAheadCreation(Order orderToReject)
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RejectOrderAheadCreation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
+            return _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
+        }
+
+        public Task<ActionResultBasic> RejectOrderAheadCreationAsync(Order orderToAccept)
+        {
+            return Task.Run(() => RejectOrderAheadCreation(orderToAccept));
         }
 
 
@@ -784,8 +794,7 @@ namespace DoshiiDotNetIntegration
 	    {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RequestRefundFromPartner"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -801,17 +810,25 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        public Task<ActionResultBasic> RequestRefundFromPartnerAsync(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
+        {
+            return Task.Run(() => RequestRefundFromPartner(orderReleatedToRefund, amountToRefund, transacitonIdsToRefund));
+        }
+
         public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RecordPosTransactionOnDoshii"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.OrderingController.GetOrderLog(order);
             
         }
 
+        public Task<ObjectActionResult<List<Log>>> GetOrderLogAsync(Order order)
+        {
+            return Task.Run(() => GetOrderLog(order));
+        }
 
         /// <summary>
         /// Attempts to add a pos transaction to doshii
@@ -828,10 +845,14 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RecordPosTransactionOnDoshii"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TransactionController.RecordPosTransactionOnDoshii(transaction);
+        }
+
+        public Task<ObjectActionResult<Transaction>> GetOrderLogAsync(Order order)
+        {
+            return Task.Run(() => GetOrderLog(order));
         }
 
         /// <summary>
@@ -850,8 +871,7 @@ namespace DoshiiDotNetIntegration
 		{
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrder"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 		    try
 		    {
@@ -880,8 +900,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetConsumerFromCheckinId"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.ConsumerController.GetConsumerFromCheckinId(checkinId);
         }
@@ -901,8 +920,7 @@ namespace DoshiiDotNetIntegration
 		{
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrders"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 		    return _controllersCollection.OrderingController.GetOrders();
         }
@@ -923,8 +941,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransaction"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TransactionController.GetTransaction(transactionId);
         }
@@ -945,8 +962,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransactionFromDoshiiOrderId"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(doshiiOrderId);
             
@@ -967,8 +983,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransactionFromDoshiiOrderId"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TransactionController.GetTransactionFromPosOrderId(posOrderId);
 
@@ -984,8 +999,7 @@ namespace DoshiiDotNetIntegration
 		{
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransactions"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 		    return _controllersCollection.TransactionController.GetTransactions();
 		}
@@ -1012,8 +1026,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateOrder"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.OrderingController.UpdateOrder(order);
         }
@@ -1034,13 +1047,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.GetMember(memberId);
         }
@@ -1058,13 +1069,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMembers"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMembers"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.GetMembers();
         }
@@ -1084,14 +1093,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.DeleteMember(memberId);
         }
@@ -1112,14 +1119,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.UpdateMember(member);
         }
@@ -1138,14 +1143,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
         }
@@ -1169,13 +1172,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetRewardsForMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetRewardsForMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.GetRewardsForMember(memberId);
         }
@@ -1201,14 +1202,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemRewardForMember(member, reward, order);
         }
@@ -1229,14 +1228,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberCancel"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberCancel"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
         }
@@ -1262,14 +1259,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberConfirm"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberConfirm"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
         }
@@ -1297,14 +1292,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemPointsForMember(member, app, order, points);
         }
@@ -1327,14 +1320,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberConfirm"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberConfirm"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemPointsForMemberConfirm(memberId);
         }
@@ -1351,14 +1342,12 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberCancel"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberCancel"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemPointsForMemberCancel(memberId, cancelReason);
         }
@@ -1379,8 +1368,7 @@ namespace DoshiiDotNetIntegration
 		{
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AddTableAllocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 		    try
 		    {
@@ -1410,8 +1398,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AddTableAllocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1440,8 +1427,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AddTableAllocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 
             return _controllersCollection.CheckinController.CloseCheckin(checkinId);
@@ -1471,8 +1457,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMenu"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.UpdateMenu(menu);
         }
@@ -1492,8 +1477,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateSurcount"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.UpdateSurcount(surcount);
         }
@@ -1513,8 +1497,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateProduct"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.UpdateProduct(product);
         }
@@ -1534,8 +1517,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteSurcount"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.DeleteSurcount(posId);
         }
@@ -1555,8 +1537,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteProduct"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.DeleteProduct(posId);
         }
@@ -1580,8 +1561,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTable"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.GetTable(tableName);
         }
@@ -1596,8 +1576,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTables"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.GetTables();
         }
@@ -1615,8 +1594,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "CreateTable"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.CreateTable(table);
         }
@@ -1637,8 +1615,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateTable"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.UpdateTable(table, oldTableName);
         }
@@ -1656,8 +1633,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteTable"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.DeleteTable(tableName);
         }
@@ -1673,8 +1649,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "ReplaceTableListOnDoshii"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.ReplaceTableListOnDoshii(tableList);
         }
@@ -1697,7 +1672,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBooking"));
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
             }
             return _controllersCollection.ReservationController.GetBooking(bookingId);
         }
@@ -1716,7 +1695,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBookings"));
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
             }
             return _controllersCollection.ReservationController.GetBookings(from, to);
         }
@@ -1732,8 +1715,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "SeatBooking"));
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
             }
             return _controllersCollection.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
         }
@@ -1746,8 +1732,11 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetApps"));
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.AppManager == null)
+            {
+                this.ThrowDoshiiAppNotInitializedException();
             }
             try
             {
@@ -1768,8 +1757,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetEmployees"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1786,8 +1774,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetEmployees"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1804,8 +1791,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetEmployees"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1822,8 +1808,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetEmployees"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1852,8 +1837,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetLocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1869,8 +1853,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetLocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1886,8 +1869,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetLocations"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1903,8 +1885,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "CreateLocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1920,8 +1901,7 @@ namespace DoshiiDotNetIntegration
 	    {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "CreateOrginisation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1941,8 +1921,7 @@ namespace DoshiiDotNetIntegration
 	    {
 	        if (!m_IsInitalized)
 	        {
-	            ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-	                "GetRejectionCodes"));
+                this.ThrowDoshiiManagerNotInitializedException();
 	        }
 	        try
 	        {
@@ -1958,8 +1937,7 @@ namespace DoshiiDotNetIntegration
         {
             if (!m_IsInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetRejectionCode"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
             try
             {
@@ -1973,24 +1951,7 @@ namespace DoshiiDotNetIntegration
 
 	    #endregion
 
-        /// <summary>
-        /// throws the DoshiiManagerNotInitializedException
-        /// </summary>
-        /// <param name="methodName">
-        /// The name of the method that has been called before Initialize. 
-        /// </param>
-        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual void ThrowDoshiiManagerNotInitializedException(string methodName)
-        {
-            throw new DoshiiManagerNotInitializedException(
-                string.Format("You must initialize the DoshiiController instance before calling {0}", methodName));
-        }
-
-        private void ThrowDoshiiMembershipNotInitializedException(string methodName)
-        {
-            throw new DoshiiMembershipManagerNotInitializedException(
-                string.Format("You must initialize the DoshiiMembership module before calling {0}", methodName));
-        }
+        
 
         
 

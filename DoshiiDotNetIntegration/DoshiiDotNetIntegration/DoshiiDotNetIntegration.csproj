@@ -133,6 +133,8 @@
     <Compile Include="Exceptions\BookingDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingUpdateException.cs" />
+    <Compile Include="Exceptions\DoshiiAppManagerNotInitializedException.cs" />
+    <Compile Include="Exceptions\DoshiiReservationManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiMembershipManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
@@ -153,6 +155,7 @@
     <Compile Include="Helpers\ConsumerExtension.cs" />
     <Compile Include="Helpers\DateTimeExtension.cs" />
     <Compile Include="Helpers\DoshiiStrings.cs" />
+    <Compile Include="Helpers\ExceptionExtentions.cs" />
     <Compile Include="Interfaces\IAppManager.cs" />
     <Compile Include="Interfaces\IConfigurationManager.cs" />
     <Compile Include="Interfaces\ILoggingManager.cs" />
