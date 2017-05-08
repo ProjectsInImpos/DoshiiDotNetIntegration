@@ -201,34 +201,44 @@ namespace DoshiiDotNetIntegration.Helpers
         private static void MapMemberObjects()
         {
             // Mapping from Variants to JsonOrderVariants
-            // src = Member, dest = JsonMember, opt = Mapping Option
-            Mapper.CreateMap<Member, JsonMember>()
+            // src = MemberOrg, dest = JsonMember, opt = Mapping Option
+            Mapper.CreateMap<MemberOrg, JsonMember>()
                 .ForMember(dest => dest.Apps, opt => opt.MapFrom(src => src.Apps.ToList<App>()))
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Uri, opt => opt.Ignore());
 
-            // src = JsonAddress, dest = Address
-            Mapper.CreateMap<JsonMember, Member>()
+            // src = JsonMember, dest = MemberOrg
+            Mapper.CreateMap<JsonMember, MemberOrg>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)))
-                ;
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)));
 
             // Mapping from Variants to JsonOrderVariants
             // src = Member, dest = JsonMember, opt = Mapping Option
-            Mapper.CreateMap<Member, JsonMemberToUpdate>()
+            Mapper.CreateMap<MemberOrg, JsonMemberToUpdate>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Uri, opt => opt.Ignore());
 
             // src = JsonAddress, dest = Address
-            Mapper.CreateMap<JsonMemberToUpdate, Member>()
+            Mapper.CreateMap<JsonMemberToUpdate, MemberOrg>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Uri, opt => opt.Ignore())
                 .ForMember(dest => dest.Apps, opt => opt.Ignore());
 
+            // Mapping from Variants to JsonOrderVariants
+            // src = MemberApp, dest = JsonMember, opt = Mapping Option
+            Mapper.CreateMap<MemberApp, JsonMember>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Uri, opt => opt.Ignore());
+
+            // src = JsonMember, dest = MemberApp
+            Mapper.CreateMap<JsonMember, MemberApp>()
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)));
         }
 
         private static void MapAppObjects()

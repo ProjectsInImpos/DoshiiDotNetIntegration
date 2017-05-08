@@ -169,6 +169,7 @@
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
     <Compile Include="Models\Base\BaseCreatedAt.cs" />
+    <Compile Include="Models\Base\BaseMember.cs" />
     <Compile Include="Models\Base\BaseStatus.cs" />
     <Compile Include="Models\Base\DoshiiHttpErrorMessage.cs" />
     <Compile Include="Models\Booking.cs" />
@@ -215,7 +216,8 @@
     <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Log.cs" />
-    <Compile Include="Models\Member.cs" />
+    <Compile Include="Models\MemberApp.cs" />
+    <Compile Include="Models\MemberOrg.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />

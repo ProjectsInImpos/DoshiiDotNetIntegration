@@ -1084,7 +1084,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual ObjectActionResult<Member> GetMember(string memberId)
+        public virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1097,7 +1097,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.GetMember(memberId);
         }
 
-        public Task<ObjectActionResult<Member>> GetMemberAsync(string memberId)
+        public Task<ObjectActionResult<MemberOrg>> GetMemberAsync(string memberId)
         {
             return Task.Run(() => GetMember(memberId));
         }
@@ -1111,7 +1111,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual ObjectActionResult<List<Member>> GetMembers()
+        public virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
             if (!m_IsInitalized)
             {
@@ -1124,7 +1124,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.GetMembers();
         }
 
-        public Task<ObjectActionResult<List<Member>>> GetMembersAsync()
+        public Task<ObjectActionResult<List<MemberOrg>>> GetMembersAsync()
         {
             return Task.Run(() => GetMembers());
         }
@@ -1171,7 +1171,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         /// <exception cref="MemberIncompleteException">Thrown when the member provided for updating is not complete.</exception>
-        public virtual ObjectActionResult<Member> UpdateMember(Member member)
+        public virtual ObjectActionResult<MemberOrg> UpdateMember(MemberOrg member)
         {
             if (!m_IsInitalized)
             {
@@ -1185,7 +1185,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.UpdateMember(member);
         }
 
-        public Task<ObjectActionResult<Member>> UpdateMemberAsync(Member member)
+        public Task<ObjectActionResult<MemberOrg>> UpdateMemberAsync(MemberOrg member)
         {
             return Task.Run(() => UpdateMember(member));
         }
@@ -1269,7 +1269,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual ActionResultBasic RedeemRewardForMember(Member member, Reward reward, Order order)
+        public virtual ActionResultBasic RedeemRewardForMember(MemberOrg member, Reward reward, Order order)
         {
             if (!m_IsInitalized)
             {
@@ -1283,7 +1283,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.RedeemRewardForMember(member, reward, order);
         }
 
-        public Task<ActionResultBasic> RedeemRewardForMemberAsync(Member member, Reward reward, Order order)
+        public Task<ActionResultBasic> RedeemRewardForMemberAsync(MemberOrg member, Reward reward, Order order)
         {
             return Task.Run(() => RedeemRewardForMember(member, reward, order));
         }
@@ -1374,7 +1374,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual ActionResultBasic RedeemPointsForMember(Member member, App app, Order order, int points)
+        public virtual ActionResultBasic RedeemPointsForMember(MemberOrg member, App app, Order order, int points)
         {
             if (!m_IsInitalized)
             {
@@ -1388,7 +1388,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.RedeemPointsForMember(member, app, order, points);
         }
 
-        public Task<ActionResultBasic> RedeemPointsForMemberAsync(Member member, App app, Order order, int points)
+        public Task<ActionResultBasic> RedeemPointsForMemberAsync(MemberOrg member, App app, Order order, int points)
         {
             return Task.Run(() => RedeemPointsForMember(member, app, order, points));
         }

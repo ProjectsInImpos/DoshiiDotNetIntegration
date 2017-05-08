@@ -11,50 +11,16 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// the class representing a member in Doshii
     /// </summary>
-    public class Member : BaseCreatedAt, ICloneable
+    public class MemberOrg : BaseMember, ICloneable
     {
         /// <summary>
         /// constructor. 
         /// </summary>
-        public Member()
+        public MemberOrg()
         {
             Address = new Address();
         }
         
-        /// <summary>
-        /// the Id of the member
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// the name of the member
-        /// </summary>
-        public string Name { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-
-        /// <summary>
-        /// the email of the member
-        /// </summary>
-        public string Email { get; set; }
-
-        /// <summary>
-        /// the phone number of the member
-        /// </summary>
-        public string Phone { get; set; }
-
-        /// <summary>
-        /// the <see cref="Address"/> associated with the member
-        /// </summary>
-        public Address Address { get; set; }
-
-        /// <summary>
-        /// the Pos identifier for the member. 
-        /// </summary>
-        public string Ref { get; set; }
-
         private List<App> _Apps;
 
         /// <summary>
@@ -76,7 +42,7 @@ namespace DoshiiDotNetIntegration.Models
             }
         }
 
-        protected bool Equals(Member other)
+        protected bool Equals(MemberOrg other)
         {
             return Equals(_Apps, other._Apps) && string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) && string.Equals(Email, other.Email) && string.Equals(Phone, other.Phone) && Equals(Address, other.Address) && string.Equals(Ref, other.Ref);
         }
@@ -86,7 +52,7 @@ namespace DoshiiDotNetIntegration.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Member) obj);
+            return Equals((MemberOrg) obj);
         }
 
         public override int GetHashCode()
@@ -123,7 +89,7 @@ namespace DoshiiDotNetIntegration.Models
 
         public object Clone()
         {
-            var returnMember = (Member)this.MemberwiseClone();
+            var returnMember = (MemberOrg)this.MemberwiseClone();
             var apps = new List<App>();
             foreach (var app in this.Apps)
             {

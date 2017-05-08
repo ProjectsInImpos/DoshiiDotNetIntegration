@@ -32,6 +32,8 @@ namespace DoshiiDotNetIntegration.Models
         public decimal Points { get; set; }
 
         public string Ref { get; set; }
+
+        public MemberApp AppMember { get; set; }
         
         private List<string> _types;
 

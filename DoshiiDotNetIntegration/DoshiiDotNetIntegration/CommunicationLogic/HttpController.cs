@@ -565,12 +565,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region Member methods
 
-        internal virtual ObjectActionResult<Member> GetMember(string memberId)
+        internal virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Member, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
                         "get member", memberId);
             }
@@ -580,12 +580,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        internal virtual ObjectActionResult<List<Member>> GetMembers()
+        internal virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Member>, List<JsonMember>>(
+                    MakeHttpRequestWithForResponseData<List<MemberOrg>, List<JsonMember>>(
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
                         "get members");
             }
@@ -596,13 +596,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     }
 
 
-        internal virtual ObjectActionResult<Member> PutMember(Member member)
+        internal virtual ObjectActionResult<MemberOrg> PutMember(MemberOrg member)
         {
             try
             {
                 var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
                 return
-                    MakeHttpRequestWithForResponseData<Member, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
                         WebRequestMethods.Http.Put, EndPointPurposes.Members,
                         "put members", jsonMember.ToJsonString());
             }
@@ -612,13 +612,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        internal virtual ObjectActionResult<Member> PostMember(Member member)
+        internal virtual ObjectActionResult<MemberOrg> PostMember(MemberOrg member)
         {
             try
             {
                 var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
                 return
-                    MakeHttpRequestWithForResponseData<Member, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
                         WebRequestMethods.Http.Post, EndPointPurposes.Members,
                         "post members", jsonMember.ToJsonString());
             }
@@ -633,7 +633,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Member, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
                         HttpController.DeleteMethod, EndPointPurposes.Members,
                         "delete Member", "", memberId);
             }
@@ -707,7 +707,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        internal virtual ActionResultBasic RedeemPointsForMember(PointsRedeem pr, Member member)
+        internal virtual ActionResultBasic RedeemPointsForMember(PointsRedeem pr, MemberOrg member)
         {
             try
             {

@@ -69,7 +69,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="memberId"></param>
         /// <returns></returns>
-        internal virtual ObjectActionResult<Member> GetMember(string memberId)
+        internal virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// gets all the members from doshii for the orginisation. 
         /// </summary>
         /// <returns></returns>
-        internal virtual ObjectActionResult<List<Member>> GetMembers()
+        internal virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
             try
             {
@@ -128,7 +128,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="member"></param>
         /// <returns></returns>
-        internal virtual ObjectActionResult<Member> UpdateMember(Member member)
+        internal virtual ObjectActionResult<MemberOrg> UpdateMember(MemberOrg member)
         {
             if (string.IsNullOrEmpty(member.Name))
             {
@@ -165,8 +165,8 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 StringBuilder failedReasonBuilder = new StringBuilder();
-                List<Member> DoshiiMembersList = GetMembers().ReturnObject;
-                List<Member> PosMembersList = _controllersCollection.RewardManager.GetMembersFromPos().ToList();
+                List<MemberOrg> DoshiiMembersList = GetMembers().ReturnObject;
+                List<MemberOrg> PosMembersList = _controllersCollection.RewardManager.GetMembersFromPos().ToList();
 
                 var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
                 var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
@@ -190,7 +190,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersInPos)
                 {
-                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    MemberOrg posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
                     if (!mem.Equals(posMember))
                     {
                         try
@@ -276,7 +276,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="reward"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        internal virtual ActionResultBasic RedeemRewardForMember(Member member, Reward reward, Order order)
+        internal virtual ActionResultBasic RedeemRewardForMember(MemberOrg member, Reward reward, Order order)
         {
             try
             {
@@ -351,7 +351,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="order"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        internal virtual ActionResultBasic RedeemPointsForMember(Member member, App app, Order order, int points)
+        internal virtual ActionResultBasic RedeemPointsForMember(MemberOrg member, App app, Order order, int points)
         {
             try
             {
