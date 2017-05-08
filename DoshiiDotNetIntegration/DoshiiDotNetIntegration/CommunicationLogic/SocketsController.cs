@@ -431,11 +431,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 case "order_created":
                     var orderStatusEventArgs = new CommunicationEventArgs.OrderCreatedEventArgs();
-                    orderStatusEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id);
+                    orderStatusEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id).ReturnObject;
                     
                     if (orderStatusEventArgs.Order != null)
                     {
-                        orderStatusEventArgs.TransactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id);
+                        orderStatusEventArgs.TransactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id).ReturnObject;
                         orderStatusEventArgs.OrderId = messageData.Id;
                         orderStatusEventArgs.Status = messageData.Status;
 
@@ -452,7 +452,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "order_updated":
                     var orderUpdatedEventArgs = new CommunicationEventArgs.OrderUpdatedEventArgs();
-                    orderUpdatedEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id);
+                    orderUpdatedEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id).ReturnObject;
                     if (orderUpdatedEventArgs.Order != null)
                     {
                         orderUpdatedEventArgs.OrderId = messageData.Id;
@@ -471,7 +471,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_created":
                     CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();
-                    transactionCreatedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id);
+                    transactionCreatedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id).ReturnObject;
                     transactionCreatedEventArgs.TransactionId = messageData.Id;
                     transactionCreatedEventArgs.Status = messageData.Status;
                     if (TransactionCreatedEvent != null)
@@ -486,7 +486,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_updated":
                     CommunicationEventArgs.TransactionEventArgs transactionUpdtaedEventArgs = new TransactionEventArgs();
-                    transactionUpdtaedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id);
+                    transactionUpdtaedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id).ReturnObject;
                     transactionUpdtaedEventArgs.TransactionId = messageData.Id;
                     transactionUpdtaedEventArgs.Status = messageData.Status;
 
@@ -504,7 +504,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberCreatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id);
+                        memberCreatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id).ReturnObject;
                         memberCreatedEventArgs.MemberId = messageData.Id;
                     }
                     catch(Exception ex)
@@ -527,7 +527,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberUpdatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberUpdatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id);
+                        memberUpdatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id).ReturnObject;
                         memberUpdatedEventArgs.MemberId = messageData.Id;
                     }
                     catch(Exception ex)
@@ -549,7 +549,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingCreatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingCreatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId);
+                        bookingCreatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId).ReturnObject;
                         bookingCreatedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -569,7 +569,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingUpdatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingUpdatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId);
+                        bookingUpdatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId).ReturnObject;
                         bookingUpdatedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -589,7 +589,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingDeletedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingDeletedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId);
+                        bookingDeletedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId).ReturnObject;
                         bookingDeletedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch

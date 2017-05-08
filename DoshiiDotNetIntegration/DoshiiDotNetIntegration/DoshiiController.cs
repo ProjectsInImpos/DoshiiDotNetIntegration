@@ -751,7 +751,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the Order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual OrderActionResult AcceptOrderAheadCreation(Order orderToAccept)
+        public virtual ActionResultBasic AcceptOrderAheadCreation(Order orderToAccept)
         {
             if (!m_IsInitalized)
             {
@@ -793,11 +793,15 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                return false;
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("requesting refund")
+                };
             }
         }
 
-        public virtual List<Log> GetOrderLog(Order order)
+        public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
         {
             if (!m_IsInitalized)
             {
@@ -820,7 +824,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>Returns null if the request failed. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Transaction RecordPosTransactionOnDoshii(Transaction transaction)
+        public virtual ObjectActionResult<Transaction> RecordPosTransactionOnDoshii(Transaction transaction)
         {
             if (!m_IsInitalized)
             {
@@ -842,7 +846,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-		public virtual Order GetOrder(string orderId)
+		public virtual ObjectActionResult<Order> GetOrder(string orderId)
 		{
             if (!m_IsInitalized)
             {
@@ -872,7 +876,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        public virtual ObjectActionResult<Consumer> GetConsumerFromCheckinId(string checkinId)
         {
             if (!m_IsInitalized)
             {
@@ -893,7 +897,7 @@ namespace DoshiiDotNetIntegration
 		/// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-		public virtual IEnumerable<Order> GetOrders()
+		public virtual ObjectActionResult<List<Order>> GetOrders()
 		{
             if (!m_IsInitalized)
             {
@@ -915,7 +919,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual Transaction GetTransaction(string transactionId)
+        public virtual ObjectActionResult<Transaction> GetTransaction(string transactionId)
         {
             if (!m_IsInitalized)
             {
@@ -937,7 +941,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
+        public virtual ObjectActionResult<List<Transaction>> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -959,7 +963,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual IEnumerable<Transaction> GetTransactionFromOrderId(string posOrderId)
+        public virtual ObjectActionResult<List<Transaction>> GetTransactionFromOrderId(string posOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -976,7 +980,7 @@ namespace DoshiiDotNetIntegration
 		/// <returns>The current list of active Doshii transactions.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-		public virtual IEnumerable<Transaction> GetTransactions()
+        public virtual ObjectActionResult<List<Transaction>> GetTransactions()
 		{
             if (!m_IsInitalized)
             {
@@ -1004,7 +1008,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="OrderUpdateException">There was an issue updating the Order on Doshii, See exception for details.</exception>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Order UpdateOrder(Order order)
+        public virtual ObjectActionResult<Order> UpdateOrder(Order order)
         {
             if (!m_IsInitalized)
             {
@@ -1026,7 +1030,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual Member GetMember(string memberId)
+        public virtual ObjectActionResult<Member> GetMember(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1050,7 +1054,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual IEnumerable<Member> GetMembers()
+        public virtual ObjectActionResult<List<Member>> GetMembers()
         {
             if (!m_IsInitalized)
             {
@@ -1076,7 +1080,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual ActionResultBasic DeleteMember(Member member)
+        public virtual ActionResultBasic DeleteMember(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1089,7 +1093,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteMember"));
             }
-            return _controllersCollection.RewardController.DeleteMember(member);
+            return _controllersCollection.RewardController.DeleteMember(memberId);
         }
 
         /// <summary>
@@ -1104,7 +1108,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         /// <exception cref="MemberIncompleteException">Thrown when the member provided for updating is not complete.</exception>
-        public virtual Member UpdateMember(Member member)
+        public virtual ObjectActionResult<Member> UpdateMember(Member member)
         {
             if (!m_IsInitalized)
             {
@@ -1130,7 +1134,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool SyncDoshiiMembersWithPosMembers()
+        public virtual ActionResultBasic SyncDoshiiMembersWithPosMembers()
         {
             if (!m_IsInitalized)
             {
@@ -1161,7 +1165,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Throw if these was an issue communicating with Doshii.</exception>
-        public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
+        public virtual ObjectActionResult<List<Reward>> GetRewardsForMember(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1173,7 +1177,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetRewardsForMember"));
             }
-            return _controllersCollection.RewardController.GetRewardsForMember(memberId, orderId, orderTotal);
+            return _controllersCollection.RewardController.GetRewardsForMember(memberId);
         }
 
         /// <summary>
@@ -1463,7 +1467,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Menu UpdateMenu(Menu menu)
+        public virtual ObjectActionResult<Menu> UpdateMenu(Menu menu)
         {
             if (!m_IsInitalized)
             {
@@ -1484,7 +1488,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Surcount UpdateSurcount(Surcount surcount)
+        public virtual ObjectActionResult<Surcount> UpdateSurcount(Surcount surcount)
         {
             if (!m_IsInitalized)
             {
@@ -1505,7 +1509,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Product UpdateProduct(Product product)
+        public virtual ObjectActionResult<Product> UpdateProduct(Product product)
         {
             if (!m_IsInitalized)
             {
@@ -1572,7 +1576,7 @@ namespace DoshiiDotNetIntegration
         /// The table as it is registered in Doshii, 
         /// Null if there is no table registered in doshii for that name. 
         /// </returns>
-        public virtual Table GetTable(string tableName)
+        public virtual ObjectActionResult<Table> GetTable(string tableName)
         {
             if (!m_IsInitalized)
             {
@@ -1588,7 +1592,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// All the tables registered at the venue in Doshii. 
         /// </returns>
-        public virtual List<Table> GetTables()
+        public virtual ObjectActionResult<List<Table>> GetTables()
         {
             if (!m_IsInitalized)
             {
@@ -1607,7 +1611,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The table that was created in Doshii. 
         /// </returns>
-        public virtual Table CreateTable(Table table)
+        public virtual ObjectActionResult<Table> CreateTable(Table table)
         {
             if (!m_IsInitalized)
             {
@@ -1629,7 +1633,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The updated table from Doshii
         /// </returns>
-        public virtual Table UpdateTable(Table table, string oldTableName)
+        public virtual ObjectActionResult<Table> UpdateTable(Table table, string oldTableName)
         {
             if (!m_IsInitalized)
             {
@@ -1648,7 +1652,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The table that was deleted. 
         /// </returns>
-        public virtual Table DeleteTable(string tableName)
+        public virtual ActionResultBasic DeleteTable(string tableName)
         {
             if (!m_IsInitalized)
             {
@@ -1665,7 +1669,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The current list of tables in Doshii
         /// </returns>
-        public virtual List<Table> ReplaceTableListOnDoshii(List<Table> tableList)
+        public virtual ObjectActionResult<List<Table>> ReplaceTableListOnDoshii(List<Table> tableList)
         {
             if (!m_IsInitalized)
             {
@@ -1689,7 +1693,7 @@ namespace DoshiiDotNetIntegration
         /// The requested booking from Doshii if it exists. 
         /// Null if the booking does not exist. 
         /// </returns>
-        public virtual Booking GetBooking(String bookingId)
+        public virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             if (!m_IsInitalized)
             {
@@ -1708,7 +1712,7 @@ namespace DoshiiDotNetIntegration
         /// The end of the date range. 
         /// </param>
         /// <returns></returns>
-        public virtual List<Booking> GetBookings(DateTime from, DateTime to)
+        public virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to)
         {
             if (!m_IsInitalized)
             {
@@ -1737,8 +1741,8 @@ namespace DoshiiDotNetIntegration
         #endregion
 
         #region partner Apps
-        
-        public virtual IEnumerable<App> GetApps()
+
+        public virtual ObjectActionResult<List<App>> GetApps()
         {
             if (!m_IsInitalized)
             {
@@ -1760,7 +1764,7 @@ namespace DoshiiDotNetIntegration
 
         #region Employee
 
-        public virtual IEnumerable<Employee> GetEmployees()
+        public virtual ObjectActionResult<List<Employee>> GetEmployees()
         {
             if (!m_IsInitalized)
             {
@@ -1778,7 +1782,7 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public virtual Employee GetEmployee(string doshiiId)
+        public virtual ObjectActionResult<Employee> GetEmployee(string doshiiId)
         {
             if (!m_IsInitalized)
             {
@@ -1796,7 +1800,7 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public virtual Employee SaveEmployee(Employee employee)
+        public virtual ObjectActionResult<Employee> SaveEmployee(Employee employee)
         {
             if (!m_IsInitalized)
             {
@@ -1814,7 +1818,7 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public virtual ActionResultBasic DeleteEmployee(Employee employee)
+        public virtual ActionResultBasic DeleteEmployee(string employeeId)
         {
             if (!m_IsInitalized)
             {
@@ -1823,7 +1827,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllersCollection.EmployeeController.DeleteEmployee(employee);
+                return _controllersCollection.EmployeeController.DeleteEmployee(employeeId);
             }
             catch (Exception ex)
             {
@@ -1844,7 +1848,7 @@ namespace DoshiiDotNetIntegration
         /// The location object representing this venue.
         /// <para/>Null will be returned if there is an error retrieving the location from doshii. 
         /// </returns>
-        public virtual Location GetLocation()
+        public virtual ObjectActionResult<Location> GetLocation()
         {
             if (!m_IsInitalized)
             {
@@ -1861,7 +1865,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual Location GetLocation(string hashedLocationId)
+        public virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
         {
             if (!m_IsInitalized)
             {
@@ -1878,7 +1882,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual IEnumerable<Location> GetLocations()
+        public virtual ObjectActionResult<List<Location>> GetLocations()
         {
             if (!m_IsInitalized)
             {
@@ -1895,7 +1899,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual Location CreateLocation(Location location)
+        public virtual ObjectActionResult<Location> CreateLocation(Location location)
         {
             if (!m_IsInitalized)
             {
@@ -1912,7 +1916,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-	    public virtual Orginisation CreateOrginisation(Orginisation orginisation)
+        public virtual ObjectActionResult<Orginisation> CreateOrginisation(Orginisation orginisation)
 	    {
             if (!m_IsInitalized)
             {
@@ -1933,7 +1937,7 @@ namespace DoshiiDotNetIntegration
 
         #region rejection codes
 
-	    public virtual IEnumerable<RejectionCode> GetRejectionCodes()
+        public virtual ObjectActionResult<List<RejectionCode>> GetRejectionCodes()
 	    {
 	        if (!m_IsInitalized)
 	        {
@@ -1950,7 +1954,7 @@ namespace DoshiiDotNetIntegration
 	        }
 	    }
 
-        public virtual RejectionCode GetRejectionCode(string code)
+        public virtual ObjectActionResult<RejectionCode> GetRejectionCode(string code)
         {
             if (!m_IsInitalized)
             {

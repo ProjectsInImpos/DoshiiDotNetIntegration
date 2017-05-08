@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -56,7 +57,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="checkinId"></param>
         /// <returns></returns>
-        internal virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        internal virtual ObjectActionResult<Consumer> GetConsumerFromCheckinId(string checkinId)
         {
             try
             {

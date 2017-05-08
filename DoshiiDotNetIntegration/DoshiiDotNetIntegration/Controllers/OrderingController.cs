@@ -102,7 +102,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there is no Order corresponding to the Id, a blank Order may be returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        internal virtual Models.Order GetOrder(string orderId)
+        internal virtual ObjectActionResult<Order> GetOrder(string orderId)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual List<Log> GetOrderLog(Order order)
+        internal virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
                 
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -147,7 +147,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there is no Order corresponding to the Id, a blank Order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual OrderActionResult GetUnlinkedOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual ObjectActionResult<Order> GetUnlinkedOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// If the Order has not yet been processed by the pos and an Id has not been provided you should use <see cref="GetUnlinkedOrders"/> to retreive the Order. 
         /// </summary>
         /// <returns></returns>
-        internal virtual IEnumerable<Models.Order> GetOrders()
+        internal virtual ObjectActionResult<List<Order>> GetOrders()
         {
             try
             {
@@ -184,7 +184,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <para/>If there are no unlinkedOrders a blank IEnumerable is returned.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual IEnumerable<Models.Order> GetUnlinkedOrders()
+        internal virtual ObjectActionResult<List<Order>> GetUnlinkedOrders()
         {
             try
             {
@@ -201,23 +201,15 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="order">The Order to update.</param>
         /// <returns></returns>
-        internal virtual OrderActionResult UpdateOrder(Models.Order order)
+        internal virtual ObjectActionResult<Order> UpdateOrder(Models.Order order)
         {
-            var actionResult = new OrderActionResult();
             order.Version = _controllersCollection.OrderingManager.RetrieveOrderVersion(order.Id);
             var jsonOrder = Mapper.Map<JsonOrder>(order);
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos updating Order - '{0}'", jsonOrder.ToJsonString()));
 
-            var returnedOrder = new Models.Order();
-
             try
             {
-                actionResult = _httpComs.PutOrder(order);
-                if (actionResult.Order.Id == "0" && actionResult.Order.DoshiiId == "0")
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
-                    throw new OrderUpdateException(string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
-                }
+                return _httpComs.PutOrder(order);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -233,16 +225,6 @@ namespace DoshiiDotNetIntegration.Controllers
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown during a putOrder for Order.Id{0} : {1}", order.Id, ex));
                 throw new OrderUpdateException(string.Format(" a exception was thrown during a putOrder for Order.Id{0}", order.Id), ex);
             }
-
-            if (actionResult.Success)
-            {
-                return PopupateAppIdPropsInOrder(returnedOrder);
-            }
-            else
-            {
-                return actionResult;
-            }
-            
         }
 
         /// <summary>
@@ -252,7 +234,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// The Order to be confirmed. 
         /// </param>
         /// <returns></returns>
-        internal virtual Models.Order PutOrderCreatedResult(Models.Order order)
+        internal virtual ObjectActionResult<Order> PutOrderCreatedResult(Models.Order order)
         {
             if (order.Status == "accepted")
             {
@@ -262,16 +244,9 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
             }
 
-            var returnedOrder = new Models.Order();
-
             try
             {
-                returnedOrder = _httpComs.PutOrderCreatedResult(order);
-                if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
-                    throw new OrderUpdateException(string.Format(" Order was returned from doshii without an doshiiOrderId while updating Order with id {0}", order.Id));
-                }
+                return _httpComs.PutOrderCreatedResult(order);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -292,8 +267,6 @@ namespace DoshiiDotNetIntegration.Controllers
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown during a putOrder for Order.Id{0} : {1}", order.Id, ex));
                 throw new OrderUpdateException(string.Format(" a exception was thrown during a putOrder for Order.Id{0}", order.Id), ex);
             }
-
-            return PopupateAppIdPropsInOrder(returnedOrder);
         }
 
         /// <summary>
@@ -310,14 +283,13 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 //check unassigned orders
                 _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Info, "Refreshing all orders.");
-                IEnumerable<Models.Order> unassignedOrderList;
-                unassignedOrderList = GetUnlinkedOrders();
-                foreach (Models.Order order in unassignedOrderList)
+                var unassignedOrderList = GetUnlinkedOrders();
+                foreach (Models.Order order in unassignedOrderList.ReturnObject)
                 {
                     if (order.Status == "pending")
                     {
-                        List<Transaction> transactionListForOrder = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(order.DoshiiId).ToList();
-                        HandleOrderCreated(order, transactionListForOrder.ToList());
+                        var transactionListForOrder = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(order.DoshiiId);
+                        HandleOrderCreated(order, transactionListForOrder.ReturnObject);
                     }
                 }
                 //Check assigned orders
@@ -420,15 +392,19 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="orderToAccept"></param>
         /// <returns></returns>
-        internal virtual OrderActionResult AcceptOrderAheadCreation(Models.Order orderToAccept)
+        internal virtual ActionResultBasic AcceptOrderAheadCreation(Models.Order orderToAccept)
         {
-            Models.Order orderOnDoshii = GetUnlinkedOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
-            List<Transaction> transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
+            var orderOnDoshii = GetUnlinkedOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
+            var transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId);
 
             //test on doshii has changed. 
-            if (orderOnDoshii.Version != orderToAccept.Version)
+            if (orderOnDoshii.ReturnObject.Version != orderToAccept.Version)
             {
-                return false;
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "The order version is out of date"
+                };
             }
 
             orderToAccept.Status = "accepted";
@@ -438,12 +414,14 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (Exception ex)
             {
-                return false;
-                //although there could be an conflict exception from this method it is not currently possible for partners to update Order ahead orders so for the time being we don't need to handle it. 
-                //if we get an error response at this point we should prob cancel the Order on the pos and not continue and cancel the payments. 
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "There was an expection putting the accepted order to doshii"
+                };
             }
             //If there are transactions set to waiting and get response - should call request payment
-            foreach (Transaction tran in transactionList)
+            foreach (Transaction tran in transactionList.ReturnObject)
             {
                 _controllersCollection.TransactionController.RecordTransactionVersion(tran);
                 tran.OrderId = orderToAccept.Id;
@@ -457,7 +435,10 @@ namespace DoshiiDotNetIntegration.Controllers
                     //although there could be an conflict exception from this method it is not currently possible for partners to update Order ahead orders so for the time being we don't need to handle it. 
                 }
             }
-            return true;
+            return new ActionResultBasic()
+            {
+                Success = true
+            };
         }
 
         /// <summary>
@@ -466,7 +447,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="orderToReject"></param>
         internal virtual void RejectOrderAheadCreation(Models.Order orderToReject)
         {
-            List<Transaction> transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ToList();
+            List<Transaction> transactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ReturnObject;
             //test Order to accept is equal to the Order on doshii
             RejectOrderFromOrderCreateMessage(orderToReject, transactionList);
         }
@@ -530,20 +511,20 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual OrderActionResult PopupateAppIdPropsInOrder(OrderActionResult order)
+        internal virtual ObjectActionResult<Order> PopupateAppIdPropsInOrder(ObjectActionResult<Order> order)
         {
-            return PopupateAppIdPropsInOrder(order.Order);
+            ;
+            return PopupateAppIdPropsInOrder(order.ReturnObject);
         }
 
-        internal virtual OrderActionResult PopupateAppIdPropsInOrder(Order order)
+        internal virtual ObjectActionResult<Order> PopupateAppIdPropsInOrder(Order order)
         {
-            var actionResult = new OrderActionResult()
+            var actionResult = new ObjectActionResult<Order>()
             {
-                Order = order,
-                OrderId = order.Id
+                ReturnObject = order
             };
 
-            var logActionResult = new LogActionResult();
+            var logActionResult = new ObjectActionResult<List<Log>>();
             if (order == null)
             {
                 return null;
@@ -558,12 +539,12 @@ namespace DoshiiDotNetIntegration.Controllers
                 return actionResult;
             }
 
-            var orderLogForCreated = logActionResult.LogList.FirstOrDefault(l => l.Action == "order_created");
+            var orderLogForCreated = logActionResult.ReturnObject.FirstOrDefault(l => l.Action == "order_created");
             if (orderLogForCreated != null)
             {
                 order.OrderCreatedByAppId = orderLogForCreated.AppId;
             }
-            var orderLogForUpdated = logActionResult.LogList.LastOrDefault(l => l.Action == "order_updated");
+            var orderLogForUpdated = logActionResult.ReturnObject.LastOrDefault(l => l.Action == "order_updated");
             if (orderLogForUpdated != null)
             {
                 order.OrderCreatedByAppId = orderLogForUpdated.AppId;

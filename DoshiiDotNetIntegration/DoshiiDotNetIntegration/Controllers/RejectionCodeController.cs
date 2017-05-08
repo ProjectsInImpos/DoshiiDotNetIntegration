@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -46,7 +47,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
-        internal virtual IEnumerable<Models.RejectionCode> GetRejectionCodes()
+        internal virtual ObjectActionResult<List<RejectionCode>> GetRejectionCodes()
         {
             try
             {
@@ -58,7 +59,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual Models.RejectionCode GetRejectionCode(string rejectionCodeId)
+        internal virtual ObjectActionResult<RejectionCode> GetRejectionCode(string rejectionCodeId)
         {
             try
             {

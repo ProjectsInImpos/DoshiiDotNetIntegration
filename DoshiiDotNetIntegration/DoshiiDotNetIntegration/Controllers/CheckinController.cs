@@ -62,25 +62,27 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the close was successful
         /// False if the close was not successful. 
         /// </returns>
-        internal virtual CheckinActionResult CloseCheckin(string checkinId)
+        internal virtual ActionResultBasic CloseCheckin(string checkinId)
         {
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos closing checkin '{0}'", checkinId));
-
-            CheckinActionResult checkinCreateResult = new CheckinActionResult();
+            if (string.IsNullOrEmpty(checkinId))
+            {
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("close a checkin", "checkin"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "checkinId was empty"
+                };
+            }
             try
             {
-                checkinCreateResult = _httpComs.DeleteCheckin(checkinId);
-                if (!checkinCreateResult.Success)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("{0}{1}", DoshiiStrings.DoshiiLogPrefix, DoshiiStrings.GetUnknownErrorString("Close Checkin")));
-                }
+                return _httpComs.DeleteCheckin(checkinId);
             }
             catch (Exception ex)
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
                 throw new CheckinUpdateException(string.Format(" a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
-            return checkinCreateResult;
         }
     }
 }

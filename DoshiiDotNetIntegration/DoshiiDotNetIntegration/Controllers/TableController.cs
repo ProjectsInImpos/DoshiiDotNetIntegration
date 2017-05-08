@@ -53,7 +53,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
-        internal virtual Table GetTable(string tableName)
+        internal virtual ObjectActionResult<Table> GetTable(string tableName)
         {
             try
             {
@@ -65,11 +65,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual List<Table> GetTables()
+        internal virtual ObjectActionResult<List<Table>> GetTables()
         {
             try
             {
-                return _httpComs.GetTables().ToList();
+                return _httpComs.GetTables();
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -77,7 +77,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual Table CreateTable(Table table)
+        internal virtual ObjectActionResult<Table> CreateTable(Table table)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual Table UpdateTable(Table table, string oldTableName)
+        internal virtual ObjectActionResult<Table> UpdateTable(Table table, string oldTableName)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual Table DeleteTable(string tableName)
+        internal virtual ActionResultBasic DeleteTable(string tableName)
         {
             try
             {
@@ -113,7 +113,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual List<Table> ReplaceTableListOnDoshii(List<Table> tableList)
+        internal virtual ObjectActionResult<List<Table>> ReplaceTableListOnDoshii(List<Table> tableList)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             else
             {
-                CheckinActionResult checkinCreateResult = null;
+                ObjectActionResult<Checkin> checkinCreateResult = null;
                 try
                 {
                     Checkin newCheckin = new Checkin();
@@ -166,8 +166,8 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Order found, allocating table now"));
 
-                    order.CheckinId = checkinCreateResult.CheckinId;
-                    OrderActionResult returnedOrderResult = _controllersCollection.OrderingController.UpdateOrder(order);
+                    order.CheckinId = checkinCreateResult.ReturnObject.Id;
+                    ObjectActionResult<Order> returnedOrderResult = _controllersCollection.OrderingController.UpdateOrder(order);
                     if (returnedOrderResult.Success)
                     {
                         actionResult.Success = true;
@@ -197,7 +197,7 @@ namespace DoshiiDotNetIntegration.Controllers
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos modifying table allocation table '{0}' to checkin '{1}'", tableNameStringBuilder, checkinId));
 
             //create checkin
-            Checkin checkinCreateResult = null;
+            ObjectActionResult<Checkin> checkinCreateResult = null;
             try
             {
                 Checkin newCheckin = new Checkin();
@@ -205,10 +205,14 @@ namespace DoshiiDotNetIntegration.Controllers
                 newCheckin.Id = checkinId;
                 newCheckin.Covers = covers;
                 checkinCreateResult = _httpComs.PutCheckin(newCheckin);
-                if (checkinCreateResult == null)
+                if (checkinCreateResult.ReturnObject == null)
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an error modifying a checkin through Doshii, modifying the table allocation could not be completed."));
-                    return false;
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = checkinCreateResult.FailReason
+                    };
                 }
             }
             catch (Exception ex)
@@ -216,7 +220,10 @@ namespace DoshiiDotNetIntegration.Controllers
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
                 throw new CheckinUpdateException(string.Format(" a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
             }
-            return true;
+            return new ActionResultBasic()
+            {
+                Success = true
+            };
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.ActionResults;
 
@@ -47,7 +48,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
-        internal Employee GetEmployee(string doshiiId)
+        internal ObjectActionResult<Employee> GetEmployee(string doshiiId)
         {
             try
             {
@@ -59,7 +60,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal IEnumerable<Employee> GetEmployees()
+        internal ObjectActionResult<List<Employee>> GetEmployees()
         {
             try
             {
@@ -71,7 +72,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal Employee SaveEmployee(Employee employee)
+        internal ObjectActionResult<Employee> SaveEmployee(Employee employee)
         {
             if (string.IsNullOrEmpty(employee.Id))
             {
@@ -97,29 +98,28 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal EmployeeActionResult DeleteEmployee(Employee employee)
+        internal ActionResultBasic DeleteEmployee(string employeeId)
         {
-            var actionResult = new EmployeeActionResult();
-            if (string.IsNullOrEmpty(employee.Id))
+            if (string.IsNullOrEmpty(employeeId))
             {
-                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, "you are attempting to delete an employee without a doshii Id.");
-                actionResult.Success = false;
-                actionResult.Employee = employee;
-                actionResult.EmployeeId = employee.Id;
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete an employee", "employee"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "checkinId was empty"
+                };
             }
             else
             {
                 try
                 {
-                    return _httpComs.DeleteEmployee(employee);
+                    return _httpComs.DeleteEmployee(employeeId);
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
                     throw rex;
                 }
             }
-            return actionResult;
-            
         }
     }
 }

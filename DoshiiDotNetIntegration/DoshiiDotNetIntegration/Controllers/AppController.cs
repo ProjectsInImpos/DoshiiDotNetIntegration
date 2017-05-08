@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -46,7 +48,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
-        internal virtual IEnumerable<Models.App> GetApps()
+        internal virtual ObjectActionResult<List<App>> GetApps()
         {
             try
             {
@@ -58,11 +60,17 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual bool SyncDoshiiAppsWithPosApps()
+        /// <summary>
+        /// This method will return a failed result when any of the apps that are to be syncronised fail in the sync process, the fail reason in the ActionResultBasic will 
+        /// give details about which apps failed to sync. 
+        /// </summary>
+        /// <returns></returns>
+        internal virtual ActionResultBasic SyncDoshiiAppsWithPosApps()
         {
             try
             {
-                List<App> DoshiiMembersList = GetApps().ToList();
+                StringBuilder failedReasonBuilder = new StringBuilder();
+                List<App> DoshiiMembersList = GetApps().ReturnObject;
                 List<App> PosMembersList = _controllersCollection.AppManager.GetAppsFromPos().ToList();
 
                 var doshiiAppsHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
@@ -78,6 +86,8 @@ namespace DoshiiDotNetIntegration.Controllers
                     catch (Exception ex)
                     {
                         _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception deleting an app on the pos with doshii memberId {0}", mem.Id), ex);
+                        failedReasonBuilder.AppendLine(string.Format("App with Id {0} failed to delete from the pos",
+                            mem.Id));
                     }
 
                 }
@@ -95,6 +105,8 @@ namespace DoshiiDotNetIntegration.Controllers
                         catch (Exception ex)
                         {
                             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception updating an app on the pos with doshii memberId {0}", mem.Id), ex);
+                            failedReasonBuilder.AppendLine(string.Format("App with Id {0} failed to update on the pos",
+                            mem.Id));
                         }
 
                     }
@@ -110,17 +122,36 @@ namespace DoshiiDotNetIntegration.Controllers
                     catch (Exception ex)
                     {
                         _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        failedReasonBuilder.AppendLine(string.Format("App with Id {0} failed to create on the pos",
+                            mem.Id));
                     }
 
                 }
 
-
-                return true;
+                if (string.IsNullOrEmpty(failedReasonBuilder.ToString()))
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = true
+                    };
+                }
+                else
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = failedReasonBuilder.ToString()
+                    };
+                }
             }
             catch (Exception ex)
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception while attempting to sync Doshii members with the pos"), ex);
-                return false;
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("syncing apps")
+                };
             }
         }
     }

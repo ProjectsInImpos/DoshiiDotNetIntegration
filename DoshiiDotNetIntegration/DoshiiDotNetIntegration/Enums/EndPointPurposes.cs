@@ -148,7 +148,11 @@ namespace DoshiiDotNetIntegration.Enums
 
         OrderLog = 30,
 
-        UnlinkedOrderLog = 31
+        UnlinkedOrderLog = 31,
+
+        Locations = 32,
+
+        MemberGetRewards = 33
 
     }
 }
