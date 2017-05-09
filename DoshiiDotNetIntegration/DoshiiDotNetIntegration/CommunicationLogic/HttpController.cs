@@ -1215,7 +1215,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(
-                            WebRequestMethods.Http.Get, EndPointPurposes.Booking,
+                            WebRequestMethods.Http.Get, EndPointPurposes.Bookings,
                             "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString());
             }
             catch (RestfulApiErrorResponseException rex)

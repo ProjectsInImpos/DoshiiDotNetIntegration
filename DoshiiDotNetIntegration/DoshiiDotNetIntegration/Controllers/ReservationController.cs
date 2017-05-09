@@ -95,7 +95,7 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             try
             {
-                return _httpComs.GetBookings(DateTime.Now.AddHours(-1), DateTime.MaxValue);
+                return GetBookings(DateTime.Now.AddHours(-1), DateTime.MaxValue);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
