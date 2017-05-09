@@ -24,21 +24,21 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </summary>
 		/// <param name="booking"></param>
 		/// <returns></returns>
-		bool CreateBookingOnPos(Booking booking);
+		void CreateBookingOnPos(Booking booking);
 
 		/// <summary>
 		/// This method should update a doshii booking on the Pos.
 		/// </summary>
 		/// <param name="booking"></param>
 		/// <returns></returns>
-		bool UpdateBookingOnPos(Booking booking);
+		void UpdateBookingOnPos(Booking booking);
 
 		/// <summary>
 		/// This method should delete a doshii booking on the Pos.
 		/// </summary>
 		/// <param name="booking"></param>
 		/// <returns></returns>
-		bool DeleteBookingOnPos(Booking booking);
+		void DeleteBookingOnPos(Booking booking);
 
         /// <summary>
         /// The <see cref="DoshiiController"/> uses this call to inform the pos the checkin 

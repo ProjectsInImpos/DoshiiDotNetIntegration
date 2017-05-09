@@ -24,20 +24,20 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="newMember"></param>
         /// <returns></returns>
-        bool CreateAppOnPos(App newMember);
+        void CreateAppOnPos(App newApp);
 
         /// <summary>
         /// This method should update a doshii apps of the pos. 
         /// </summary>
         /// <param name="updatedMember"></param>
         /// <returns></returns>
-        bool UpdateAppOnPos(App updatedMember);
+        void UpdateAppOnPos(App updatedApp);
 
         /// <summary>
         /// This method should update a doshii apps of the pos. 
         /// </summary>
         /// <param name="updatedMember"></param>
         /// <returns></returns>
-        bool DeleteAppOnPos(App deletedMember);
+        void DeleteAppOnPos(App deletedApp);
     }
 }

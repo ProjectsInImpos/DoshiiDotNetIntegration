@@ -39,21 +39,21 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="newMember"></param>
         /// <returns></returns>
-        bool CreateMemberOnPos(MemberOrg newMember);
+        void CreateMemberOnPos(MemberOrg newMember);
 
         /// <summary>
         /// This method should update a doshii member of the pos. 
         /// </summary>
         /// <param name="updatedMember"></param>
         /// <returns></returns>
-        bool UpdateMemberOnPos(MemberOrg updatedMember);
+        void UpdateMemberOnPos(MemberOrg updatedMember);
 
         /// <summary>
         /// This method should update a doshii member of the pos. 
         /// </summary>
         /// <param name="updatedMember"></param>
         /// <returns></returns>
-        bool DeleteMemberOnPos(MemberOrg deletedMember);
+        void DeleteMemberOnPos(MemberOrg deletedMember);
 
         
     }
