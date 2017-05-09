@@ -753,7 +753,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the Order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual ActionResultBasic AcceptOrderAheadCreation(Order orderToAccept)
+        public virtual ActionResultBasic AcceptOrderAheadCreation(Order orderToAccept)
         {
             if (!m_IsInitalized)
             {
@@ -763,11 +763,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.OrderingController.AcceptOrderAheadCreation(orderToAccept);
         }
 
-        public Task<ActionResultBasic> AcceptOrderAheadAsync(Order orderToAccept)
-        {
-            return Task.Run(() => AcceptOrderAheadCreation(orderToAccept));
-        }
-
         /// <summary>
         /// Call this method to reject an Order created by an Order ahead partner,
         /// </summary>
@@ -775,7 +770,7 @@ namespace DoshiiDotNetIntegration
         /// The pending Doshii Order that will be rejected
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual ActionResultBasic RejectOrderAheadCreation(Order orderToReject)
+        public virtual ActionResultBasic RejectOrderAheadCreation(Order orderToReject)
         {
             if (!m_IsInitalized)
             {
@@ -784,13 +779,8 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
         }
 
-        public Task<ActionResultBasic> RejectOrderAheadCreationAsync(Order orderToAccept)
-        {
-            return Task.Run(() => RejectOrderAheadCreation(orderToAccept));
-        }
-
-
-        internal virtual ActionResultBasic RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
+        
+        public virtual ActionResultBasic RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
 	    {
             if (!m_IsInitalized)
             {
@@ -810,12 +800,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public Task<ActionResultBasic> RequestRefundFromPartnerAsync(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
-        {
-            return Task.Run(() => RequestRefundFromPartner(orderReleatedToRefund, amountToRefund, transacitonIdsToRefund));
-        }
-
-        internal virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
+        public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
         {
             if (!m_IsInitalized)
             {
@@ -823,11 +808,6 @@ namespace DoshiiDotNetIntegration
             }
             return _controllersCollection.OrderingController.GetOrderLog(order);
             
-        }
-
-        public Task<ObjectActionResult<List<Log>>> GetOrderLogAsync(Order order)
-        {
-            return Task.Run(() => GetOrderLog(order));
         }
 
         /// <summary>
@@ -841,18 +821,13 @@ namespace DoshiiDotNetIntegration
         /// <para/>Returns null if the request failed. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual ObjectActionResult<Transaction> RecordPosTransactionOnDoshii(Transaction transaction)
+        public virtual ObjectActionResult<Transaction> RecordPosTransactionOnDoshii(Transaction transaction)
         {
             if (!m_IsInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TransactionController.RecordPosTransactionOnDoshii(transaction);
-        }
-
-        public Task<ObjectActionResult<Transaction>> RecordPosTransactionOnDoshiiAsync(Transaction transaction)
-        {
-            return Task.Run(() => RecordPosTransactionOnDoshii(transaction));
         }
 
         /// <summary>
@@ -884,12 +859,6 @@ namespace DoshiiDotNetIntegration
             
 		}
 
-        public Task<ObjectActionResult<Order>> GetOrderAsync(string orderId)
-        {
-            return Task.Run(() => GetOrder(orderId));
-        }
-
-
         /// <summary>
         /// This method returns a consumer from Doshii corresponding to the CheckinId
         /// </summary>
@@ -911,12 +880,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.ConsumerController.GetConsumerFromCheckinId(checkinId);
         }
 
-        public Task<ObjectActionResult<Consumer>> GetConsumerFromCheckinIdAsync(string checkinId)
-        {
-            return Task.Run(() => GetConsumerFromCheckinId(checkinId));
-        }
-
-		/// <summary>
+        /// <summary>
 		/// Retrieves the current Order list from Doshii.
 		/// <para/>This method will only return orders that are linked to pos ordered in Doshii
 		/// <para/>To get a list of unlinked orders call<see cref="GetUnlinkedOrders"/>
@@ -934,11 +898,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
 		    return _controllersCollection.OrderingController.GetOrders();
-        }
-
-        public Task<ObjectActionResult<List<Order>>> GetOrdersAsync()
-        {
-            return Task.Run(() => GetOrders());
         }
 
         /// <summary>
@@ -960,11 +919,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TransactionController.GetTransaction(transactionId);
-        }
-
-        public Task<ObjectActionResult<Transaction>> GetTransactionAsync(string transactionId)
-        {
-            return Task.Run(() => GetTransaction(transactionId));
         }
 
         /// <summary>
@@ -989,11 +943,6 @@ namespace DoshiiDotNetIntegration
             
         }
 
-        public Task<ObjectActionResult<List<Transaction>>>GetTransactionFromDoshiiOrderIdAsync(string doshiiOrderId)
-        {
-            return Task.Run(() => GetTransactionFromDoshiiOrderId(doshiiOrderId));
-        }
-
         /// <summary>
         /// This method returns a transaction from Doshii corresponding to the Order with the posOrderId
         /// </summary>
@@ -1015,12 +964,7 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public Task<ObjectActionResult<List<Transaction>>> GetTransactionFromOrderIdAsync(string posOrderId)
-        {
-            return Task.Run(() => GetTransactionFromOrderId(posOrderId));
-        }
-
-		/// <summary>
+        /// <summary>
 		/// Retrieves the list of active transactions in Doshii.
 		/// </summary>
 		/// <returns>The current list of active Doshii transactions.</returns>
@@ -1034,11 +978,6 @@ namespace DoshiiDotNetIntegration
             }
 		    return _controllersCollection.TransactionController.GetTransactions();
 		}
-
-        public Task<ObjectActionResult<List<Transaction>>> GetTransactionsAsync()
-        {
-            return Task.Run(() => GetTransactions());
-        }
 
         /// <summary>
         /// This method will update the Order on the Doshii API
@@ -1067,11 +1006,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.OrderingController.UpdateOrder(order);
         }
 
-        public Task<ObjectActionResult<Order>> UpdateOrderAsync(Order order)
-        {
-            return Task.Run(() => UpdateOrder(order));
-        }
-
         #endregion
 
         #region Membership
@@ -1097,11 +1031,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.GetMember(memberId);
         }
 
-        public Task<ObjectActionResult<MemberOrg>> GetMemberAsync(string memberId)
-        {
-            return Task.Run(() => GetMember(memberId));
-        }
-
         /// <summary>
         /// Returns all the Doshii members for the organization 
         /// </summary>
@@ -1122,11 +1051,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.GetMembers();
-        }
-
-        public Task<ObjectActionResult<List<MemberOrg>>> GetMembersAsync()
-        {
-            return Task.Run(() => GetMembers());
         }
 
         /// <summary>
@@ -1152,11 +1076,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.DeleteMember(memberId);
-        }
-
-        public Task<ActionResultBasic> DeleteMemberAsync(string memberId)
-        {
-            return Task.Run(() => DeleteMember(memberId));
         }
 
         /// <summary>
@@ -1185,12 +1104,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.UpdateMember(member);
         }
 
-        public Task<ObjectActionResult<MemberOrg>> UpdateMemberAsync(MemberOrg member)
-        {
-            return Task.Run(() => UpdateMember(member));
-        }
-
-        /// <summary>
+        // <summary>
         /// The method compares the members on the pos with the members on Doshii, 
         /// This method will delete members on the pos that do not exist on Doshii, and update members on the pos that differ to the members on Doshii.  
         /// </summary>
@@ -1212,11 +1126,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
-        }
-
-        public Task<ActionResultBasic> SyncDoshiiMembersWithPosMembersAsync()
-        {
-            return Task.Run(() => SyncDoshiiMembersWithPosMembers());
         }
 
         /// <summary>
@@ -1245,11 +1154,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.GetRewardsForMember(memberId);
-        }
-
-        public Task<ObjectActionResult<List<Reward>>> GetRewardsForMemberAsync(string memberId)
-        {
-            return Task.Run(() => GetRewardsForMember(memberId));
         }
 
         /// <summary>
@@ -1283,11 +1187,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.RedeemRewardForMember(member, reward, order);
         }
 
-        public Task<ActionResultBasic> RedeemRewardForMemberAsync(MemberOrg member, Reward reward, Order order)
-        {
-            return Task.Run(() => RedeemRewardForMember(member, reward, order));
-        }
-
         /// <summary>
         /// Use this method to cancel the redemption of a reward when the reward redemption process has already progressed passed a call to <see cref="RedeemRewardForMember"/> 
         /// </summary>
@@ -1312,11 +1211,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
-        }
-
-        public Task<ActionResultBasic> RedeemRewardForMemberCancelAsync(string memberId, string rewardId, string cancelReason)
-        {
-            return Task.Run(() => RedeemRewardForMemberCancel(memberId, rewardId, cancelReason));
         }
 
         /// <summary>
@@ -1348,11 +1242,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
-        }
-
-        public Task<ActionResultBasic> RedeemRewardForMemberConfirmAsync(string memberId, string rewardId)
-        {
-            return Task.Run(() => RedeemRewardForMemberConfirm(memberId, rewardId));
         }
 
         /// <summary>
@@ -1388,11 +1277,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.RedeemPointsForMember(member, app, order, points);
         }
 
-        public Task<ActionResultBasic> RedeemPointsForMemberAsync(MemberOrg member, App app, Order order, int points)
-        {
-            return Task.Run(() => RedeemPointsForMember(member, app, order, points));
-        }
-
         /// <summary>
         /// This method is use to confirm the use of a points by a member.
         /// This is the last step in redeeming the points. 
@@ -1421,11 +1305,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.RewardController.RedeemPointsForMemberConfirm(memberId);
         }
 
-        public Task<ActionResultBasic> RedeemPointsForMemberConfirmAsync(string memberId)
-        {
-            return Task.Run(() => RedeemPointsForMemberConfirm(memberId));
-        }
-
         /// <summary>
         /// This method is use to cancel the redemption of member points after a call to <see cref="RedeemPointsForMember"/> has been made. 
         /// </summary>
@@ -1446,11 +1325,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiMembershipNotInitializedException();
             }
             return _controllersCollection.RewardController.RedeemPointsForMemberCancel(memberId, cancelReason);
-        }
-
-        public Task<ActionResultBasic> RedeemPointsForMemberCancelAsync(string memberId, string cancelReason)
-        {
-            return Task.Run(() => RedeemPointsForMemberCancel(memberId, cancelReason));
         }
 
         #endregion
@@ -1483,11 +1357,6 @@ namespace DoshiiDotNetIntegration
 		    
 		}
 
-        public Task<ActionResultBasic> SetTableAllocationWithoutCheckinAsync(string posOrderId, List<string> tableNames, int covers)
-        {
-            return Task.Run(() => SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers));
-        }
-
         /// <summary>
         /// This method is used to modify the table allocation of a checkin at the venue, 
         /// If you wish to un-allocate the checkin from a table without allocating it to another table you should pass an empty list to the tableNames parameter.
@@ -1518,11 +1387,6 @@ namespace DoshiiDotNetIntegration
             
         }
 
-        public Task<ActionResultBasic> ModifyTableAllocationAsync(string checkinId, List<string> tableNames, int covers)
-        {
-            return Task.Run(() => ModifyTableAllocation(checkinId, tableNames, covers));
-        }
-
         /// <summary>
         /// this method should be called when a checkin has finished at the venue, eg the checkins check has been completly paid. 
         /// </summary>
@@ -1543,11 +1407,6 @@ namespace DoshiiDotNetIntegration
             }
 
             return _controllersCollection.CheckinController.CloseCheckin(checkinId);
-        }
-
-        public Task<ActionResultBasic> CloseCheckinAsync(string checkinId)
-        {
-            return Task.Run(() => CloseCheckin(checkinId));
         }
 
         #endregion
@@ -1579,11 +1438,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.MenuController.UpdateMenu(menu);
         }
 
-        public Task<ObjectActionResult<Menu>> UpdateMenuAsync(Menu menu)
-        {
-            return Task.Run(() => UpdateMenu(menu));
-        }
-
         /// <summary>
         /// This method is used to create or update a pos surcount on the doshii system. 
         /// </summary>
@@ -1602,11 +1456,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.UpdateSurcount(surcount);
-        }
-
-        public Task<ObjectActionResult<Surcount>> UpdateSurcountAsync(Surcount surcount)
-        {
-            return Task.Run(() => UpdateSurcount(surcount));
         }
 
         /// <summary>
@@ -1629,11 +1478,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.MenuController.UpdateProduct(product);
         }
 
-        public Task<ObjectActionResult<Product>> UpdateProductAsync(Product product)
-        {
-            return Task.Run(() => UpdateProduct(product));
-        }
-
         /// <summary>
         /// this method is used to delete a pos surcount from doshii
         /// </summary>
@@ -1652,11 +1496,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.MenuController.DeleteSurcount(posId);
-        }
-
-        public Task<ActionResultBasic> DeleteSurcountAsync(string posId)
-        {
-            return Task.Run(() => DeleteSurcount(posId));
         }
 
         /// <summary>
@@ -1679,10 +1518,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.MenuController.DeleteProduct(posId);
         }
 
-        public Task<ActionResultBasic> DeleteProductAsync(string posId)
-        {
-            return Task.Run(() => DeleteProduct(posId));
-        }
         #endregion
 
         #region Tables
@@ -1706,11 +1541,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.TableController.GetTable(tableName);
         }
 
-        public Task<ObjectActionResult<Table>> GetTableAsync(string tableName)
-        {
-            return Task.Run(() => GetTable(tableName));
-        }
-
         /// <summary>
         /// gets all the tables registered at the venue in Doshii
         /// </summary>
@@ -1724,11 +1554,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.GetTables();
-        }
-
-        public Task<ObjectActionResult<List<Table>>> GetTablesAsync()
-        {
-            return Task.Run(() => GetTables());
         }
 
         /// <summary>
@@ -1747,11 +1572,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.CreateTable(table);
-        }
-
-        public Task<ObjectActionResult<Table>> CreateTableAsync(Table table)
-        {
-            return Task.Run(() => CreateTable(table));
         }
 
         /// <summary>
@@ -1775,11 +1595,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.TableController.UpdateTable(table, oldTableName);
         }
 
-        public Task<ObjectActionResult<Table>> UpdateTableAsync(Table table, string oldTableName)
-        {
-            return Task.Run(() => UpdateTable(table, oldTableName));
-        }
-
         /// <summary>
         /// Deletes a table from Doshii
         /// </summary>
@@ -1798,11 +1613,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.TableController.DeleteTable(tableName);
         }
 
-        public Task<ActionResultBasic> DeleteTableAsync(string tableName)
-        {
-            return Task.Run(() => DeleteTable(tableName));
-        }
-
         /// <summary>
         /// This method will delete all the current tables on Doshii and replace it with the tables provided in the tableList paramater. 
         /// </summary>
@@ -1817,11 +1627,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiManagerNotInitializedException();
             }
             return _controllersCollection.TableController.ReplaceTableListOnDoshii(tableList);
-        }
-
-        public Task<ObjectActionResult<List<Table>>> ReplaceTableListOnDoshiiAsync(List<Table> tableList)
-        {
-            return Task.Run(() => ReplaceTableListOnDoshii(tableList));
         }
 
         #endregion
@@ -1851,11 +1656,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.ReservationController.GetBooking(bookingId);
         }
 
-        public Task<ObjectActionResult<Booking>> GetBookingAsync(String bookingId)
-        {
-            return Task.Run(() => GetBooking(bookingId));
-        }
-
         /// <summary>
         /// This method is used to get all bookings within a specified date range.
         /// </summary>
@@ -1879,11 +1679,6 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.ReservationController.GetBookings(from, to);
         }
 
-        public Task<ObjectActionResult<List<Booking>>> GetBookingsAsync(DateTime from, DateTime to)
-        {
-            return Task.Run(() => GetBookings(from, to));
-        }
-
         /// <summary>
         /// This method is used by the POS to seat a checkin with a booking.
           /// </summary>
@@ -1902,11 +1697,6 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiReservationNotInitializedException();
             }
             return _controllersCollection.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
-        }
-
-        public Task<ActionResultBasic> SeatBookingAsync(String bookingId, Checkin checkin, String posOrderId = null)
-        {
-            return Task.Run(() => SeatBooking(bookingId, checkin, posOrderId));
         }
 
         #endregion
@@ -1933,11 +1723,6 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public Task<ObjectActionResult<List<App>>> GetAppsAsync()
-        {
-            return Task.Run(() => GetApps());
-        }
-        
         #endregion
 
         #region Employee
@@ -1958,11 +1743,6 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public Task<ObjectActionResult<List<Employee>>> GetEmployeesAsync()
-        {
-            return Task.Run(() => GetEmployees());
-        }
-
         public virtual ObjectActionResult<Employee> GetEmployee(string doshiiId)
         {
             if (!m_IsInitalized)
@@ -1978,11 +1758,6 @@ namespace DoshiiDotNetIntegration
                 throw ex;
             }
 
-        }
-
-        public Task<ObjectActionResult<Employee>> GetEmployeeAsync(string doshiiId)
-        {
-            return Task.Run(() => GetEmployee(doshiiId));
         }
 
         public virtual ObjectActionResult<Employee> SaveEmployee(Employee employee)
@@ -2002,11 +1777,6 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public Task<ObjectActionResult<Employee>> SaveEmployeeAsync(Employee employee)
-        {
-            return Task.Run(() => SaveEmployee(employee));
-        }
-
         public virtual ActionResultBasic DeleteEmployee(string employeeId)
         {
             if (!m_IsInitalized)
@@ -2022,11 +1792,6 @@ namespace DoshiiDotNetIntegration
                 throw ex;
             }
 
-        }
-
-        public Task<ActionResultBasic> DeleteEmployeeAsync(string employeeId)
-        {
-            return Task.Run(() => DeleteEmployee(employeeId));
         }
 
         #endregion
@@ -2057,11 +1822,6 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public Task<ObjectActionResult<Location>> GetLocationAsync()
-        {
-            return Task.Run(() => GetLocation());
-        }
-
         public virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
         {
             if (!m_IsInitalized)
@@ -2076,11 +1836,6 @@ namespace DoshiiDotNetIntegration
             {
                 return null;
             }
-        }
-
-        public Task<ObjectActionResult<Location>> GetLocationAsync(string hashedLocationId)
-        {
-            return Task.Run(() => GetLocation(hashedLocationId));
         }
 
         public virtual ObjectActionResult<List<Location>> GetLocations()
@@ -2099,11 +1854,6 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public Task<ObjectActionResult<List<Location>>> GetLocationsAsync()
-        {
-            return Task.Run(() => GetLocations());
-        }
-
         public virtual ObjectActionResult<Location> CreateLocation(Location location)
         {
             if (!m_IsInitalized)
@@ -2118,11 +1868,6 @@ namespace DoshiiDotNetIntegration
             {
                 return null;
             }
-        }
-
-        public Task<ObjectActionResult<Location>> CreateLocationAsync(Location location)
-        {
-            return Task.Run(() => CreateLocation(location));
         }
 
         public virtual ObjectActionResult<Orginisation> CreateOrginisation(Orginisation orginisation)
@@ -2140,11 +1885,6 @@ namespace DoshiiDotNetIntegration
                 return null;
             }
 	    }
-
-        public Task<ObjectActionResult<Orginisation>> CreateOrginisationAsync(Orginisation orginisation)
-        {
-            return Task.Run(() => CreateOrginisation(orginisation));
-        }
 
         #endregion
 
@@ -2166,11 +1906,6 @@ namespace DoshiiDotNetIntegration
 	        }
 	    }
 
-        public Task<ObjectActionResult<List<RejectionCode>>> GetRejectionCodesAsync()
-        {
-            return Task.Run(() => GetRejectionCodes());
-        }
-
         public virtual ObjectActionResult<RejectionCode> GetRejectionCode(string code)
         {
             if (!m_IsInitalized)
@@ -2187,12 +1922,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public Task<ObjectActionResult<RejectionCode>> GetRejectionCodeAsync(string code)
-        {
-            return Task.Run(() => GetRejectionCode(code));
-        }
-
-	    #endregion
+        #endregion
 
         #region IDisposable Members
 
