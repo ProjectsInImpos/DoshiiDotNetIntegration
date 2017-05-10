@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonMenuVariants> _Variants;
 
         /// <summary>
-        /// A List of Variants available to be selected from this list. 
+        /// A List of Variant available to be selected from this list. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "variants")]

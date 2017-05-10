@@ -17,7 +17,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public ProductOptions()
 		{
-			_Variants = new List<Variants>();
+			_Variants = new List<Variant>();
 			Clear();
 		}
 
@@ -53,24 +53,24 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string PosId { get; set; }
 
-        private List<Variants> _Variants;
+        private List<Variant> _Variants;
 
         /// <summary>
-        /// A List of Variants available to be selected from this list. 
+        /// A List of Variant available to be selected from this list. 
         /// </summary>
-        public IEnumerable<Variants> Variants 
+        public List<Variant> Variants 
         {
             get
             {
                 if (_Variants == null)
                 {
-                    _Variants = new List<Variants>();
+                    _Variants = new List<Variant>();
                 }
                 return _Variants;
             }
             set
             {
-                _Variants = value.ToList<Variants>();
+                _Variants = value.ToList<Variant>();
             }
         } 
         
@@ -84,10 +84,10 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			var options = (ProductOptions)this.MemberwiseClone();
 
-			var variants = new List<Variants>();
+			var variants = new List<Variant>();
 			foreach (var variant in this.Variants)
 			{
-				variants.Add((Variants)variant.Clone());
+				variants.Add((Variant)variant.Clone());
 			}
 			options.Variants = variants;
 

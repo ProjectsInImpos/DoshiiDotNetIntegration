@@ -8,19 +8,19 @@ using System.Runtime.Serialization;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// Variants are available to modify products on the Doshii app,
+    /// Variant are available to modify products on the Doshii app,
     /// Examples of variants may include;
     /// Steak cooking methods eg 'rare, medium, or well done',
     /// sauces eg 'Tomato, bbq, sour cream'
     /// or sides eg 'chips, veg, salad'
     /// each variant can have a price attached to it.
     /// </summary>
-    public class Variants : ICloneable
+    public class Variant : ICloneable
     {
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public Variants()
+		public Variant()
 		{
 			Clear();
 		}
@@ -69,7 +69,7 @@ namespace DoshiiDotNetIntegration.Models
 
 		#endregion
 
-        protected bool Equals(Variants other)
+        protected bool Equals(Variant other)
         {
             return string.Equals(Name, other.Name) && Price == other.Price && string.Equals(PosId, other.PosId);
         }
@@ -79,7 +79,7 @@ namespace DoshiiDotNetIntegration.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Variants) obj);
+            return Equals((Variant) obj);
         }
 
         public override int GetHashCode()

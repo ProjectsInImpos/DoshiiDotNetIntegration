@@ -155,7 +155,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         [DataMember]
-        [JsonProperty(PropertyName = "includedItems")]
+        [JsonProperty(PropertyName = "Uuid")]
         public string Uuid { get; set; }
 
 

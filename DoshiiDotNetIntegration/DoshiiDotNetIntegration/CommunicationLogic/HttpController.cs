@@ -862,6 +862,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 #endregion
 
         #region Menu
+
+        internal virtual ObjectActionResult<Menu> GetMenu()
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Menu,
+                        "get menu");
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
+        
         /// <summary>
         /// Adds a menu to Doshii, this will overwrtie the current menu stored on Doshii 
         /// </summary>

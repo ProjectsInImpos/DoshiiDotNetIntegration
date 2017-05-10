@@ -1413,6 +1413,16 @@ namespace DoshiiDotNetIntegration
 
         #region products and menu
 
+        public virtual ObjectActionResult<Menu> GetMenu()
+        {
+            if (!m_IsInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.GetMenu();
+        }
+        
+        
         /// <summary>
         /// This method is used to update the pos menu on doshii,
         /// <para/>Calls to this method will replace the existing pos menu. 

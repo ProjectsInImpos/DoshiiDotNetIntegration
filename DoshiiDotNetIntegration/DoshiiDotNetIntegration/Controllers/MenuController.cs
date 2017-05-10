@@ -51,6 +51,18 @@ namespace DoshiiDotNetIntegration.Controllers
             _httpComs = httpComs;
 
         }
+
+        internal virtual ObjectActionResult<Menu> GetMenu()
+        {
+            try
+            {
+                return _httpComs.GetMenu();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         
         /// <summary>
         /// updates the entire menu on Doshii, This call will overwrite any menu that currently exists on Doshii with the menu you have provided in the menu param. 
@@ -184,7 +196,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 try
                 {
-                    return _httpComs.DeleteSurcount(productPosId);
+                    return _httpComs.DeleteProduct(productPosId);
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {

@@ -70,7 +70,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// A list of ProductOptions the customer can choose from to modify the product they are ordering.
         /// </summary>
-        public IEnumerable<ProductOptions> ProductOptions {
+        public List<ProductOptions> ProductOptions {
             get
             {
                 if (_ProductOptions == null)
@@ -172,6 +172,7 @@ namespace DoshiiDotNetIntegration.Models
 			_Tags = new List<string>();
 			_ProductOptions = new List<ProductOptions>();
 		    _menuDir = new List<string>();
+		    _includedItems = new List<Product>();
 			Clear();
 		}
 

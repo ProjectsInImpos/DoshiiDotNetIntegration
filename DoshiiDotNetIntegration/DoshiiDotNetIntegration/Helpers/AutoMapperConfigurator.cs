@@ -166,7 +166,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
         private static void MapPointsRedeemObjects()
         {
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = PointsRedeem, dest = JsonPointsRedeem, opt = Mapping Option
             Mapper.CreateMap<PointsRedeem, JsonPointsRedeem>()
                 .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Points)));
@@ -178,7 +178,7 @@ namespace DoshiiDotNetIntegration.Helpers
         
         private static void MapRewardObjects()
         {
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = Reward, dest = JsonReward, opt = Mapping Option
             Mapper.CreateMap<Reward, JsonReward>()
                 .ForMember(dest => dest.SurcountAmount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapSurchargeAmountToString(src.SurcountAmount, src.SurcountType)));
@@ -190,7 +190,7 @@ namespace DoshiiDotNetIntegration.Helpers
         
         private static void MapAddressObjects()
         {
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = Address, dest = JsonAddress, opt = Mapping Option
             Mapper.CreateMap<Address, JsonAddress>();
 
@@ -200,7 +200,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
         private static void MapMemberObjects()
         {
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = MemberOrg, dest = JsonMember, opt = Mapping Option
             Mapper.CreateMap<MemberOrg, JsonMember>()
                 .ForMember(dest => dest.Apps, opt => opt.MapFrom(src => src.Apps.ToList<App>()))
@@ -213,7 +213,7 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)));
 
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = Member, dest = JsonMember, opt = Mapping Option
             Mapper.CreateMap<MemberOrg, JsonMemberToUpdate>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
@@ -228,7 +228,7 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.Uri, opt => opt.Ignore())
                 .ForMember(dest => dest.Apps, opt => opt.Ignore());
 
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = MemberApp, dest = JsonMember, opt = Mapping Option
             Mapper.CreateMap<MemberApp, JsonMember>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
@@ -243,7 +243,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
         private static void MapAppObjects()
         {
-            // Mapping from Variants to JsonOrderVariants
+            // Mapping from Variant to JsonOrderVariants
             // src = App, dest = JsonApp, opt = Mapping Option
             Mapper.CreateMap<App, JsonApp>()
                 .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Points)));
@@ -255,26 +255,26 @@ namespace DoshiiDotNetIntegration.Helpers
 
 
 		/// <summary>
-		/// This function creates a bi-directional object mapping between the Variants model object and its
+		/// This function creates a bi-directional object mapping between the Variant model object and its
 		/// JSON equivalent data transfer object.
 		/// </summary>
 		private static void MapVariantsObjects()
 		{
-			// Mapping from Variants to JsonOrderVariants
-			// src = Variants, dest = JsonOrderVariants, opt = Mapping Option
-			Mapper.CreateMap<Variants, JsonOrderVariants>()
+			// Mapping from Variant to JsonOrderVariants
+			// src = Variant, dest = JsonOrderVariants, opt = Mapping Option
+			Mapper.CreateMap<Variant, JsonOrderVariants>()
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
 
-			// src = JsonOrderVariants, dest = Variants
-			Mapper.CreateMap<JsonOrderVariants, Variants>()
+			// src = JsonOrderVariants, dest = Variant
+			Mapper.CreateMap<JsonOrderVariants, Variant>()
                 .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 
-            // src = Variants, dest = JsonOrderVariants, opt = Mapping Option
-            Mapper.CreateMap<Variants, JsonMenuVariants>()
+            // src = Variant, dest = JsonOrderVariants, opt = Mapping Option
+            Mapper.CreateMap<Variant, JsonMenuVariants>()
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
 
-            // src = JsonOrderVariants, dest = Variants
-            Mapper.CreateMap<JsonMenuVariants, Variants>()
+            // src = JsonOrderVariants, dest = Variant
+            Mapper.CreateMap<JsonMenuVariants, Variant>()
                 //.ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
                 .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
@@ -288,7 +288,7 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			// src = ProductOptions, dest = JsonOrderProductOptions
 			Mapper.CreateMap<ProductOptions, JsonOrderProductOptions>()
-				.ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variants>()));
+				.ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variant>()));
 
 			// src = JsonOrderProductOptions, dest = ProductOptions
 			Mapper.CreateMap<JsonOrderProductOptions, ProductOptions>();
@@ -317,14 +317,14 @@ namespace DoshiiDotNetIntegration.Helpers
                 
             // src = ProductOptions, dest = JsonOrderProductOptions
             Mapper.CreateMap<ProductOptions, JsonMenuProductOptions>()
-                .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variants>()));
+                .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variant>()));
 
             // src = JsonOrderProductOptions, dest = ProductOptions
 		    Mapper.CreateMap<JsonMenuProductOptions, ProductOptions>();
                 
             // src = ProductOptions, dest = JsonOrderProductOptions
             Mapper.CreateMap<ProductOptions, JsonOrderProductOptions>()
-                .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variants>()));
+                .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variant>()));
 
             // src = JsonOrderProductOptions, dest = ProductOptions
             Mapper.CreateMap<JsonOrderProductOptions, ProductOptions>()
