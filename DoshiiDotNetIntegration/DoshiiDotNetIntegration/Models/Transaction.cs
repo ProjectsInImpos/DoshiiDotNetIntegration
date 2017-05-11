@@ -31,7 +31,7 @@ namespace DoshiiDotNetIntegration.Models
             OrderId = String.Empty;
             Reference = String.Empty;
             Invoice = String.Empty;
-		    PaymentAmount = 0.0M;
+		    PaymentAmount = 0;
 		    AcceptLess = false;
 		    PartnerInitiated = false; 
             Partner = String.Empty;
@@ -69,7 +69,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The amount that has been paid in cents. 
         /// </summary>
-        public decimal PaymentAmount { get; set; }
+        public int PaymentAmount { get; set; }
 
         /// <summary>
         /// flag indicating if the pos will accept less than the total amount as a payment from the partner

@@ -788,7 +788,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, amountToRefund, transacitonIdsToRefund);
+                return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, (int)(amountToRefund* 100), transacitonIdsToRefund);
             }
             catch (Exception ex)
             {
@@ -1641,7 +1641,7 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
-        #region Reservations and Bookings
+        #region Reservations and BookingsWithDateFilter
 
         /// <summary>
         /// This method is used to get a booking for a specific id.
@@ -1707,6 +1707,45 @@ namespace DoshiiDotNetIntegration
                 this.ThrowDoshiiReservationNotInitializedException();
             }
             return _controllersCollection.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
+        }
+
+        public ObjectActionResult<Checkin> SeatBookingWithoutCheckin(String bookingId, String posOrderId = null)
+        {
+            if (!m_IsInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.SeatBookingWithoutCheckin(bookingId);
+        }
+
+        public ObjectActionResult<Booking> UpdateBooking(Booking booking)
+        {
+            if (!m_IsInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.UpdateBooking(booking);
+        }
+
+        public ActionResultBasic DeleteBooking(string bookingId)
+        {
+            if (!m_IsInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.DeleteBooking(bookingId);
         }
 
         #endregion

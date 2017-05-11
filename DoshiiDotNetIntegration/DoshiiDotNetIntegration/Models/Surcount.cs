@@ -31,8 +31,8 @@ namespace DoshiiDotNetIntegration.Models
 			Name = String.Empty;
 		    Type = String.Empty;
 		    Id = String.Empty;
-		    Value = 0.0M;
-			Amount = 0.0M;
+		    Value = 0;
+			Amount = 0;
 		    RewardId = string.Empty;
 		}
 
@@ -44,14 +44,14 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The Amount / value of the surcount in cents. 
         /// </summary>
-        public decimal Amount { get; set; }
+        public int Amount { get; set; }
 
         /// <summary>
         /// the value of the surcount
         /// if the <see cref="Type"/> = 'absolute' this value will be equal to the amount that should be applied to the reward. 
         /// if the <see cref="Type"/> = 'percentage' this is the percent that needs to be used to calculate the value of the report. 
         /// </summary>
-        public decimal Value { get; set; }
+        public int Value { get; set; }
 
         /// <summary>
         /// The type of the surcount ('absolute' or 'percentage')

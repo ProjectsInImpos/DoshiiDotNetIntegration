@@ -604,7 +604,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
                         WebRequestMethods.Http.Put, EndPointPurposes.Members,
-                        "put members", jsonMember.ToJsonString());
+                        "put members", jsonMember.ToJsonString(), member.Id);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1193,8 +1193,55 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #endregion
 
-        #region Bookings
+        #region BookingsWithDateFilter
 
+        internal ObjectActionResult<Booking> PutBooking(Booking booking)
+        {
+            try
+            {
+                var jsonBooking = Mapper.Map<JsonBooking>(booking);
+                return
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.Booking,
+                            "put booking", jsonBooking.ToJsonString(), booking.Id);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal ObjectActionResult<Booking> PostBooking(Booking booking)
+        {
+            try
+            {
+                var jsonBooking = Mapper.Map<JsonBooking>(booking);
+                return
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Booking,
+                            "post booking", jsonBooking.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal ActionResultBasic DeleteBooking(string bookingId)
+        {
+            try
+            {
+                return
+                    MakeHttpRequest(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Booking,
+                            "delete booking", "", bookingId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
         internal ObjectActionResult<Checkin> SeatBooking(string bookingId, Checkin checkin)
         {
             try
@@ -1211,6 +1258,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
+        internal ObjectActionResult<Checkin> SeatBookingWithoutCheckin(string bookingId)
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
+                            "seat booking without checkin", "", bookingId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
         internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             try
@@ -1232,7 +1294,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(
-                            WebRequestMethods.Http.Get, EndPointPurposes.Bookings,
+                            WebRequestMethods.Http.Get, EndPointPurposes.BookingsWithDateFilter,
                             "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString());
             }
             catch (RestfulApiErrorResponseException rex)
@@ -1495,9 +1557,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     break;
                 case EndPointPurposes.Booking:
-                    newUrlbuilder.AppendFormat("/bookings/{0}", identification);
+                    newUrlbuilder.AppendFormat("/bookings");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}", identification);
+                    }
                     break;
-                case EndPointPurposes.Bookings:
+                case EndPointPurposes.BookingsWithDateFilter:
                     newUrlbuilder.Append("/bookings");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {

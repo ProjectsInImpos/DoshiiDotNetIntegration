@@ -370,7 +370,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual ActionResultBasic RequestRefundForOrder(Order order, decimal amountToRefund, List<string> transacitonIdsToRefund)
+        internal virtual ActionResultBasic RequestRefundForOrder(Order order, int amountToRefundCents, List<string> transacitonIdsToRefund)
         {
             ObjectActionResult<Transaction> returnedTransaction = null;
             Transaction refundTransaction = new Transaction()
@@ -382,7 +382,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 Partner = string.Empty,
                 PartnerInitiated = false,
                 Invoice = string.Empty,
-                PaymentAmount = amountToRefund,
+                PaymentAmount = amountToRefundCents,
                 Reference = string.Empty,
                 LinkedTrxIds = transacitonIdsToRefund
             };

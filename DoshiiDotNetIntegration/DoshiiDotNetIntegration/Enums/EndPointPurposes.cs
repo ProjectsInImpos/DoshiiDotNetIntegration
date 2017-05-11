@@ -123,7 +123,7 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// request for multiple booking data
         /// </summary>
-        Bookings = 23,
+        BookingsWithDateFilter = 23,
 
         /// <summary>
         /// requests for booking checkins. 

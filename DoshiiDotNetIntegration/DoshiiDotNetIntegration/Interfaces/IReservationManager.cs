@@ -53,7 +53,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         void RecordCheckinForBooking(string bookingId, string checkinId);
 
         /// <summary>
-        /// This method should retreive all the Bookings from the pos. 
+        /// This method should retreive all the BookingsWithDateFilter from the pos. 
         /// </summary>
         /// <param name="DoshiiMemberId"></param>
         /// <returns></returns>
