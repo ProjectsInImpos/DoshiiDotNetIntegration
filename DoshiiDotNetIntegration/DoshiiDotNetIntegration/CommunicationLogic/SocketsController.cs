@@ -99,6 +99,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal virtual event MemberUpdatedEventHandler MemberUpdatedEvent;
 
+        internal delegate void MemberDeletedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a member updated through doshii. 
+        /// </summary>
+        internal virtual event MemberDeletedEventHandler MemberDeletedEvent;
+        
+
         internal delegate void MemberCreatedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
 
         internal delegate void BookingCreatedEventHandler(object sender, CommunicationEventArgs.BookingEventArgs e);
@@ -512,7 +520,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the MemberUpdatedEvent"));
+                    }
+
+                    break;
+                case "member_deleted":
+                    CommunicationEventArgs.MemberEventArgs memberDeletedEventArgs = new MemberEventArgs();
+                    try
+                    {
+                        memberDeletedEventArgs.MemberId = messageData.Id;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Exception calling get member."), ex);
+                    }
+
+                    if (MemberUpdatedEvent != null)
+                    {
+                        MemberDeletedEvent(this, memberDeletedEventArgs);
+                    }
+                    else
+                    {
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the MemberDeletedEvent"));
                     }
 
                     break;

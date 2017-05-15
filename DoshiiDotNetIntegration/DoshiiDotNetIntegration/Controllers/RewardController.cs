@@ -160,7 +160,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     try
                     {
-                        _controllers.RewardManager.DeleteMemberOnPos(mem);
+                        _controllers.RewardManager.DeleteMemberOnPos(mem.Id);
                     }
                     catch (Exception ex)
                     {
