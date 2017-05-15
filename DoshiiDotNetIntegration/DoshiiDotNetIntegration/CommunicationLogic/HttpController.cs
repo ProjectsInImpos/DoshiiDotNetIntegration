@@ -397,7 +397,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                return MakeHttpRequestWithForResponseData<List<App>, List<JsonApp>>(WebRequestMethods.Http.Get, EndPointPurposes.App, "get apps");
+                return MakeHttpRequestWithForResponseData<List<App>, List<JsonApp>>(
+                    WebRequestMethods.Http.Get, EndPointPurposes.App, "get apps");
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
