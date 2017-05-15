@@ -90,7 +90,7 @@ namespace DoshiiDotNetIntegration.Models
             {
                 var hashCode = (Id != null ? Id.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ Ref.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Ref != null ? Ref.GetHashCode() : 0); 
                 return hashCode;
             }
         }

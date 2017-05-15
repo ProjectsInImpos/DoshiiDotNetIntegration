@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Web;
 using DoshiiDotNetIntegration.Controllers;
 using JWT;
 using DoshiiDotNetIntegration.Helpers;
@@ -1443,7 +1444,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
-
+            if (!string.IsNullOrEmpty(identification))
+            {
+                identification = System.Uri.EscapeDataString(identification);   
+            }
+            if (!string.IsNullOrEmpty(secondIdentification))
+            {
+                secondIdentification = System.Uri.EscapeDataString(secondIdentification);
+            }
             if (!string.IsNullOrEmpty(identification))
             {
                 identification = System.Uri.EscapeDataString(identification);
@@ -1614,7 +1622,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     throw new NotSupportedException(purpose.ToString());
             }
 
-            return newUrlbuilder.ToString();
+            return    newUrlbuilder.ToString();
         }
 
         private string GetHttpMethodFromMethodString(string methodString)
