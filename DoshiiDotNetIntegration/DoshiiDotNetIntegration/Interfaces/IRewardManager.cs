@@ -49,11 +49,11 @@ namespace DoshiiDotNetIntegration.Interfaces
         void UpdateMemberOnPos(MemberOrg updatedMember);
 
         /// <summary>
-        /// This method should update a doshii member of the pos. 
+        /// This method should delete a doshii member of the pos. 
         /// </summary>
-        /// <param name="updatedMember"></param>
+        /// <param name="memberId"></param>
         /// <returns></returns>
-        void DeleteMemberOnPos(MemberOrg deletedMember);
+        bool DeleteMemberOnPos(string memberId);
 
         
     }
