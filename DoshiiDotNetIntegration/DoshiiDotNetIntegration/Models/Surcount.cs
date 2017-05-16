@@ -44,7 +44,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The Amount / value of the surcount in cents. 
         /// </summary>
-        public int Amount { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>
         /// the value of the surcount

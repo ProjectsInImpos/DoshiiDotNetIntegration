@@ -69,7 +69,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The amount that has been paid in cents. 
         /// </summary>
-        public int PaymentAmount { get; set; }
+        public decimal PaymentAmount { get; set; }
 
         /// <summary>
         /// flag indicating if the pos will accept less than the total amount as a payment from the partner
