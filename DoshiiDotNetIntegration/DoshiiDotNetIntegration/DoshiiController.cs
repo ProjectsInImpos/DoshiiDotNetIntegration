@@ -635,21 +635,21 @@ namespace DoshiiDotNetIntegration
 
         internal virtual void SocketComsMemberDeletedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member deleted event for member Id '{0}'", e.MemberId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member deleted event for member Id '{0}'", e.MemberId));
             try
             {
-                _controllers.RewardManager.DeleteMemberOnPos(e.MemberId);
+                _controllersCollection.RewardManager.DeleteMemberOnPos(e.MemberId);
             }
             catch (MemberDoesNotExistOnPosException ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
                 try
                 {
-                    _controllers.RewardManager.CreateMemberOnPos(e.Member);
+                    _controllersCollection.RewardManager.CreateMemberOnPos(e.Member);
                 }
                 catch (MemberExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete member with Id '{0}' on pos failed", e.MemberId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete member with Id '{0}' on pos failed", e.MemberId));
                 }
             }
         }

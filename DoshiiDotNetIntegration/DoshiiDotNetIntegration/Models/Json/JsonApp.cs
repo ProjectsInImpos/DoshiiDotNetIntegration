@@ -49,6 +49,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "appMember")]
-        public string AppMember { get; set; }
+        public JsonMemberApp AppMember { get; set; }
     }
 }

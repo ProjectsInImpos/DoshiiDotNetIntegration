@@ -37,7 +37,7 @@ namespace DoshiiDotNetIntegration.Models
             Partner = String.Empty;
 		    Status = "pending";
             Version = String.Empty;
-            Uri = new Uri("");
+		    Uri = string.Empty;
 		    Tip = 0.0M;
 		    CreatedAt = null;
 		    UpdatedAt = null;

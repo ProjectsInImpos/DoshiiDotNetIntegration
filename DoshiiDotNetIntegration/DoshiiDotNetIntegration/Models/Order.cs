@@ -19,6 +19,7 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
+            _log = new List<Log>();
 			Clear();
 		}
 
@@ -35,7 +36,7 @@ namespace DoshiiDotNetIntegration.Models
 			LocationId = String.Empty;
 			_surcounts.Clear();
 			Version = String.Empty;
-			Uri = new Uri("");
+			Uri = null;
 		    MemberId = string.Empty;
 		    Phase = string.Empty;
 			_items.Clear();
@@ -122,8 +123,6 @@ namespace DoshiiDotNetIntegration.Models
 
         public DateTime? AvailableEta { get; set; }
 
-
-        
         private List<Product> _items;
         
         /// <summary>
@@ -140,6 +139,8 @@ namespace DoshiiDotNetIntegration.Models
             }
             set { _items = value.ToList<Product>(); } 
         }
+
+        public string LogUri { get; set; }
 
         private List<Log> _log;
 
@@ -162,7 +163,7 @@ namespace DoshiiDotNetIntegration.Models
 
         public bool ManuallyAccepted { get; set; }
 
-        public Uri TransactionsUri { get; set; }
+        public string TransactionsUri { get; set; }
 
         public string RejectionCode { get; set; }
 

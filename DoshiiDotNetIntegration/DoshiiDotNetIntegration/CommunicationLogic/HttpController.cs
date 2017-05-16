@@ -147,7 +147,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             var fullOrderList = new List<Models.Order>();
             foreach (var partOrder in actionResult.ReturnObject)
             {
-                var newOrderResponse = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
+                var newOrderResponse = GetOrder(partOrder.Id);
                 if (newOrderResponse.ReturnObject != null)
                 {
                     fullOrderList.Add(newOrderResponse.ReturnObject);

@@ -161,7 +161,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         [DataMember]
-        [JsonProperty(PropertyName = "includedItems")]
+        [JsonProperty(PropertyName = "uuid")]
         public string Uuid { get; set; }
 
 
@@ -184,11 +184,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         #region Serialize methods
-
-        public bool ShouldSerializeType()
-        {
-            return !string.IsNullOrEmpty(Type);
-        }
 
         public bool ShouldSerializeIncludedItems()
         {

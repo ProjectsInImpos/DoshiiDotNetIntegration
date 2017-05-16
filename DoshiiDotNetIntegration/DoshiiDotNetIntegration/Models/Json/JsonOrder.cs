@@ -142,22 +142,9 @@ namespace DoshiiDotNetIntegration.Models.Json
 			set { _items = value; } 
         }
 
-        private List<JsonLog> _log;
-
         [DataMember]
         [JsonProperty(PropertyName = "log")]
-        public List<JsonLog> Log
-        {
-            get
-            {
-                if (_log == null)
-                {
-                    _log = new List<JsonLog>();
-                }
-                return _log;
-            }
-            set { _log = value; }
-        }
+        public string LogUri { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "rejectionCode")]

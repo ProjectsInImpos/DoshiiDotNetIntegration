@@ -33,6 +33,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "version")]
         public string Version { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
 
         private List<JsonOrderSurcount> _surcounts;
 

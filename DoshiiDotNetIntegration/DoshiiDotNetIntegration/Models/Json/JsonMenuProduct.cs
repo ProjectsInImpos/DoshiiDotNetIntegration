@@ -177,11 +177,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         #region Serialize methods
 
-        public bool ShouldSerializeType()
-        {
-            return !string.IsNullOrEmpty(Type);
-        }
-
         public bool ShouldSerializeDescription()
         {
             return !string.IsNullOrEmpty(Description);

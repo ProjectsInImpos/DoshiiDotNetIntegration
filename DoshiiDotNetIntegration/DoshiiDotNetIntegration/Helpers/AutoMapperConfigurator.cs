@@ -246,11 +246,21 @@ namespace DoshiiDotNetIntegration.Helpers
             // Mapping from Variant to JsonOrderVariants
             // src = App, dest = JsonApp, opt = Mapping Option
             Mapper.CreateMap<App, JsonApp>()
+                .ForMember(dest => dest.Types, opt => opt.MapFrom(src => src.Types.ToList<String>()))
                 .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Points)));
 
             // src = JsonApp, dest = App
             Mapper.CreateMap<JsonApp, App>()
                 .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Points)));
+
+            Mapper.CreateMap<MemberApp, JsonMemberApp>();
+                
+
+            // src = JsonApp, dest = App
+            Mapper.CreateMap<JsonMemberApp, MemberApp>();
+                
+
+            
         }
 
 
@@ -712,12 +722,12 @@ namespace DoshiiDotNetIntegration.Helpers
             return quantity.ToString();
         }
 
-        private static int MapQuantity(string quantity)
+        private static decimal MapQuantity(string quantity)
         {
             if (!String.IsNullOrEmpty(quantity))
             {
-                int result;
-                if (int.TryParse(quantity, out result))
+                decimal result;
+                if (decimal.TryParse(quantity, out result))
                 {
                     return result;
                 }
