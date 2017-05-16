@@ -31,13 +31,13 @@ namespace DoshiiDotNetIntegration.Models
             OrderId = String.Empty;
             Reference = String.Empty;
             Invoice = String.Empty;
-		    PaymentAmount = 0.0M;
+		    PaymentAmount = 0;
 		    AcceptLess = false;
 		    PartnerInitiated = false; 
             Partner = String.Empty;
 		    Status = "pending";
             Version = String.Empty;
-            Uri = new Uri("");
+		    Uri = string.Empty;
 		    Tip = 0.0M;
 		    CreatedAt = null;
 		    UpdatedAt = null;
@@ -52,7 +52,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// identify the order this transaction relates to
+        /// identify the Order this transaction relates to
         /// </summary>
         public string OrderId { get; set; }
 
@@ -69,7 +69,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The amount that has been paid in cents. 
         /// </summary>
-        public decimal PaymentAmount { get; set; }
+        public int PaymentAmount { get; set; }
 
         /// <summary>
         /// flag indicating if the pos will accept less than the total amount as a payment from the partner
@@ -87,14 +87,14 @@ namespace DoshiiDotNetIntegration.Models
         public string Partner { get; set; }
 
         /// <summary>
-        /// An obfuscated string representation of the version for the order in Doshii.
+        /// An obfuscated string representation of the version for the Order in Doshii.
         /// </summary>
         public string Version { get; set; }
 
         private List<string> _linkedTrxIds;
 
         /// <summary>
-        /// A list of all surcounts applied at and order level
+        /// A list of all surcounts applied at and Order level
         /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
         public List<string> LinkedTrxIds

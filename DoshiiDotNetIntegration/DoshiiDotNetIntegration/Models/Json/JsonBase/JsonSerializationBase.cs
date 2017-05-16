@@ -38,7 +38,7 @@ namespace DoshiiDotNetIntegration.Models.Json.JsonBase
             }
             catch (Exception ex)
             {
-                
+                throw ex;
             }
             return json;
             

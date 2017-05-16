@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
+using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -46,22 +49,22 @@ namespace DoshiiDotNetIntegration.Controllers
 
             if (_controllersCollection.ReservationManager == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - reservationManager cannot be null");
-                throw new NullReferenceException("rewardManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - reservationManager cannot be null");
+                throw new NullReferenceException("reservationManager cannot be null");
             }
             if (_controllersCollection.OrderingManager == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - orderingManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - orderingManager cannot be null");
                 throw new NullReferenceException("orderingManager cannot be null");
             }
             if (_controllersCollection.OrderingController == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - orderingController cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - orderingController cannot be null");
                 throw new NullReferenceException("orderingController cannot be null");
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -72,7 +75,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="bookingId"></param>
         /// <returns></returns>
-        internal virtual Booking GetBooking(String bookingId)
+        internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             try
             {
@@ -90,11 +93,11 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        internal virtual List<Booking> GetBookingsFrom1hrAgoToMaxDate()
+        internal virtual ObjectActionResult<List<Booking>> GetBookingsFrom1hrAgoToMaxDate()
         {
             try
             {
-                return _httpComs.GetBookings(DateTime.Now.AddHours(-1), DateTime.MaxValue).ToList();
+                return GetBookings(DateTime.Now.AddHours(-1), DateTime.MaxValue);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -108,11 +111,11 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        internal virtual List<Booking> GetBookings(DateTime from, DateTime to)
+        internal virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to)
         {
             try
             {
-                return _httpComs.GetBookings(from, to).ToList();
+                return _httpComs.GetBookings(from, to);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -127,9 +130,9 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="checkin"></param>
         /// <param name="posOrderId"></param>
         /// <returns></returns>
-        internal bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
+        internal ActionResultBasic SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos Seating Booking '{0}'", bookingId));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos Seating Booking '{0}'", bookingId));
 
             Order order = null;
             if (posOrderId != null)
@@ -143,94 +146,177 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
                 catch (OrderDoesNotExistOnPosException dne)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during seating");
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, " Order does not exist on POS during seating");
                     throw dne;
-                }
-
-                if (order == null)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during seating");
-                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during seating", new OrderUpdateException());
                 }
 
                 if (!String.IsNullOrEmpty(order.CheckinId))
                 {
                     try
                     {
-                        Checkin orderCheckin = _httpComs.GetCheckin(order.CheckinId);
-                        if (orderCheckin != null)
+                        var orderCheckinResult = _httpComs.GetCheckin(order.CheckinId);
+                        if (orderCheckinResult.ReturnObject != null)
                         {
-                            if (orderCheckin.Id.CompareTo(checkin.Id) != 0)
+                            if (orderCheckinResult.ReturnObject.Id.CompareTo(checkin.Id) != 0)
                             {
-                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: Order checkin id not equal to booking checkin id");
-                                throw new BookingCheckinException("Doshii: Order checkin id != booking checkin id");
+                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " Order checkin id not equal to booking checkin id");
+                                throw new BookingCheckinException(" Order checkin id != booking checkin id");
                             }
-                            if (orderCheckin.Covers != checkin.Covers)
+                            if (orderCheckinResult.ReturnObject.Covers != checkin.Covers)
                             {
-                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: Order covers not equal to booking covers");
-                                throw new BookingCheckinException("Doshii: Order covers != booking covers");
+                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " Order covers not equal to booking covers");
+                                throw new BookingCheckinException(" Order covers != booking covers");
                             }
-                            if (orderCheckin.Consumer.CompareTo(checkin.Consumer) != 0)
+                            if (orderCheckinResult.ReturnObject.Consumer.CompareTo(checkin.Consumer) != 0)
                             {
-                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: Order consumer not equal to booking consumer");
-                                throw new BookingCheckinException("Doshii: Order consumer != booking consumer");
+                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " Order consumer not equal to booking consumer");
+                                throw new BookingCheckinException(" Order consumer != booking consumer");
                             }
-                            if (orderCheckin.TableNames.All(o => checkin.TableNames.Contains(o)) && orderCheckin.TableNames.Count == checkin.TableNames.Count)
+                            if (orderCheckinResult.ReturnObject.TableNames.All(o => checkin.TableNames.Contains(o)) && orderCheckinResult.ReturnObject.TableNames.Count == checkin.TableNames.Count)
                             {
-                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: Order Tables not equal to booking tables");
-                                throw new BookingCheckinException("Doshii: Order tables != booking tables");
+                                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " Order Tables not equal to booking tables");
+                                throw new BookingCheckinException(" Order tables != booking tables");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: an exception was thrown getting the checking", ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " an exception was thrown getting the checking", ex);
                         throw ex;
                     }
                 }
             }
 
-            Checkin bookingCheckin = null;
+            ObjectActionResult<Checkin> bookingCheckinResult = null;
             try
             {
-                bookingCheckin = _httpComs.SeatBooking(bookingId, checkin);
-                if (bookingCheckin == null)
+                bookingCheckinResult = _httpComs.SeatBooking(bookingId, checkin);
+                if (!bookingCheckinResult.Success)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error generating a new checkin through Doshii, the seat booking could not be completed."));
-                    return false;
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an error generating a new checkin through Doshii, the seat booking could not be completed."));
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = bookingCheckinResult.FailReason
+                    };
                 }
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a seat booking Id{0} : {1}", bookingId, ex));
-                throw new BookingUpdateException(string.Format("Doshii: a exception was thrown during an attempt to seat a booking. Id{0}", bookingId), ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting a seat booking Id{0} : {1}", bookingId, ex));
+                throw new BookingUpdateException(string.Format(" a exception was thrown during an attempt to seat a booking. Id{0}", bookingId), ex);
             }
 
-            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Booking Seated."));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Booking Seated."));
 
-            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckin.Id);
+            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject.Id);
 
             if (order != null)
             {
-                order.CheckinId = bookingCheckin.Id;
-                Order returnedOrder = _controllersCollection.OrderingController.UpdateOrder(order);
-                if (returnedOrder == null)
-                    return false;
+                order.CheckinId = bookingCheckinResult.ReturnObject.Id;
+                var returnedOrder = _controllersCollection.OrderingController.UpdateOrder(order);
+                if (returnedOrder.ReturnObject == null)
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = returnedOrder.FailReason
+                    };
+                }
+                    
             }
 
-            return true;
+            return new ActionResultBasic()
+            {
+                Success = true
+            };
         }
+
+
+        internal ObjectActionResult<Checkin> SeatBookingWithoutCheckin(String bookingId, String posOrderId = null)
+        {
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos Seating Booking '{0}'", bookingId));
+
+            Order order = null;
+            if (posOrderId != null)
+            {
+                try
+                {
+                    order = _controllersCollection.OrderingManager.RetrieveOrder(posOrderId);
+                    order.Version = _controllersCollection.OrderingManager.RetrieveOrderVersion(posOrderId);
+                    order.CheckinId = _controllersCollection.OrderingManager.RetrieveCheckinIdForOrder(posOrderId);
+                    order.Status = "accepted";
+                    var result = _controllersCollection.OrderingController.UpdateOrder(order);
+                    if (!result.Success)
+                    {
+                        return new ObjectActionResult<Checkin>()
+                        {
+                            Success = false,
+                            FailReason = result.FailReason
+                        };
+                    }
+                }
+                catch (OrderDoesNotExistOnPosException dne)
+                {
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController),
+                        DoshiiLogLevels.Warning, " Order does not exist on POS during seating");
+                    throw dne;
+                }
+            }
+
+            ObjectActionResult<Checkin> bookingCheckinResult = null;
+            try
+            {
+                bookingCheckinResult = _httpComs.SeatBookingWithoutCheckin(bookingId);
+                if (!bookingCheckinResult.Success)
+                {
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an error generating a new checkin through Doshii, the seat booking could not be completed."));
+                    return new ObjectActionResult<Checkin>()
+                    {
+                        Success = false,
+                        FailReason = bookingCheckinResult.FailReason
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting a seat booking Id{0} : {1}", bookingId, ex));
+                throw new BookingUpdateException(string.Format(" a exception was thrown during an attempt to seat a booking. Id{0}", bookingId), ex);
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Booking Seated."));
+
+            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject.Id);
+
+            if (order != null)
+            {
+                order.CheckinId = bookingCheckinResult.ReturnObject.Id;
+                var returnedOrder = _controllersCollection.OrderingController.UpdateOrder(order);
+                if (!returnedOrder.Success)
+                {
+                    return new ObjectActionResult<Checkin>()
+                    {
+                        Success = false,
+                        FailReason = returnedOrder.FailReason
+                    };
+                }
+            }
+
+            return bookingCheckinResult;
+        }
+
 
         /// <summary>
         /// syncs the pos members with the Doshii members, 
         /// NOTE: members that exist on the pos but do not exist on doshii will be deleted from the pos with a call to <see cref="IRewardManager.DeleteMemberOnPos"/>
         /// </summary>
         /// <returns></returns>
-        internal virtual bool SyncDoshiiBookingsWithPosBookings()
+        internal virtual ActionResultBasic SyncDoshiiBookingsWithPosBookings()
         {
             try
             {
-                List<Booking> DoshiiBookingList = GetBookingsFrom1hrAgoToMaxDate().ToList();
+                StringBuilder failedReasonBuilder = new StringBuilder(); 
+                List<Booking> DoshiiBookingList = GetBookingsFrom1hrAgoToMaxDate().ReturnObject;
                 List<Booking> PosBookingList = _controllersCollection.ReservationManager.GetBookingsFromPos().ToList();
 
                 var doshiiBookingHashSet = new HashSet<string>(DoshiiBookingList.Select(p => p.Id));
@@ -245,7 +331,9 @@ namespace DoshiiDotNetIntegration.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting a booking on the pos with doshii BookingId {0}", book.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception deleting a booking on the pos with doshii BookingId {0}", book.Id), ex);
+                        failedReasonBuilder.AppendLine(string.Format("booking with Id {0} failed to delete from the pos",
+                            book.Id));
                     }
 
                 }
@@ -262,7 +350,9 @@ namespace DoshiiDotNetIntegration.Controllers
                         }
                         catch (Exception ex)
                         {
-                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating a booking on the pos with doshii bookingId {0}", book.Id), ex);
+                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception updating a booking on the pos with doshii bookingId {0}", book.Id), ex);
+                            failedReasonBuilder.AppendLine(string.Format("booking with Id {0} failed to update on the pos",
+                            book.Id));
                         }
 
                     }
@@ -277,18 +367,72 @@ namespace DoshiiDotNetIntegration.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a booking on the pos with doshii bookingId {0}", book.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception creating a booking on the pos with doshii bookingId {0}", book.Id), ex);
+                        failedReasonBuilder.AppendLine(string.Format("booking with Id {0} failed to create on the pos",
+                            book.Id));
                     }
 
                 }
 
-
-                return true;
+                if (string.IsNullOrEmpty(failedReasonBuilder.ToString()))
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = true
+                    };
+                }
+                else
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = failedReasonBuilder.ToString()
+                    };
+                }
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii bookings with the pos"), ex);
-                return false;
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception while attempting to sync Doshii bookings with the pos"), ex);
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("syncing bookings")
+                };
+            }
+        }
+
+        internal virtual ObjectActionResult<Booking> UpdateBooking(Booking booking)
+        {
+            var jsonBooking = Mapper.Map<JsonBooking>(booking);
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos updating Booking - '{0}'", jsonBooking.ToJsonString()));
+
+            try
+            {
+                if (string.IsNullOrEmpty(booking.Id))
+                {
+                    return _httpComs.PostBooking(booking);
+                }
+                else
+                {
+                    return _httpComs.PutBooking(booking);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new BookingUpdateException("Update booking not successful", ex);
+            }
+        }
+
+        internal virtual ActionResultBasic DeleteBooking(string bookingId)
+        {
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" pos deleting Booking id- '{0}'", bookingId));
+            try
+            {
+                return _httpComs.DeleteBooking(bookingId);
+            }
+            catch (Exception ex)
+            {
+                throw new BookingUpdateException("delete booking not successful", ex);
             }
         }
     }

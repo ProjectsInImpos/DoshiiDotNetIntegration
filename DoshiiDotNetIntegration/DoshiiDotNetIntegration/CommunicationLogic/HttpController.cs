@@ -12,10 +12,13 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Web;
 using DoshiiDotNetIntegration.Controllers;
 using JWT;
 using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
+using DoshiiDotNetIntegration.Models.ActionResults;
+using DoshiiDotNetIntegration.Models.Base;
 using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
@@ -78,368 +81,180 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             _doshiiUrlBase = urlBase;
         }
 
-        #region order methods
+        #region Order methods
 
-        
-        internal virtual List<Log> GetOrderLog(string doshiiOrderId)
+        internal virtual ObjectActionResult<List<Log>> GetUnlinkedOrderLog(string doshiiOrderId)
         {
-            var retreivedLogList = new List<Models.Log>();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.OrderLog), WebRequestMethods.Http.Get, doshiiOrderId);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
 
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonLog>>(responseMessage.Data);
-                        retreivedLogList = Mapper.Map<List<Models.Log>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
-                    }
+            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(WebRequestMethods.Http.Get,
+                EndPointPurposes.UnlinkedOrderLog, "get unliked order log", "", doshiiOrderId);
+        }
 
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.OrderLog)));
-            }
-
-            return retreivedLogList;
+        internal virtual ObjectActionResult<List<Log>> GetOrderLog(string orderId)
+        {
+            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(WebRequestMethods.Http.Get,
+                EndPointPurposes.OrderLog, "get order log", "", orderId);
         }
 
 
         /// <summary>
-        /// This method is used to retrieve the order from Doshii matching the provided orderId (the pos identifier for the order),
+        /// This method is used to retrieve the Order from Doshii matching the provided orderId (the pos identifier for the Order),
         /// </summary>
         /// <param name="orderId">
-        /// The pos identifier for the order
+        /// The pos identifier for the Order
         /// </param>
         /// <returns>
-        /// If an order if found matching the orderId the order is returned,
-        /// If on order matching the orderId is not found a new order is returned. 
+        /// If an Order if found matching the orderId the Order is returned,
+        /// If on Order matching the orderId is not found a new Order is returned. 
         /// </returns>
-        internal virtual Models.Order GetOrder(string orderId)
+        internal virtual ObjectActionResult<Order> GetOrder(string orderId)
         {
-            var retreivedOrder = new Models.Order();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, orderId), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-            
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-						var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
-						retreivedOrder = Mapper.Map<Models.Order>(jsonOrder);
-                    }
-                    else
-                    {
-						_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
-                    }
-
-                }
-                else
-                {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
-                }
-            }
-            else
-            {
-				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
-            }
-
-            return retreivedOrder;
+            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(WebRequestMethods.Http.Get,
+                EndPointPurposes.Order, "get order", "", orderId);
         }
 
         /// <summary>
-        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId (the doshii identifier for the order),
-        /// This method should only be used with trying to retreive orders from Doshii that are not currently linked to a pos order, 
+        /// This method is used to retrieve the Order from Doshii matching the provided doshiiOrderId (the doshii identifier for the Order),
+        /// This method should only be used with trying to retreive orders from Doshii that are not currently linked to a pos Order, 
         /// If the orders are currently linked on the Pos <see cref="GetOrder"/> should be used. 
         /// </summary>
         /// <param name="orderId">
-        /// The pos identifier for the order
+        /// The pos identifier for the Order
         /// </param>
         /// <returns>
-        /// If an order if found matching the orderId the order is returned,
-        /// If on order matching the orderId is not found a new order is returned. 
+        /// If an Order if found matching the orderId the Order is returned,
+        /// If on Order matching the orderId is not found a new Order is returned. 
         /// </returns>
-        internal virtual Models.Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual ObjectActionResult<Order> GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
-            var retreivedOrder = new Models.Order();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
-                        try
-                        {
-                            retreivedOrder = Mapper.Map<Models.Order>(jsonOrder);
-                        }
-                        catch (Exception ex)
-                        {
-                            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
-                                string.Format(
-                                    "Doshii: An order received from Doshii could not be processed, A Price value in the order could not be converted into a decimal, the order will be rejected by the SDK: ",
-                                    jsonOrder),ex);
-                            //reject the order. 
-                            var orderToReject = Mapper.Map<Models.Order>(jsonOrder);
-                            _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
-                            retreivedOrder = null;
-                        }
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
-                            string.Format(
-                                "Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response",
-                                GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
-            }
-
-            return retreivedOrder;
+            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(WebRequestMethods.Http.Get,
+                EndPointPurposes.UnlinkedOrders, "get unlinked order", "", doshiiOrderId);
         }
 
         /// <summary>
         /// Gets all the current active linked orders in Doshii.
-        /// To get all order including unlinked orders you must also call <see cref="GetUnlinkedOrders"/>
+        /// To get all Order including unlinked orders you must also call <see cref="GetUnlinkedOrders"/>
         /// </summary>
         /// <returns>
         /// A list of all currently active linked orders from Doshii
         /// If there are no current active linked orders an empty list is returned.  
         /// </returns>
-        internal virtual IEnumerable<Models.Order> GetOrders()
+        internal virtual ObjectActionResult<List<Order>> GetOrders()
         {
-            var retreivedOrderList = new List<Models.Order>();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(WebRequestMethods.Http.Get,
+                EndPointPurposes.Order, "get orders");
 
-            if (responseMessage != null)
+            var fullOrderList = new List<Models.Order>();
+            foreach (var partOrder in actionResult.ReturnObject)
             {
-                if (responseMessage.Status == HttpStatusCode.OK)
+                var newOrderResponse = GetOrder(partOrder.Id);
+                if (newOrderResponse.ReturnObject != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
-                        retreivedOrderList = Mapper.Map<List<Models.Order>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order)));
+                    fullOrderList.Add(newOrderResponse.ReturnObject);
                 }
             }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
-            }
-
-            List<Models.Order> fullOrderList = new List<Models.Order>();
-            foreach (var partOrder in retreivedOrderList)
-            {
-                Models.Order newOrder = GetOrder(partOrder.Id);
-                fullOrderList.Add(newOrder);
-            }
-            return (IEnumerable<Models.Order>)fullOrderList;
+            actionResult.ReturnObject = fullOrderList;
+            return actionResult;
         }
 
         /// <summary>
         /// Gets all the current active unlinked orders in Doshii.
-        /// To get all order including linked orders you must also call <see cref="GetOrders"/>
+        /// To get all Order including linked orders you must also call <see cref="GetOrders"/>
         /// </summary>
         /// <returns>
         /// A list of all currently active unlinked orders from Doshii
         /// If there are no current active unlinked orders an empty list is returned.  
         /// </returns>
-        internal virtual IEnumerable<Models.Order> GetUnlinkedOrders()
+        internal virtual ObjectActionResult<List<Order>> GetUnlinkedOrders()
         {
-            var retreivedOrderList = new List<Models.Order>();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
-                        retreivedOrderList = Mapper.Map<List<Models.Order>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
-            }
+            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(WebRequestMethods.Http.Get,
+                EndPointPurposes.UnlinkedOrders, "get unlinked orders");
 
             var fullOrderList = new List<Models.Order>();
-            foreach (var partOrder in retreivedOrderList)
+            foreach (var partOrder in actionResult.ReturnObject)
             {
-                Models.Order newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
-                if (newOrder != null)
+                var newOrderResponse = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
+                if (newOrderResponse.ReturnObject != null)
                 {
-                    fullOrderList.Add(newOrder);
+                    fullOrderList.Add(newOrderResponse.ReturnObject);
                 }
             }
-            return (IEnumerable<Models.Order>)fullOrderList;
+            actionResult.ReturnObject = fullOrderList;
+            return actionResult;
+            
         }
 
         /// <summary>
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// completes the Put or Post request to update an Order with Doshii. 
         /// </summary>
         /// <param name="order">
-        /// The order to by updated on Doshii
+        /// The Order to by updated on Doshii
         /// </param>
         /// <param name="method">
         /// The HTTP verb to be used (in the current version the only acceptable verb is PUT)
         /// </param>
         /// <returns>
-        /// The order returned from the request. 
+        /// The Order returned from the request. 
         /// </returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal virtual Models.Order PutPostOrder(Models.Order order, string method)
+        internal virtual ObjectActionResult<Order> PutPostOrder(Order order, string method)
         {
             if (!method.Equals(WebRequestMethods.Http.Put))
             {
                 throw new NotSupportedException("Method Not Supported");
             }
 
-            var returnOrder = new Models.Order();
-            DoshiHttpResponseMessage responseMessage;
-
             try
             {
+                ObjectActionResult<Order> response;
                 var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(order);
                 if (String.IsNullOrEmpty(order.Id))
                 {
-                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), method, jsonOrderToPut.ToJsonString());
+                    response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(method, EndPointPurposes.UnlinkedOrders, "create order on doshii", jsonOrderToPut.ToJsonString());
                 }
                 else
                 {
-                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, order.Id), method, jsonOrderToPut.ToJsonString());
+                    response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(method, EndPointPurposes.Order, "update order on doshii", jsonOrderToPut.ToJsonString(), order.Id);
                 }
+                UpdateOrderVersion<Order>(response.ReturnObject);
+                UpdateOrderCheckin<Order>(response.ReturnObject);
+                return response;
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            var dto = new JsonOrder();
-            returnOrder = HandleOrderResponse<Models.Order, JsonOrder>(order.Id, responseMessage, out dto);
-
-            return returnOrder;
         }
 
         /// <summary>
-        /// This method is specifically called to confirm an order created on an orderAhead partner.
+        /// This method is specifically called to confirm an Order created on an orderAhead partner.
         /// </summary>
         /// <param name="order">
-        /// The order to be confirmed
+        /// The Order to be confirmed
         /// </param>
         /// <returns>
-        /// The order that was returned from the PUT request to Doshii. 
+        /// The Order that was returned from the PUT request to Doshii. 
         /// </returns>
-        internal virtual Models.Order PutOrderCreatedResult(Models.Order order)
+        internal virtual ObjectActionResult<Order> PutOrderCreatedResult(Models.Order order)
         {
-            var returnOrder = new Models.Order();
-            DoshiHttpResponseMessage responseMessage;
-
             try
             {
                 var jsonOrderToPut = Mapper.Map<JsonUnlinkedOrderToPut>(order);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), WebRequestMethods.Http.Put, jsonOrderToPut.ToJsonString());
+                var response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(WebRequestMethods.Http.Put, EndPointPurposes.UnlinkedOrders, "confirm order on doshii", jsonOrderToPut.ToJsonString(), order.DoshiiId); 
+                UpdateOrderVersion<Order>(response.ReturnObject);
+                UpdateOrderCheckin<Order>(response.ReturnObject);
+                return response;
+
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            var dto = new JsonOrder();
-            if (order.Status != "rejected")
-            {
-                returnOrder = HandleOrderResponse<Models.Order, JsonOrder>(order.Id, responseMessage, out dto);
-            }
-            
-            return returnOrder;
         }
 
         /// <summary>
         /// This function takes the supplied <paramref name="responseMessage"/> received from the RESTful Doshii API and translates it
-        /// into some sort of order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
+        /// into some sort of Order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
         /// JSON data transfer object (<typeparamref name="DTO"/>). The data transfer object type should be an extension of the 
         /// <see cref="JsonSerializationBase{TSelf}<TSelf>"/> class.
         /// </summary>
@@ -451,65 +266,64 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// namespace that is mapped to the <typeparamref name="DTO"/> type via the <see cref="DoshiiDotNetIntegration.Helpers.AutoMapperConfigurator"/>
         /// helper class.</typeparam>
         /// <typeparam name="DTO">The corresponding data type object used by the communication with the API for the action.</typeparam>
-        /// <param name="orderId">The POS identifier for the order.</param>
+        /// <param name="orderId">The POS identifier for the Order.</param>
         /// <param name="responseMessage">The current response message to be parsed.</param>
         /// <param name="jsonDto">When this function returns, this output parameter will be the data transfer object used in communication with the API.</param>
-        /// <returns>The details of the order in the Doshii API.</returns>
+        /// <returns>The details of the Order in the Doshii API.</returns>
         internal T HandleOrderResponse<T, DTO>(string orderId, DoshiHttpResponseMessage responseMessage, out DTO jsonDto)
         {
             jsonDto = default(DTO); // null since its an object
             T returnObj = default(T); // null since its an object
 
-            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message has been returned to the put order function"));
+            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format(" The Response message has been returned to the put Order function"));
 
             if (responseMessage != null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format(" The Response message was not null"));
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format(" The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response order data was not null"));
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format(" The Response Order data was not null"));
                         jsonDto = JsonConvert.DeserializeObject<DTO>(responseMessage.Data);
                         returnObj = Mapper.Map<T>(jsonDto);
                     }
                     else
                     {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
                     }
 
                 }
                 else
                 {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
                 }
             }
             else
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
                 throw new NullResponseDataReturnedException();
             }
 
             UpdateOrderVersion<T>(returnObj);
             UpdateOrderCheckin<T>(returnObj);
 
-
             return returnObj;
         }
 
         /// <summary>
-        /// A call to this function updates the order version in the POS. The generic nature of this function is due to the fact that
-        /// we might be dealing with different actual model objects. This function can be used to update the POS version of the order
+        /// A call to this function updates the Order version in the POS. The generic nature of this function is due to the fact that
+        /// we might be dealing with different actual model objects. This function can be used to update the POS version of the Order
         /// regardless of the actual type used.
         /// </summary>
         /// <remarks>
-        /// NOTE: The SDK implementer must update this call for any new model types that make use of the order version.
+        /// NOTE: The SDK implementer must update this call for any new model types that make use of the Order version.
         /// </remarks>
         /// <typeparam name="T">The type of model object being updated. In this case, the type should be a derivative of an
-        /// <see cref="DoshiiDotNetIntegration.Models.Order"/> or a class that contains a reference to an order.</typeparam>
-        /// <param name="orderDetails">The details of the order.</param>
+        /// <see cref="DoshiiDotNetIntegration.Models.Order"/> or a class that contains a reference to an Order.</typeparam>
+        /// <param name="orderDetails">The details of the Order.</param>
         internal virtual void UpdateOrderVersion<T>(T orderDetails)
         {
             if (orderDetails != null)
@@ -541,15 +355,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// This method is used to confirm or reject or update an order when the order has an OrderId
+        /// This method is used to confirm or reject or update an Order when the Order has an OrderId
         /// </summary>
         /// <param name="order">
-        /// The order to be updated
+        /// The Order to be updated
         /// </param>
         /// <returns>
-        /// If the request is not successful a new order will be returned - you can check the order.Id in the returned order to confirm it is a valid response. 
+        /// If the request is not successful a new Order will be returned - you can check the Order.Id in the returned Order to confirm it is a valid response. 
         /// </returns>
-        internal virtual Models.Order PutOrder(Models.Order order)
+        internal virtual ObjectActionResult<Order> PutOrder(Models.Order order)
         {
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
@@ -563,81 +377,34 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// false if failed
         /// </returns>
         ///<exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual bool DeleteTableAllocation(string checkinId)
+        internal virtual ActionResultBasic DeleteTableAllocation(string checkinId)
         {
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId), DeleteMethod);
+                return MakeHttpRequest(DeleteMethod, EndPointPurposes.DeleteAllocationFromCheckin,
+                    "delete table allocation", checkinId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: A 'DELETE' request to {0} was successful. Allocations have been removed", GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId)));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId)));
-            }
-
-            return false;
         }
         
         #endregion
 
         #region Partner App Methods
 
-        internal virtual IEnumerable<Models.App> GetApps()
+        internal virtual ObjectActionResult<List<App>> GetApps()
         {
-            var retreivedAppList = new List<Models.App>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.App), WebRequestMethods.Http.Get);
+                return MakeHttpRequestWithForResponseData<List<App>, List<JsonApp>>(
+                    WebRequestMethods.Http.Get, EndPointPurposes.App, "get apps");
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonApp>>(responseMessage.Data);
-                        retreivedAppList = Mapper.Map<List<Models.App>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.App)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.App)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.App)));
-            }
-
-            return retreivedAppList;
         }
         
         #endregion
@@ -645,108 +412,56 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #region transaction methods
 
         /// <summary>
-        /// This method is used to retrieve a list of transaction related to an order with the doshiiOrderId
-        /// This method will only retreive transactions for unlinked orders on Doshii - if the order is linked to a pos order there is no method to retreive the transaction in the OrderAhead implementation. 
+        /// This method is used to retrieve a list of transaction related to an Order with the doshiiOrderId
+        /// This method will only retreive transactions for unlinked orders on Doshii - if the Order is linked to a pos Order there is no method to retreive the transaction in the OrderAhead implementation. 
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// the doshiiOrderId for the order. 
+        /// the doshiiOrderId for the Order. 
         /// </param>
         /// <returns>
-        /// A list of transactions associated with the order,
-        /// If there are no transaction associated with the order an empty list is returned. 
+        /// A list of transactions associated with the Order,
+        /// If there are no transaction associated with the Order an empty list is returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual IEnumerable<Transaction> GetTransactionsFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual ObjectActionResult<List<Transaction>> GetTransactionsFromDoshiiOrderId(string doshiiOrderId)
         {
-            var retreivedTransactionList = new List<Transaction>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.TransactionFromDoshiiOrderId, doshiiOrderId), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.TransactionFromDoshiiOrderId,
+                        "get transactions for order", doshiiOrderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonTransaction>>(responseMessage.Data);
-                        retreivedTransactionList = Mapper.Map<List<Transaction>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.TransactionFromDoshiiOrderId, doshiiOrderId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.TransactionFromDoshiiOrderId, doshiiOrderId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.TransactionFromDoshiiOrderId, doshiiOrderId)));
-            }
-
-            return retreivedTransactionList;
         }
 
         /// <summary>
-        /// This method is used to retrieve a list of transaction related to an order with the posOrderId
+        /// This method is used to retrieve a list of transaction related to an Order with the posOrderId
         /// </summary>
         /// <param name="posOrderId">
-        /// the posOrderId for the order. 
+        /// the posOrderId for the Order. 
         /// </param>
         /// <returns>
-        /// A list of transactions associated with the order,
-        /// If there are no transaction associated with the order an empty list is returned. 
+        /// A list of transactions associated with the Order,
+        /// If there are no transaction associated with the Order an empty list is returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual IEnumerable<Transaction> GetTransactionsFromPosOrderId(string posOrderId)
+        internal virtual ObjectActionResult<List<Transaction>> GetTransactionsFromPosOrderId(string posOrderId)
         {
-            var retreivedTransactionList = new List<Transaction>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
+                        WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
+                        "get transactions for order", posOrderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonTransaction>>(responseMessage.Data);
-                        retreivedTransactionList = Mapper.Map<List<Transaction>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId)));
-            }
-
-            return retreivedTransactionList;
         }
 
         /// <summary>
@@ -760,46 +475,19 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// A Blank transaction if it did not exist. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Transaction GetTransaction(string transactionId)
+        internal virtual ObjectActionResult<Transaction> GetTransaction(string transactionId)
         {
-            var retreivedTransaction = new Transaction();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Transaction, transactionId), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
+                        WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
+                        "get transaction", transactionId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTransaction = JsonTransaction.deseralizeFromJson(responseMessage.Data);
-                        retreivedTransaction = Mapper.Map<Transaction>(jsonTransaction);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Transaction, transactionId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Transaction, transactionId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction, transactionId)));
-            }
-
-            return retreivedTransaction;
         }
 
         /// <summary>
@@ -810,45 +498,19 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// it will be empty if no transactions exist. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual IEnumerable<Transaction> GetTransactions()
+        internal virtual ObjectActionResult<List<Transaction>> GetTransactions()
         {
-            var retreivedTransactionList = new List<Transaction>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Transaction), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Transaction,
+                        "get transactions");
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonTransaction>>(responseMessage.Data);
-                        retreivedTransactionList = Mapper.Map<List<Transaction>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Transaction)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Transaction)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction)));
-            }
-
-            return retreivedTransactionList;
         }
 
         /// <summary>
@@ -859,54 +521,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The transaction that was created on Doshii
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Transaction PostTransaction(Transaction transaction)
+        internal virtual ObjectActionResult<Transaction> PostTransaction(Transaction transaction)
         {
-            DoshiHttpResponseMessage responseMessage;
-            Transaction returnedTransaction = null;
             try
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Transaction, transaction.Id), WebRequestMethods.Http.Post, jsonTransaction.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
+                        WebRequestMethods.Http.Post, EndPointPurposes.Transaction,
+                        "post transactions", jsonTransaction.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
-                        returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
-                        if (returnedTransaction != null)
-                        {
-                            _controllersCollection.TransactionController.RecordTransactionVersion(returnedTransaction);
-                        }
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return returnedTransaction;
         }
 
         /// <summary>
@@ -919,519 +547,213 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The updated transaction returned by Doshii.
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Transaction PutTransaction(Transaction transaction)
+        internal virtual ObjectActionResult<Transaction> PutTransaction(Transaction transaction)
         {
-            DoshiHttpResponseMessage responseMessage;
-            Transaction returnedTransaction = null;
             try
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Transaction, transaction.Id), WebRequestMethods.Http.Put, jsonTransaction.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
+                        WebRequestMethods.Http.Put, EndPointPurposes.Transaction,
+                        "put transactions", jsonTransaction.ToJsonString(), transaction.Id);
+                
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
-                        returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
-                        if (returnedTransaction != null)
-                        {
-                            _controllersCollection.TransactionController.RecordTransactionVersion(returnedTransaction);
-                        }
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return returnedTransaction;
         }
 #endregion
 
         #region Member methods
 
-        internal virtual Member GetMember(string memberId)
+        internal virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
-            var retreivedMember = new Member();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Members, memberId), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Members,
+                        "get member", memberId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonMember = JsonMember.deseralizeFromJson(responseMessage.Data);
-                        retreivedMember = Mapper.Map<Member>(jsonMember);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Members, memberId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Members, memberId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Members, memberId)));
-            }
-
-            return retreivedMember;
         }
 
-        internal virtual IEnumerable<Member> GetMembers()
+        internal virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
-            var retreivedMemberList = new List<Member>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<MemberOrg>, List<JsonMember>>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Members,
+                        "get members");
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonMember>>(responseMessage.Data);
-                        retreivedMemberList = Mapper.Map<List<Member>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Members)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Members)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Members)));
-            }
-
-            List<Member> fullMemberList = new List<Member>();
-            foreach (var partmember in retreivedMemberList)
-            {
-                Member newMember = GetMember(partmember.Id);
-                fullMemberList.Add(newMember);
-            }
-            return (IEnumerable<Member>)fullMemberList;
-        }
+    }
 
 
-        internal virtual Member PutMember(Member member)
+        internal virtual ObjectActionResult<MemberOrg> PutMember(MemberOrg member)
         {
-            var returnedMember = new Member();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members, member.Id), WebRequestMethods.Http.Put, jsonMember.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                        WebRequestMethods.Http.Put, EndPointPurposes.Members,
+                        "put members", jsonMember.ToJsonString(), member.Id);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonMember = JsonConvert.DeserializeObject<JsonMember>(responseMessage.Data);
-                        returnedMember = Mapper.Map<Member>(jsonMember);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                throw new NullResponseDataReturnedException();
-            }
-            return returnedMember;
         }
 
-        internal virtual Member PostMember(Member member)
+        internal virtual ObjectActionResult<MemberOrg> PostMember(MemberOrg member)
         {
-            var returnedMember = new Member();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members), WebRequestMethods.Http.Post, jsonMember.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                        WebRequestMethods.Http.Post, EndPointPurposes.Members,
+                        "post members", jsonMember.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonMember = JsonConvert.DeserializeObject<JsonMember>(responseMessage.Data);
-                        returnedMember = Mapper.Map<Member>(jsonMember);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Members)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(EndPointPurposes.Members)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.Members)));
-                throw new NullResponseDataReturnedException();
-            }
-            return returnedMember;
         }
 
-        internal virtual bool DeleteMember(Member member)
+        internal virtual ActionResultBasic DeleteMember(string memberId)
         {
-            var returnedMember = new Member();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members, member.Id), HttpController.DeleteMethod);
+                return
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                        HttpController.DeleteMethod, EndPointPurposes.Members,
+                        "delete Member", "", memberId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                    
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
         }
 
-        internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
+        internal virtual ObjectActionResult<List<Reward>> GetRewardsForMember(string memberId)
         {
-            var retreivedRewardList = new List<Reward>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(string.Format("{0}?orderId={1}&orderTotal={2}", GenerateUrl(EndPointPurposes.MemberRewards, memberId),orderId,orderTotal), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Reward>, List<JsonReward>>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.MemberGetRewards,
+                        "get rewards for member", "", memberId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
+}
 
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonReward>>(responseMessage.Data);
-                        retreivedRewardList = Mapper.Map<List<Reward>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.MemberRewards, memberId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.MemberRewards, memberId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.MemberRewards, memberId)));
-            }
-
-            return retreivedRewardList;
-        }
-
-        internal virtual bool RedeemRewardForMember(string memberId, string rewardId, Models.Order order)
+        internal virtual ActionResultBasic RedeemRewardForMember(string memberId, string rewardId, Models.Order order)
         {
             
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonOrderIdSimple = Mapper.Map<JsonOrderIdSimple>(order);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeem, memberId, rewardId), WebRequestMethods.Http.Post, jsonOrderIdSimple.ToJsonString());
+                return
+                    MakeHttpRequest(
+                        WebRequestMethods.Http.Post, EndPointPurposes.MemberRewardsRedeem,
+                        "redeem reward for member", jsonOrderIdSimple.ToJsonString(), memberId, rewardId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberRewardsRedeem, memberId, rewardId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewardsRedeem, memberId, rewardId)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
         }
 
-        internal virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        internal virtual ActionResultBasic RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
 
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeemCancel, memberId, rewardId), WebRequestMethods.Http.Put, "{ \"reason\": \""+cancelReason+"\"}");
+                return
+                    MakeHttpRequest(
+                        WebRequestMethods.Http.Put, EndPointPurposes.MemberRewardsRedeemCancel,
+                        "redeem reward for member cancel", "{ \"reason\": \"" + cancelReason + "\"}", memberId, rewardId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberRewardsRedeemCancel, memberId, rewardId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewardsRedeemCancel, memberId, rewardId)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
         }
 
-        internal virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        internal virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
 
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeemConfirm, memberId, rewardId), WebRequestMethods.Http.Put);
+                return
+                    MakeHttpRequest(
+                        WebRequestMethods.Http.Put, EndPointPurposes.MemberRewardsRedeemConfirm,
+                        "redeem reward for member confirm", "", memberId, rewardId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberRewardsRedeemConfirm, memberId, rewardId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewardsRedeemConfirm, memberId, rewardId)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
         }
 
-        internal virtual bool RedeemPointsForMember(PointsRedeem pr, Member member)
+        internal virtual ActionResultBasic RedeemPointsForMember(PointsRedeem pr, MemberOrg member)
         {
-            DoshiHttpResponseMessage responseMessage;
-            //create redeem points object
             try
             {
                 var jsonPointsRedeem = Mapper.Map<JsonPointsRedeem>(pr);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id), WebRequestMethods.Http.Post, jsonPointsRedeem.ToJsonString());
+                return
+                    MakeHttpRequest(
+                        WebRequestMethods.Http.Post, EndPointPurposes.MemberPointsRedeem,
+                        "redeem points for member", jsonPointsRedeem.ToJsonString(), member.Id);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
         }
 
-        internal virtual bool RedeemPointsForMemberConfirm(string memberId)
+        internal virtual ActionResultBasic RedeemPointsForMemberConfirm(string memberId)
         {
-            DoshiHttpResponseMessage responseMessage;
-            //create redeem points object
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, memberId), WebRequestMethods.Http.Put);
-            }
+                return
+                    MakeHttpRequest(
+                        WebRequestMethods.Http.Put, EndPointPurposes.MemberPointsRedeemConfirm,
+                        "redeem points for member confirm", "", memberId);
+        }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, memberId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, memberId)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
         }
 
-        internal virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
+        internal virtual ActionResultBasic RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
-            DoshiHttpResponseMessage responseMessage;
-            //create redeem points object
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, memberId), WebRequestMethods.Http.Put, "{ \"reason\": \"" + cancelReason + "\"}");
+                return
+                    MakeHttpRequest(
+                        WebRequestMethods.Http.Put, EndPointPurposes.MemberPointsRedeemCancel,
+                        "redeem points for member cancel", "{ \"reason\": \"" + cancelReason + "\"}", memberId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, memberId)));
-                }
             }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, memberId)));
-                throw new NullResponseDataReturnedException();
-            }
-            return false;
-        }
         #endregion
 
         #region checkins / consumers
@@ -1446,262 +768,119 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// or a blank consumer if no consumer was returned. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        internal virtual ObjectActionResult<Consumer> GetConsumerFromCheckinId(string checkinId)
         {
-            var retreivedConsumer = new Consumer();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<Consumer, JsonConsumer>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.ConsumerFromCheckinId,
+                        "get consumer from checkinId", "", checkinId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
 
 
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonConsumer = JsonConsumer.deseralizeFromJson(responseMessage.Data);
-                        retreivedConsumer = Mapper.Map<Consumer>(jsonConsumer);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId)));
-            }
-
-            return retreivedConsumer;
         }
 
-        internal virtual Checkin PostCheckin(Checkin checkin)
+        internal virtual ObjectActionResult<Checkin> PostCheckin(Checkin checkin)
         {
-            var retreivedCheckin = new Checkin();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Checkins), WebRequestMethods.Http.Post, jsonCheckin.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                        WebRequestMethods.Http.Post, EndPointPurposes.Checkins,
+                        "post checkin", jsonCheckin.ToJsonString());
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
-                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins)));
-            }
-
-            return retreivedCheckin;
         }
 
-        internal virtual Checkin PutCheckin(Checkin checkin)
+        internal virtual ObjectActionResult<Checkin> PutCheckin(Checkin checkin)
         {
-            var retreivedCheckin = new Checkin();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Checkins, checkin.Id), WebRequestMethods.Http.Put, jsonCheckin.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                        WebRequestMethods.Http.Put, EndPointPurposes.Checkins,
+                        "put checkin", jsonCheckin.ToJsonString(), checkin.Id);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw new CheckinUpdateException("Exception updating checkin", rex);
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
-                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins, checkin.Id)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins, checkin.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins, checkin.Id)));
-            }
-
-            return retreivedCheckin;
         }
 
-        internal virtual Checkin DeleteCheckin(string checkinId)
+        internal virtual ActionResultBasic DeleteCheckin(string checkinId)
         {
-            var retreivedCheckin = new Checkin();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId), DeleteMethod);
+                return
+                    MakeHttpRequest(DeleteMethod, EndPointPurposes.Checkins,
+                        "delete checkin", "", checkinId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal virtual ObjectActionResult<Checkin> GetCheckin(string checkinId)
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
+                        "Get checkin", "", checkinId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal virtual ObjectActionResult<List<Checkin>> GetCheckins()
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<List<Checkin>, List<JsonCheckin>>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
+                        "Get checkins");
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
-                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
-            }
-
-            return retreivedCheckin;
-        }
-
-        internal virtual Checkin GetCheckin(string checkinId)
-        {
-            var retreivedCheckin = new Checkin();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
-                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins, checkinId)));
-            }
-
-            return retreivedCheckin;
-        }
-
-        internal virtual IEnumerable<Checkin> GetCheckins()
-        {
-            var retreivedCheckinList = new List<Checkin>();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Checkins), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<Checkin>>(responseMessage.Data);
-                        retreivedCheckinList = Mapper.Map<List<Checkin>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins)));
-            }
-
-            return retreivedCheckinList;
         }
 
 #endregion
 
         #region Menu
+
+        internal virtual ObjectActionResult<Menu> GetMenu()
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Menu,
+                        "get menu");
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
+        
         /// <summary>
         /// Adds a menu to Doshii, this will overwrtie the current menu stored on Doshii 
         /// </summary>
@@ -1712,48 +891,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The menu that was added to doshii. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Menu PostMenu(Menu menu)
+        internal virtual ObjectActionResult<Menu> PostMenu(Menu menu)
         {
-            var returedMenu = new Menu();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonMenu = Mapper.Map<JsonMenu>(menu);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Post, jsonMenu.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(
+                        WebRequestMethods.Http.Post, EndPointPurposes.Menu,
+                        "post menu", jsonMenu.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonMenu = JsonConvert.DeserializeObject<JsonMenu>(responseMessage.Data);
-                        returedMenu = Mapper.Map<Menu>(jsonMenu);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Menu)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Menu)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Menu)));
-                throw new NullResponseDataReturnedException();
-            }
-            return returedMenu;
         }
 
         /// <summary>
@@ -1766,48 +917,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The surcount that was updated on Doshii
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Surcount PutSurcount(Surcount surcount)
+        internal virtual ObjectActionResult<Surcount> PutSurcount(Surcount surcount)
         {
-            var returedSurcount = new Surcount();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonSurcount = Mapper.Map<JsonMenuSurcount>(surcount);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Surcounts, surcount.Id), WebRequestMethods.Http.Put, jsonSurcount.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Surcount, JsonMenuSurcount>(
+                        WebRequestMethods.Http.Put, EndPointPurposes.Surcounts,
+                        "put surcount", jsonSurcount.ToJsonString(), surcount.Id);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonSurcount = JsonConvert.DeserializeObject<JsonMenuSurcount>(responseMessage.Data);
-                        returedSurcount = Mapper.Map<Surcount>(jsonSurcount);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Surcounts, surcount.Id)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Surcounts, surcount.Id)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Surcounts, surcount.Id)));
-                throw new NullResponseDataReturnedException();
-            }
-            return returedSurcount;
         }
 
         /// <summary>
@@ -1818,25 +941,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <returns></returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual bool DeleteSurcount(string posId)
+        internal virtual ActionResultBasic DeleteSurcount(string posId)
         {
-            var returedMenu = new Menu();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Surcounts, posId), DeleteMethod);
+                return
+                    MakeHttpRequest(
+                        DeleteMethod, EndPointPurposes.Surcounts,
+                        "delete surcount", "", posId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
-            }
-            if (responseMessage.Status == HttpStatusCode.OK)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
             }
         }
 
@@ -1850,48 +966,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The product that was added or updated. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Product PutProduct(Product product)
+        internal virtual ObjectActionResult<Product> PutProduct(Product product)
         {
-            var returnedProduct = new Product();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonProduct = Mapper.Map<JsonMenuProduct>(product);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Products, product.PosId), WebRequestMethods.Http.Put, jsonProduct.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Product, JsonMenuProduct>(
+                        WebRequestMethods.Http.Put, EndPointPurposes.Products,
+                        "put product", jsonProduct.ToJsonString(), product.PosId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonProduct = JsonConvert.DeserializeObject<JsonMenuProduct>(responseMessage.Data);
-                        returnedProduct = Mapper.Map<Product>(jsonProduct);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Products, product.PosId)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(EndPointPurposes.Products, product.PosId)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.Products, product.PosId)));
-                throw new NullResponseDataReturnedException();
-            }
-            return returnedProduct;
         }
 
         /// <summary>
@@ -1905,25 +993,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// false if the product was not deleted. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual bool DeleteProduct(string posId)
+        internal virtual ActionResultBasic DeleteProduct(string posId)
         {
-            var returedMenu = new Menu();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Products, posId), DeleteMethod);
+                return
+                    MakeHttpRequest(
+                        DeleteMethod, EndPointPurposes.Products,
+                        "delete product", "", posId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
-            }
-            if (responseMessage.Status == HttpStatusCode.OK)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
             }
         }
 #endregion
@@ -1935,283 +1016,120 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The location information for the connected venue in doshii
         /// </returns>
-        internal virtual Location GetLocation(string hashedLocationId = "")
+        internal virtual ObjectActionResult<Location> GetLocation(string hashedLocationId = "")
         {
-            var retreivedLocation = new Location();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
                 if (string.IsNullOrEmpty(hashedLocationId))
                 {
-                    responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Location), WebRequestMethods.Http.Get);
+                    return
+                        MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Location,
+                            "get location");
                 }
                 else
                 {
-                    responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Location), WebRequestMethods.Http.Get, hashedLocationId);
+                    return
+                        MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Location,
+                            "get location","",hashedLocationId);
                 }
                 
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonLocation = JsonLocation.deseralizeFromJson(responseMessage.Data);
-                        retreivedLocation = Mapper.Map<Location>(jsonLocation);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Location)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Location)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Location)));
-            }
-
-            return retreivedLocation;
         }
 
-        internal virtual Location PostLocation(Location location)
+        internal virtual ObjectActionResult<Location> PostLocation(Location location)
         {
             var retreivedLocation = new Location();
-            var locationToPost = Mapper.Map<JsonEmployee>(location);
+            
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Location), WebRequestMethods.Http.Get, locationToPost.ToJsonString());
+                var locationToPost = Mapper.Map<JsonEmployee>(location);
+                return 
+                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Location,
+                            "post location", locationToPost.ToJsonString());
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonLocation = JsonLocation.deseralizeFromJson(responseMessage.Data);
-                        retreivedLocation = Mapper.Map<Location>(jsonLocation);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Location)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Location)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Location)));
-            }
-
-            return retreivedLocation;
         }
 
-        internal virtual IEnumerable<Models.Location> GetLocations()
+        internal virtual ObjectActionResult<List<Location>> GetLocations()
         {
-            var retreivedLocationList = new List<Models.Location>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Location), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Location>, List<JsonLocation>>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Locations,
+                            "get locations");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<Location>>(responseMessage.Data);
-                        retreivedLocationList = Mapper.Map<List<Models.Location>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Location)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Location)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Location)));
-            }
-
-            return retreivedLocationList;
         }
 
-        internal virtual Orginisation PostOrginisation(Orginisation orginisation)
+        internal virtual ObjectActionResult<Orginisation> PostOrginisation(Orginisation orginisation)
         {
-            var retreivedOrginisation = new Orginisation();
-            var orginisationToPost = Mapper.Map<JsonOrginisation>(orginisation);
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Orginisation), WebRequestMethods.Http.Get, orginisationToPost.ToJsonString());
+                var orginisationToPost = Mapper.Map<JsonOrginisation>(orginisation);
+                return
+                    MakeHttpRequestWithForResponseData<Orginisation, JsonOrginisation>(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Orginisation,
+                            "post orginisation", orginisationToPost.ToJsonString());
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonLocation = JsonOrginisation.deseralizeFromJson(responseMessage.Data);
-                        retreivedOrginisation = Mapper.Map<Orginisation>(jsonLocation);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Orginisation)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Orginisation)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Orginisation)));
-            }
-
-            return retreivedOrginisation;
         }
 
 #endregion
 
         #region Tables
 
-        internal virtual Table PostTable(Table table)
+        internal virtual ObjectActionResult<Table> PostTable(Table table)
         {
-            DoshiHttpResponseMessage responseMessage;
-            Table returnedTable = null;
             try
             {
                 var jsonTable = Mapper.Map<JsonTable>(table);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables), WebRequestMethods.Http.Post, jsonTable.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Table, JsonTable>(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Tables,
+                            "post table", jsonTable.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
-                        returnedTable = Mapper.Map<Table>(jsonTable);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return returnedTable;
         }
 
-        internal virtual Table PutTable(Table table, string oldTableName)
+        internal virtual ObjectActionResult<Table> PutTable(Table table, string oldTableName)
         {
-            DoshiHttpResponseMessage responseMessage;
-            Table returnedTable = null;
             try
             {
                 var jsonTable = Mapper.Map<JsonTable>(table);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables, oldTableName), WebRequestMethods.Http.Put, jsonTable.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Table, JsonTable>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.Tables,
+                            "put table", jsonTable.ToJsonString(), oldTableName);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
-                        returnedTable = Mapper.Map<Table>(jsonTable);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Tables, table.Name)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Tables, table.Name)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Tables, table.Name)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return returnedTable;
         }
 
-        internal virtual List<Table> PutTables(List<Table> tables)
+        internal virtual ObjectActionResult<List<Table>> PutTables(List<Table> tables)
         {
-            DoshiHttpResponseMessage responseMessage;
-            List<Table> retreivedtableList = null;
             try
             {
                 List<JsonTable> jsonTableList = new List<JsonTable>();
@@ -2219,593 +1137,289 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     jsonTableList.Add(Mapper.Map<JsonTable>(t));
                 }
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables), WebRequestMethods.Http.Put, JsonConvert.SerializeObject(jsonTableList));
+                return
+                    MakeHttpRequestWithForResponseData<List<Table>, List<JsonTable>>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.Tables,
+                            "put tables", JsonConvert.SerializeObject(jsonTableList));
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        if (responseMessage.Data != "[]")
-                        {
-                            var jsonList = JsonConvert.DeserializeObject<List<JsonTable>>(responseMessage.Data);
-                            retreivedtableList = Mapper.Map<List<Table>>(jsonList);
-                        }
-
-                        
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return retreivedtableList;
         }
 
-        internal virtual Table DeleteTable(string tableName)
+        internal virtual ActionResultBasic DeleteTable(string tableName)
         {
-            DoshiHttpResponseMessage responseMessage;
-            Table returnedTable = null;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables, tableName), DeleteMethod);
+                return
+                    MakeHttpRequest(
+                            DeleteMethod, EndPointPurposes.Tables,
+                            "delete table", "", tableName);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
-                        returnedTable = Mapper.Map<Table>(jsonTable);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return returnedTable;
         }
 
-        internal virtual Table GetTable(string tableName)
+        internal virtual ObjectActionResult<Table> GetTable(string tableName)
         {
-            DoshiHttpResponseMessage responseMessage;
-            Table returnedTable = null;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables, tableName), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<Table, JsonTable>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Tables,
+                            "get table", "", tableName);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
-                        returnedTable = Mapper.Map<Table>(jsonTable);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                throw new NullResponseDataReturnedException();
-            }
-
-            return returnedTable;
         }
 
-        internal virtual IEnumerable<Table> GetTables()
+        internal virtual ObjectActionResult<List<Table>>  GetTables()
         {
-            var retreivedtableList = new List<Table>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Table>, List<JsonTable>>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Tables,
+                            "get tables");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonTable>>(responseMessage.Data);
-                        retreivedtableList = Mapper.Map<List<Table>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Tables)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Tables)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables)));
-            }
-
-            return retreivedtableList;
         }
 
         #endregion
 
-        #region Bookings
+        #region BookingsWithDateFilter
 
-        internal Checkin SeatBooking(string bookingId, Checkin checkin)
+        internal ObjectActionResult<Booking> PutBooking(Booking booking)
         {
-            DoshiHttpResponseMessage responseMessage;
-            var retreivedCheckin = new Checkin();
+            try
+            {
+                var jsonBooking = Mapper.Map<JsonBooking>(booking);
+                return
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.Booking,
+                            "put booking", jsonBooking.ToJsonString(), booking.Id);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
+        internal ObjectActionResult<Booking> PostBooking(Booking booking)
+        {
+            try
+            {
+                var jsonBooking = Mapper.Map<JsonBooking>(booking);
+                return
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Booking,
+                            "post booking", jsonBooking.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal ActionResultBasic DeleteBooking(string bookingId)
+        {
+            try
+            {
+                return
+                    MakeHttpRequest(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Booking,
+                            "delete booking", "", bookingId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
+        internal ObjectActionResult<Checkin> SeatBooking(string bookingId, Checkin checkin)
+        {
             try
             {
                 var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.BookingsCheckin, bookingId), WebRequestMethods.Http.Post, jsonCheckin.ToJsonString());
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
+                            "seat booking", jsonCheckin.ToJsonString(), bookingId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
-                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
-            }
-
-            return retreivedCheckin;
         }
 
-        internal virtual Booking GetBooking(String bookingId)
+        internal ObjectActionResult<Checkin> SeatBookingWithoutCheckin(string bookingId)
         {
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Booking, bookingId), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
+                            "seat booking without checkin", "", bookingId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
+        }
+        
+        internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
+        {
+            try
             {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonBooking = JsonConvert.DeserializeObject<JsonBooking>(responseMessage.Data);
-                        return Mapper.Map<Booking>(jsonBooking);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Booking)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Booking)));
-                }
+                return
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Booking,
+                            "get booking", "", bookingId);
             }
-            else
+            catch (RestfulApiErrorResponseException rex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Booking)));
+                throw rex;
             }
-            return null;
         }
 
-        internal virtual IEnumerable<Booking> GetBookings(DateTime from, DateTime to)
+        internal virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to)
         {
-            List<Booking> retrievedBookings = new List<Booking>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Bookings, from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString()), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.BookingsWithDateFilter,
+                            "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString());
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonBooking>>(responseMessage.Data);
-                        retrievedBookings = Mapper.Map<List<Booking>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Bookings)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Bookings)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Bookings)));
-            }
-            return retrievedBookings;
         }
         #endregion
 
         #region RejectionCodes
 
-        internal virtual IEnumerable<Models.RejectionCode> GetRejectionCodes()
+        internal virtual ObjectActionResult<List<RejectionCode>> GetRejectionCodes()
         {
-            var retreivedAppList = new List<Models.RejectionCode>();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.RejectionCodes), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<RejectionCode>, List<JsonRejectionCode>>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.RejectionCodes,
+                            "get rejectionCodes");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonRejectionCode>>(responseMessage.Data);
-                        retreivedAppList = Mapper.Map<List<Models.RejectionCode>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.RejectionCodes)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.RejectionCodes)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.RejectionCodes)));
-            }
-
-            return retreivedAppList;
         }
 
-        internal virtual Models.RejectionCode GetRejectionCode(string code)
+        internal virtual ObjectActionResult<RejectionCode> GetRejectionCode(string code)
         {
-            var retreivedRejectionCode = new Models.RejectionCode();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.RejectionCodes), WebRequestMethods.Http.Get, code);
+                return
+                    MakeHttpRequestWithForResponseData<RejectionCode, JsonRejectionCode>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.RejectionCodes,
+                            "get rejectionCode", "", code);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
 
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<JsonRejectionCode>(responseMessage.Data);
-                        retreivedRejectionCode = Mapper.Map<Models.RejectionCode>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.RejectionCodes)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.RejectionCodes)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.RejectionCodes)));
-            }
-
-            return retreivedRejectionCode;
         }
         
         #endregion
 
         #region Employee
 
-        internal virtual IEnumerable<Models.Employee> GetEmployees()
+        internal virtual ObjectActionResult<List<Employee>> GetEmployees()
         {
             var retreivedEmployeeList = new List<Models.Employee>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Employee), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<List<Employee>, List<JsonEmployee>>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Employee,
+                            "get employees");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonEmployee>>(responseMessage.Data);
-                        retreivedEmployeeList = Mapper.Map<List<Models.Employee>>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Employee)));
-            }
-
-            return retreivedEmployeeList;
         }
 
-        internal virtual Models.Employee GetEmployee(string doshiiId)
+        internal virtual ObjectActionResult<Employee> GetEmployee(string doshiiId)
         {
-            var retreivedEmployee = new Models.Employee();
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Employee), WebRequestMethods.Http.Get);
+                return
+                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
+                            WebRequestMethods.Http.Get, EndPointPurposes.Employee,
+                            "get employee", "", doshiiId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<JsonEmployee>(responseMessage.Data);
-                        retreivedEmployee = Mapper.Map<Models.Employee>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Employee)));
-            }
-
-            return retreivedEmployee;
         }
 
-        internal virtual Models.Employee PostEmployee(Employee employee)
+        internal virtual ObjectActionResult<Employee> PostEmployee(Employee employee)
         {
-            var retreivedEmployee = new Models.Employee();
-            var employeeToPost = Mapper.Map<JsonEmployee>(employee);
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Employee), WebRequestMethods.Http.Post, employeeToPost.ToJsonString());
+                var employeeToPost = Mapper.Map<JsonEmployee>(employee);
+                return
+                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
+                            WebRequestMethods.Http.Post, EndPointPurposes.Employee,
+                            "post employee", employeeToPost.ToJsonString());
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<JsonEmployee>(responseMessage.Data);
-                        retreivedEmployee = Mapper.Map<Models.Employee>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Employee)));
-            }
-
-            return retreivedEmployee;
         }
 
-        internal virtual Models.Employee PutEmployee(Employee employee)
+        internal virtual ObjectActionResult<Employee> PutEmployee(Employee employee)
         {
-            var retreivedEmployee = new Models.Employee();
-            var employeeToPost = Mapper.Map<JsonEmployee>(employee);
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Employee), WebRequestMethods.Http.Put, employeeToPost.ToJsonString());
+                var employeeToPut = Mapper.Map<JsonEmployee>(employee);
+                return
+                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
+                            WebRequestMethods.Http.Put, EndPointPurposes.Employee,
+                            "put employee", employeeToPut.ToJsonString());
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<JsonEmployee>(responseMessage.Data);
-                        retreivedEmployee = Mapper.Map<Models.Employee>(jsonList);
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                    }
-
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Employee)));
-            }
-
-            return retreivedEmployee;
         }
 
-        internal virtual bool DeleteEmployee(Employee employee)
+        internal virtual ActionResultBasic DeleteEmployee(string employeeId)
         {
-            var retreivedEmployee = new Models.Employee();
-            var employeeToPost = Mapper.Map<JsonEmployee>(employee);
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Employee), HttpController.DeleteMethod, employee.Id);
+                return
+                    MakeHttpRequest(
+                            DeleteMethod, EndPointPurposes.Employee,
+                            "delete employee", "", employeeId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    return true;
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                    return false;
-                }
-            }
-            else
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Employee)));
-                return false;
-            }
-
-            return false;
         }
 
         #endregion
@@ -2822,7 +1436,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <param name="identification">
         /// An optional identifier used in the request 
-        /// eg, the orderId for a get order request
+        /// eg, the orderId for a get Order request
         /// </param>
         /// <returns>
         /// The Url required to make the desiered request. 
@@ -2830,10 +1444,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
+            if (!string.IsNullOrEmpty(identification))
+            {
+                identification = System.Uri.EscapeDataString(identification);   
+            }
+            if (!string.IsNullOrEmpty(secondIdentification))
+            {
+                secondIdentification = System.Uri.EscapeDataString(secondIdentification);
+            }
+            if (!string.IsNullOrEmpty(identification))
+            {
+                identification = System.Uri.EscapeDataString(identification);
+            }
+            if (!string.IsNullOrEmpty(secondIdentification))
+            {
+                secondIdentification = System.Uri.EscapeDataString(secondIdentification);
+            }
 
             if (string.IsNullOrWhiteSpace(_doshiiUrlBase))
             {
-				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error, "Doshii: The HttpController class was not initialized correctly, the base URl is null or white space");
+				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error, " The HttpController class was not initialized correctly, the base URl is null or white space");
                 return newUrlbuilder.ToString();
             }
             newUrlbuilder.AppendFormat("{0}", _doshiiUrlBase);
@@ -2936,9 +1566,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     break;
                 case EndPointPurposes.Booking:
-                    newUrlbuilder.AppendFormat("/bookings/{0}", identification);
+                    newUrlbuilder.AppendFormat("/bookings");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}", identification);
+                    }
                     break;
-                case EndPointPurposes.Bookings:
+                case EndPointPurposes.BookingsWithDateFilter:
                     newUrlbuilder.Append("/bookings");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
@@ -2971,11 +1605,155 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case EndPointPurposes.OrderLog:
                     newUrlbuilder.AppendFormat("/orders/{0}/log", identification);
                     break;
+                case EndPointPurposes.UnlinkedOrderLog:
+                    newUrlbuilder.AppendFormat("/unlinkedOrders/{0}/log", identification);
+                    break;
+                case EndPointPurposes.Locations:
+                    newUrlbuilder.Append("/locations");
+                    break;
+                case EndPointPurposes.MemberGetRewards:
+                    newUrlbuilder.Append("/members");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}/rewards", identification);
+                    }
+                    break;
                 default:
                     throw new NotSupportedException(purpose.ToString());
             }
 
-            return newUrlbuilder.ToString();
+            return    newUrlbuilder.ToString();
+        }
+
+        private string GetHttpMethodFromMethodString(string methodString)
+        {
+            if (methodString.Equals(WebRequestMethods.Http.Get) ||
+                methodString.Equals(WebRequestMethods.Http.Put) ||
+                methodString.Equals(WebRequestMethods.Http.Post) ||
+                methodString.Equals(HttpController.DeleteMethod))
+            {
+                return methodString;
+            }
+            else
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error, string.Format("MakeRequest was called with a non supported HTTP request method type - '{0}", methodString));
+                throw new NotSupportedException("Invalid HTTP request Method Type");
+            }
+        }
+
+        internal virtual ActionResultBasic MakeHttpRequest(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "")
+        {
+            var actionResult = new ActionResultBasic();
+            DoshiHttpResponseMessage responseMessage;
+            string requestMethod = GetHttpMethodFromMethodString(httpVerb);
+            string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier);
+            try
+            {
+                try
+                {
+                    responseMessage = MakeRequest(urlForRequest, requestMethod, requestData);
+                }
+                catch (Exceptions.RestfulApiErrorResponseException rex)
+                {
+                    throw rex;
+                }
+                
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                actionResult.responseStatusCode = responseMessage.Status;
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    actionResult.Success = true;
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
+                            DoshiiLogLevels.Warning,
+                            DoshiiStrings.GetSuccessfulHttpResponseMessagesWithData(requestMethod,
+                                urlForRequest, responseMessage.Data));
+                }
+                else
+                {
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                        DoshiiStrings.GetUnsucessfulHttpResponseMessage(requestMethod,
+                            urlForRequest));
+                }
+            }
+            else
+            {
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString(string.Format(processName));
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                    DoshiiStrings.GetNullHttpResponseMessage(requestMethod, urlForRequest));
+            }
+
+            return actionResult;
+        }
+
+        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "")
+            where TReturnType : class, new()
+        {
+            var actionResult = new ObjectActionResult<TReturnType>();
+            DoshiHttpResponseMessage responseMessage;
+            string requestMethod = GetHttpMethodFromMethodString(httpVerb);
+            string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier);
+
+            try
+            {
+                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                actionResult.responseStatusCode = responseMessage.Status;
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<TJsonReturnType>(responseMessage.Data);
+                        actionResult.ReturnObject =
+                            AutoMapperGenericsHelper<TJsonReturnType, TReturnType>.ConvertToDBEntity(jsonList);
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
+                            DoshiiLogLevels.Warning,
+                            DoshiiStrings.GetSuccessfulHttpResponseMessagesWithData(requestMethod,
+                                urlForRequest, responseMessage.Data));
+                    }
+                    else
+                    {
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
+                            DoshiiLogLevels.Warning,
+                            DoshiiStrings.GetSuccessfulHttpResponseWithNoDataMessages(requestMethod,
+                                urlForRequest));
+                    }
+                    actionResult.Success = true;
+                }
+                else
+                {
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                        DoshiiStrings.GetUnsucessfulHttpResponseMessage(requestMethod,
+                            urlForRequest));
+                }
+            }
+            else
+            {
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString(string.Format(processName));
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                    DoshiiStrings.GetNullHttpResponseMessage(requestMethod, urlForRequest));
+            }
+
+            return actionResult;
         }
 
         /// <summary>
@@ -2994,7 +1772,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <param name="data">
         /// The data that will be sent with the request. 
-        /// eg, a JSON representation of the order that should be send to Doshii with a PUT order request. 
+        /// eg, a JSON representation of the Order that should be send to Doshii with a PUT Order request. 
         /// </param>
         /// <returns></returns>
         /// <exception cref="RestfulApiErrorResponseException">Is thrown when any of the following responses are received.
@@ -3006,7 +1784,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <item> HttpStatusCode.Conflict </item>
         /// This must be handled where a conflict needs special treatment - this is especially important when orders are being updated by both the pos and the partner. 
         /// </exception>
-        internal virtual DoshiHttpResponseMessage MakeRequest(string url, string method, string data = "")
+        private DoshiHttpResponseMessage MakeRequest(string url, string method, string data = "")
         {
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -3028,18 +1806,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             request.ContentType = "application/json";
 
 
-            if (method.Equals(WebRequestMethods.Http.Get) || 
-				method.Equals(WebRequestMethods.Http.Put) || 
-				method.Equals(WebRequestMethods.Http.Post) || 
-				method.Equals(HttpController.DeleteMethod))
-            {
-                request.Method = method;
-            }
-            else
-            {
-				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error, string.Format("MakeRequest was called with a non supported HTTP request method type - '{0}", method));
-                throw new NotSupportedException("Invalid HTTP request Method Type");
-            }
+            request.Method = GetHttpMethodFromMethodString(method);
             if (!string.IsNullOrWhiteSpace(data))
             {
                 
@@ -3054,7 +1821,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responceMessage = new DoshiHttpResponseMessage();
             try
             {
-				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: generating {0} request to endpoint {1}, with data {2}", method, url, data));
+				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format(" generating {0} request to endpoint {1}, with data {2}", method, url, data));
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                 responceMessage.Status = response.StatusCode;
@@ -3068,7 +1835,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responceMessage.Status == HttpStatusCode.OK || responceMessage.Status == HttpStatusCode.Created)
                 {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format("Doshii: Successful response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format(" Successful response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
                 else if (responceMessage.Status == HttpStatusCode.BadRequest || 
                     responceMessage.Status == HttpStatusCode.Unauthorized || 
@@ -3078,12 +1845,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     responceMessage.Status == HttpStatusCode.Conflict ||
                     responceMessage.Status == (HttpStatusCode)456) //Upstream rejected
                 {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                     throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status, responceMessage.Message);
                 }
                 else
                 {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
@@ -3109,6 +1876,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                                         errorResponce));
                             }
                         }
+                        
+                        responceMessage.Status = httpResponse.StatusCode;
+                        responceMessage.StatusDescription = httpResponse.StatusDescription;
+                        var theErrorMessage = DoshiiHttpErrorMessage.deseralizeFromJson(errorResponce);
+                        responceMessage.ErrorMessage = theErrorMessage.Message;
                         if (httpResponse.StatusCode == HttpStatusCode.BadRequest ||
                             httpResponse.StatusCode == HttpStatusCode.Unauthorized ||
                             httpResponse.StatusCode == HttpStatusCode.Forbidden ||
@@ -3118,7 +1890,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         {
                             _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
                                 string.Format(
-                                    "Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
+                                    " A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
                                     method, url, data, errorResponce, wex));
                             throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, errorResponce, wex);
                         }
@@ -3126,7 +1898,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         {
                             _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
                                 string.Format(
-                                    "Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
+                                    " A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
                                     method, url, data, errorResponce, wex));
                         }
                     }
@@ -3139,7 +1911,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (Exception ex)
             {
-				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} and status {3} : {4}", method, url, data, responceMessage.Status.ToString(), ex));
+				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), Enums.DoshiiLogLevels.Error, string.Format(" As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} and status {3} : {4}", method, url, data, responceMessage.Status.ToString(), ex));
 				throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status, ex);
             }
 

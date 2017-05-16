@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Exceptions
 {
     /// <summary>
-    /// This exception should be thrown by the pos when doshii requests action on an order that does not exist on the pos. 
+    /// This exception should be thrown by the pos when doshii requests action on an Order that does not exist on the pos. 
     /// </summary>
     public class MemberExistOnPosException : Exception
     {

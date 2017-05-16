@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -43,11 +45,23 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
 
+        }
+
+        internal virtual ObjectActionResult<Menu> GetMenu()
+        {
+            try
+            {
+                return _httpComs.GetMenu();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         
         /// <summary>
@@ -59,24 +73,15 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The Doshii menu is successful and null if not successful. 
         /// </returns>
-        internal virtual Menu UpdateMenu(Menu menu)
+        internal virtual ObjectActionResult<Menu> UpdateMenu(Menu menu)
         {
-            Menu returnedMenu = null;
             try
             {
-                returnedMenu = _httpComs.PostMenu(menu);
+                return _httpComs.PostMenu(menu);
             }
             catch (Exception ex)
             {
-                return null;
-            }
-            if (returnedMenu != null)
-            {
-                return returnedMenu;
-            }
-            else
-            {
-                return null;
+                throw ex;
             }
         }
 
@@ -89,7 +94,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The updated surcount. 
         /// </returns>
-        internal virtual Surcount UpdateSurcount(Surcount surcount)
+        internal virtual ObjectActionResult<Surcount> UpdateSurcount(Surcount surcount)
         {
             if (surcount.Id == null || string.IsNullOrEmpty(surcount.Id))
             {
@@ -98,19 +103,11 @@ namespace DoshiiDotNetIntegration.Controllers
             Surcount returnedSurcharge = null;
             try
             {
-                returnedSurcharge = _httpComs.PutSurcount(surcount);
+                return _httpComs.PutSurcount(surcount);
             }
             catch (Exception ex)
             {
-                return null;
-            }
-            if (returnedSurcharge != null)
-            {
-                return returnedSurcharge;
-            }
-            else
-            {
-                return null;
+                throw ex;
             }
         }
 
@@ -123,7 +120,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The updated product. 
         /// </returns>
-        internal virtual Product UpdateProduct(Product product)
+        internal virtual ObjectActionResult<Product> UpdateProduct(Product product)
         {
             if (product.PosId == null || string.IsNullOrEmpty(product.PosId))
             {
@@ -132,19 +129,11 @@ namespace DoshiiDotNetIntegration.Controllers
             Product returnedProduct = null;
             try
             {
-                returnedProduct = _httpComs.PutProduct(product);
+                return _httpComs.PutProduct(product);
             }
             catch (Exception ex)
             {
-                return null;
-            }
-            if (returnedProduct != null)
-            {
-                return returnedProduct;
-            }
-            else
-            {
-                return null;
+                throw ex;
             }
         }
 
@@ -158,19 +147,29 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the surcount on Doshii was updated. 
         /// False if the surcount on doshii was not updated. 
         /// </returns>
-        internal virtual bool DeleteSurcount(string posId)
+        internal virtual ActionResultBasic DeleteSurcount(string surcountPosId)
         {
-            bool success;
-            try
+            if (string.IsNullOrEmpty(surcountPosId))
             {
-                success = _httpComs.DeleteSurcount(posId);
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete a surcount", "surcount"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "surcountId was empty"
+                };
             }
-            catch (Exception ex)
+            else
             {
-                return false;
+                try
+                {
+                    return _httpComs.DeleteSurcount(surcountPosId);
+                }
+                catch (Exceptions.RestfulApiErrorResponseException rex)
+                {
+                    throw rex;
+                }
             }
-            return success;
-        }
+         }
 
         /// <summary>
         /// Deletes a product on Doshii
@@ -182,18 +181,28 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the product was deleted 
         /// False if the product was not deleted. 
         /// </returns>
-        internal virtual bool DeleteProduct(string posId)
+        internal virtual ActionResultBasic DeleteProduct(string productPosId)
         {
-            bool success;
-            try
+            if (string.IsNullOrEmpty(productPosId))
             {
-                success = _httpComs.DeleteProduct(posId);
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete a product", "product"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "productId was empty"
+                };
             }
-            catch (Exception ex)
+            else
             {
-                return false;
+                try
+                {
+                    return _httpComs.DeleteProduct(productPosId);
+                }
+                catch (Exceptions.RestfulApiErrorResponseException rex)
+                {
+                    throw rex;
+                }
             }
-            return success;
         }
         
     }

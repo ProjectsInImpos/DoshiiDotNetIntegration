@@ -93,6 +93,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -133,6 +134,8 @@
     <Compile Include="Exceptions\BookingDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingUpdateException.cs" />
+    <Compile Include="Exceptions\DoshiiAppManagerNotInitializedException.cs" />
+    <Compile Include="Exceptions\DoshiiReservationManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiMembershipManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
@@ -149,8 +152,12 @@
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Helpers\AuthHelper.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
+    <Compile Include="Helpers\AutoMapperGenericsHelper.cs" />
     <Compile Include="Helpers\ConsumerExtension.cs" />
     <Compile Include="Helpers\DateTimeExtension.cs" />
+    <Compile Include="Helpers\DoshiiStrings.cs" />
+    <Compile Include="Helpers\ExceptionExtentions.cs" />
+    <Compile Include="Interfaces\IAppManager.cs" />
     <Compile Include="Interfaces\IConfigurationManager.cs" />
     <Compile Include="Interfaces\ILoggingManager.cs" />
     <Compile Include="Interfaces\IRewardManager.cs" />
@@ -158,10 +165,14 @@
     <Compile Include="Interfaces\ITransactionManager.cs" />
     <Compile Include="Interfaces\IReservationManager.cs" />
     <Compile Include="Interfaces\NamespaceDoc.cs" />
+    <Compile Include="Models\ActionResults\ActionResultBasic.cs" />
+    <Compile Include="Models\ActionResults\ObjectActionResult.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
     <Compile Include="Models\Base\BaseCreatedAt.cs" />
+    <Compile Include="Models\Base\BaseMember.cs" />
     <Compile Include="Models\Base\BaseStatus.cs" />
+    <Compile Include="Models\Base\DoshiiHttpErrorMessage.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Controllers\ControllersCollection.cs" />
@@ -175,6 +186,7 @@
     <Compile Include="Models\Json\JsonEmployee.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
     <Compile Include="Models\Json\JsonLog.cs" />
+    <Compile Include="Models\Json\JsonMemberApp.cs" />
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
@@ -206,7 +218,8 @@
     <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Log.cs" />
-    <Compile Include="Models\Member.cs" />
+    <Compile Include="Models\MemberApp.cs" />
+    <Compile Include="Models\MemberOrg.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
@@ -224,7 +237,7 @@
     <Compile Include="Models\Surcount.cs" />
     <Compile Include="Models\TableAllocation.cs" />
     <Compile Include="Models\TableOrder.cs" />
-    <Compile Include="Models\Variants.cs" />
+    <Compile Include="Models\Variant.cs" />
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

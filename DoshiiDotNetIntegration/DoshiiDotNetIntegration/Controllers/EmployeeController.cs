@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -39,14 +41,14 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
 
         }
 
-        internal Employee GetEmployee(string doshiiId)
+        internal ObjectActionResult<Employee> GetEmployee(string doshiiId)
         {
             try
             {
@@ -58,7 +60,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal IEnumerable<Employee> GetEmployees()
+        internal ObjectActionResult<List<Employee>> GetEmployees()
         {
             try
             {
@@ -70,7 +72,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal Employee SaveEmployee(Employee employee)
+        internal ObjectActionResult<Employee> SaveEmployee(Employee employee)
         {
             if (string.IsNullOrEmpty(employee.Id))
             {
@@ -96,18 +98,22 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal bool DeleteEmployee(Employee employee)
+        internal ActionResultBasic DeleteEmployee(string employeeId)
         {
-            if (string.IsNullOrEmpty(employee.Id))
+            if (string.IsNullOrEmpty(employeeId))
             {
-                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, "you are attempting to delete an employee without a doshii Id.");
-                return false;
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete an employee", "employee"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "checkinId was empty"
+                };
             }
             else
             {
                 try
                 {
-                    return _httpComs.DeleteEmployee(employee);
+                    return _httpComs.DeleteEmployee(employeeId);
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {

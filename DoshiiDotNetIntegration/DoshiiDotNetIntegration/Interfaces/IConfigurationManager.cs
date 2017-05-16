@@ -83,5 +83,12 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <returns></returns>
         ILoggingManager GetLoggingManagerFromPos();
+
+        /// <summary>
+        /// this method can return an IAppManager implementation if the pos wishes to implement the reservations functionality offered by Doshii,
+        /// if the pos does not wish to use the reservation functionality you my return Null for this method.  
+        /// </summary>
+        /// <returns></returns>
+        IAppManager GetAppManagerFromPos();
     }
 }

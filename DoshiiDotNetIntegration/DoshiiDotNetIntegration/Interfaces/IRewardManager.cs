@@ -25,35 +25,35 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="DoshiiMemberId"></param>
         /// <returns></returns>
-        DoshiiDotNetIntegration.Models.Member RetrieveMemberFromPos(string DoshiiMemberId);
+        DoshiiDotNetIntegration.Models.MemberOrg RetrieveMemberFromPos(string DoshiiMemberId);
 
         /// <summary>
         /// This method should retreive all the doshii member from the pos. 
         /// </summary>
         /// <param name="DoshiiMemberId"></param>
         /// <returns></returns>
-        IEnumerable<DoshiiDotNetIntegration.Models.Member> GetMembersFromPos();
+        IEnumerable<DoshiiDotNetIntegration.Models.MemberOrg> GetMembersFromPos();
         
         /// <summary>
         /// This method should create a doshii member on the pos
         /// </summary>
         /// <param name="newMember"></param>
         /// <returns></returns>
-        bool CreateMemberOnPos(Member newMember);
+        void CreateMemberOnPos(MemberOrg newMember);
 
         /// <summary>
         /// This method should update a doshii member of the pos. 
         /// </summary>
         /// <param name="updatedMember"></param>
         /// <returns></returns>
-        bool UpdateMemberOnPos(Member updatedMember);
+        void UpdateMemberOnPos(MemberOrg updatedMember);
 
         /// <summary>
-        /// This method should update a doshii member of the pos. 
+        /// This method should delete a doshii member of the pos. 
         /// </summary>
-        /// <param name="updatedMember"></param>
+        /// <param name="memberId"></param>
         /// <returns></returns>
-        bool DeleteMemberOnPos(Member deletedMember);
+        bool DeleteMemberOnPos(string memberId);
 
         
     }

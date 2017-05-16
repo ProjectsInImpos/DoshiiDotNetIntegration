@@ -70,7 +70,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// A list of ProductOptions the customer can choose from to modify the product they are ordering.
         /// </summary>
-        public IEnumerable<ProductOptions> ProductOptions {
+        public List<ProductOptions> ProductOptions {
             get
             {
                 if (_ProductOptions == null)
@@ -114,7 +114,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// the following are valid strings for type 'single' - a regular item, 'bundle' - an item with sub products.  
@@ -172,6 +172,7 @@ namespace DoshiiDotNetIntegration.Models
 			_Tags = new List<string>();
 			_ProductOptions = new List<ProductOptions>();
 		    _menuDir = new List<string>();
+		    _includedItems = new List<Product>();
 			Clear();
 		}
 
@@ -259,7 +260,7 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ UnitPrice.GetHashCode();
                 hashCode = (hashCode*397) ^ (Uuid != null ? Uuid.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (PosId != null ? PosId.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ Quantity;
+                hashCode = (hashCode*397) ^ Quantity.GetHashCode();
                 hashCode = (hashCode*397) ^ (Type != null ? Type.GetHashCode() : 0);
                 return hashCode;
             }

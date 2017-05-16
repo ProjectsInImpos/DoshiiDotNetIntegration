@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Models
 {
 	/// <summary>
-	/// This model is a container that represents the order being placed with a table allocation.
+	/// This model is a container that represents the Order being placed with a table allocation.
 	/// </summary>
 	public class TableOrder : ICloneable
 	{
@@ -30,7 +30,7 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		/// <summary>
-		/// The table allocation for the order.
+		/// The table allocation for the Order.
 		/// </summary>
 		public TableAllocation Table
 		{
@@ -39,7 +39,7 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		/// <summary>
-		/// The details of the order.
+		/// The details of the Order.
 		/// </summary>
 		public Order Order
 		{

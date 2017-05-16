@@ -84,7 +84,7 @@ namespace DoshiiDotNetIntegration.Models
             DisconnectedDate = null;
             CreatedAt = null;
             UpdatedAt = null;
-            Uri = new Uri("");
+            Uri = string.Empty;
         }
 
         protected bool Equals(Location other)

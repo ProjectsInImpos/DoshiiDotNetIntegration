@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -39,14 +40,14 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             if (httpComs == null)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
 
         }
 
-        public virtual Location GetLocation()
+        public virtual ObjectActionResult<Location> GetLocation()
         {
             try
             {
@@ -58,7 +59,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        public virtual Location GetLocation(string hashedLocationId)
+        public virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
         {
             try
             {
@@ -70,7 +71,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        public virtual Location CreateLocation(Location location)
+        public virtual ObjectActionResult<Location> CreateLocation(Location location)
         {
             try
             {
@@ -82,7 +83,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        public virtual IEnumerable<Location> GetLocations()
+        public virtual ObjectActionResult<List<Location>> GetLocations()
         {
             try
             {
@@ -94,7 +95,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        public virtual Orginisation CreateOrginisation(Orginisation orginisation)
+        public virtual ObjectActionResult<Orginisation> CreateOrginisation(Orginisation orginisation)
         {
             try
             {

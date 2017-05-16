@@ -1,18 +1,21 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Runtime.Serialization;
-using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonMemberToUpdate : JsonBaseStatus<JsonMemberToUpdate>
+    internal class JsonMemberApp
     {
+        [DataMember]
+        [JsonProperty(PropertyName = "id")]
+        public int Id { get; set; }
+
         [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
@@ -41,23 +44,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "ref")]
         public string Ref { get; set; }
 
-        #region serializeMembers
-
-        public bool ShouldSerializePhone()
-        {
-            return (!string.IsNullOrEmpty(Phone));
-        }
-
-        public bool ShouldSerializeEmail()
-        {
-            return (!string.IsNullOrEmpty(Email));
-        }
-        
-        public bool ShouldSerializeRef()
-        {
-            return (!string.IsNullOrEmpty(Ref));
-        }
-
-        #endregion
+        [DataMember]
+        [JsonProperty(PropertyName = "points")]
+        public string Points { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using DoshiiDotNetIntegration.Models.Base;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// A Doshii order with a counsumer
+    /// A Doshii Order with a counsumer
     /// </summary>
     public class Order : BaseStatus, ICloneable
     {
@@ -19,6 +19,7 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
+            _log = new List<Log>();
 			Clear();
 		}
 
@@ -35,7 +36,7 @@ namespace DoshiiDotNetIntegration.Models
 			LocationId = String.Empty;
 			_surcounts.Clear();
 			Version = String.Empty;
-			Uri = new Uri("");
+			Uri = null;
 		    MemberId = string.Empty;
 		    Phase = string.Empty;
 			_items.Clear();
@@ -57,17 +58,17 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// The Doshii Id for the order, this is used to get unlinked orders
+        /// The Doshii Id for the Order, this is used to get unlinked orders
         /// </summary>
         public string DoshiiId { get; set; }
 
         /// <summary>
-        /// type of order 'delivery' or 'pickup'
+        /// type of Order 'delivery' or 'pickup'
         /// </summary>
         public string Type { get; set; }
 
         /// <summary>
-        /// Unique identifier for the invoice once the order is paid for.
+        /// Unique identifier for the invoice once the Order is paid for.
         /// </summary>
         public string InvoiceId{ get; set; }
 
@@ -80,20 +81,20 @@ namespace DoshiiDotNetIntegration.Models
         public string Phase { get; set; }
 
         /// <summary>
-        /// The CheckinId the order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
-        /// order checkIn Id. 
+        /// The CheckinId the Order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
+        /// Order checkIn Id. 
         /// </summary>
         public string CheckinId { get; set; }
 
 		/// <summary>
-		/// The Id of the location that the order was created in.
+		/// The Id of the location that the Order was created in.
 		/// </summary>
 		public string LocationId { get; set; }
 
 		private List<Surcount> _surcounts;
 
 		/// <summary>
-		/// A list of all surcounts applied at and order level
+		/// A list of all surcounts applied at and Order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
 		public List<Surcount> Surcounts
@@ -110,24 +111,22 @@ namespace DoshiiDotNetIntegration.Models
 		}
         
         /// <summary>
-		/// An obfuscated string representation of the version for the order in Doshii.
+		/// An obfuscated string representation of the version for the Order in Doshii.
 		/// </summary>
 		public string Version { get; set; }
 
 		/// <summary>
-        /// the time the order is required if it is required in the future, 
+        /// the time the Order is required if it is required in the future, 
         /// string will be empty is it is required now. 
         /// </summary>
         public DateTime? RequiredAt { get; set; }
 
         public DateTime? AvailableEta { get; set; }
 
-
-        
         private List<Product> _items;
         
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         public List<Product> Items {
             get
@@ -141,10 +140,12 @@ namespace DoshiiDotNetIntegration.Models
             set { _items = value.ToList<Product>(); } 
         }
 
+        public string LogUri { get; set; }
+
         private List<Log> _log;
 
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         public List<Log> Log
         {
@@ -162,14 +163,14 @@ namespace DoshiiDotNetIntegration.Models
 
         public bool ManuallyAccepted { get; set; }
 
-        public Uri TransactionsUri { get; set; }
+        public string TransactionsUri { get; set; }
 
         public string RejectionCode { get; set; }
 
         public string RejectionReason { get; set; }
 
         /// <summary>
-        /// The OrderCreatedByAppId will be populated by the sdk when orders are created or updated with the appId of the app that created or updated the order for order creted events or order updated events. 
+        /// The OrderCreatedByAppId will be populated by the sdk when orders are created or updated with the appId of the app that created or updated the Order for Order creted events or Order updated events. 
         /// </summary>
         public string OrderCreatedByAppId { get; set; }
 

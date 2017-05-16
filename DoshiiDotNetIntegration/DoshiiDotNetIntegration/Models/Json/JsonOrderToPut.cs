@@ -8,7 +8,7 @@ using DoshiiDotNetIntegration.Models.Json.JsonBase;
 namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
-    /// A Doshii order
+    /// A Doshii Order
     /// </summary>
     [DataContract]
     [Serializable]
@@ -27,17 +27,21 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string CheckinId { get; set; }
 
         /// <summary>
-        /// An obfuscated string representation of the version of the order in Doshii.
+        /// An obfuscated string representation of the version of the Order in Doshii.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "version")]
         public string Version { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
 
         private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
-		/// A list of all surcounts applied at and order level
+		/// A list of all surcounts applied at and Order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
 		[DataMember]
@@ -59,7 +63,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonOrderProduct> _items;
         
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]

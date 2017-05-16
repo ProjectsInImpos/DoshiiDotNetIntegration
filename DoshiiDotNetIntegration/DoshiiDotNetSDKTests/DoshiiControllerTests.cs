@@ -624,7 +624,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void GetMember_success()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _rewardController.Expect(x => x.GetMember("12")).Return(memberToUpdate);
 
             _doshiiController.GetMember("12");
@@ -661,8 +661,8 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void GetMembers_success()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
-            _rewardController.Expect(x => x.GetMembers()).Return(new List<Member>());
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            _rewardController.Expect(x => x.GetMembers()).Return(new List<MemberOrg>());
 
             _doshiiController.GetMembers();
             _rewardController.VerifyAllExpectations();
@@ -698,7 +698,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void DeleteMember_success()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _rewardController.Expect(x => x.DeleteMember(memberToUpdate)).Return(true);
 
             _doshiiController.DeleteMember(memberToUpdate);
@@ -709,7 +709,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
         public void DeleteMember_initilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _doshiiController.IsInitalized = false;
 
             _doshiiController.DeleteMember(memberToUpdate);
@@ -719,7 +719,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void DeleteMember_RewardInitilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.DeleteMember(memberToUpdate);
@@ -729,7 +729,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void DeleteMember_throwsException()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _rewardController.Expect(x => x.GetMember("12")).Throw(new RestfulApiErrorResponseException());
 
             _doshiiController.DeleteMember(memberToUpdate);
@@ -738,7 +738,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void UpdateMember_success()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _rewardController.Expect(x => x.UpdateMember(memberToUpdate)).Return(memberToUpdate);
 
             _doshiiController.UpdateMember(memberToUpdate);
@@ -749,7 +749,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
         public void UpdateMember_initilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _doshiiController.IsInitalized = false;
 
             _doshiiController.UpdateMember(memberToUpdate);
@@ -759,7 +759,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void UpdateMember_RewardInitilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _doshiiController._controllersCollection.RewardManager = null;
 
             _doshiiController.UpdateMember(memberToUpdate);
@@ -769,7 +769,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void UpdateMember_throwsException()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _rewardController.Expect(x => x.UpdateMember(memberToUpdate)).Throw(new RestfulApiErrorResponseException());
 
             _doshiiController.UpdateMember(memberToUpdate);
@@ -779,7 +779,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(MemberIncompleteException))]
         public void UpdateMember_NotComplete_throwsException()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             _rewardController.Expect(x => x.UpdateMember(memberToUpdate)).Throw(new MemberIncompleteException());
 
             _doshiiController.UpdateMember(memberToUpdate);
@@ -851,7 +851,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void RedeemRewardForMember_success()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             _rewardController.Expect(x => x.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn)).Return(true);
@@ -864,7 +864,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
         public void RedeemRewardForMember_initilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             _doshiiController.IsInitalized = false;
@@ -876,7 +876,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void RedeemRewardForMember_RewardInitilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             _doshiiController._controllersCollection.RewardManager = null;
@@ -887,7 +887,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void RedeemRewardForMember_fail()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             _rewardController.Expect(x => x.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn)).Return(false);
@@ -971,7 +971,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void RedeemPointsForMember_success()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             int PointsToRedeem = 200;
             App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
@@ -985,7 +985,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
         public void RedeemPointsForMember_initilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             int PointsToRedeem = 200;
             App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
@@ -998,7 +998,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
         public void RedeemPointsForMember_PointsInitilizationFailed_exceptionThrown()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             int PointsToRedeem = 200;
             App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
@@ -1010,7 +1010,7 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void RedeemPointsForMember_fail()
         {
-            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            MemberOrg memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
             int PointsToRedeem = 200;
             App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
             Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();

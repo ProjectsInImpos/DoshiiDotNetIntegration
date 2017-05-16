@@ -29,8 +29,15 @@ namespace DoshiiDotNetIntegration.Models
             Notes = String.Empty;
             PhotoUrl = string.Empty;
             Anonymous = false;
+            FirstName = string.Empty;
+            LastName = string.Empty;
         }
 
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+        
         /// <summary>
         /// the url for the consumers photo
         /// </summary>
@@ -62,7 +69,7 @@ namespace DoshiiDotNetIntegration.Models
         public Address Address { get; set; }
         
         /// <summary>
-        /// Notes specific to this order, 
+        /// Notes specific to this Order, 
         /// this may include:
         /// Notes about delivery location,
         /// Notes about allergies,
@@ -73,7 +80,7 @@ namespace DoshiiDotNetIntegration.Models
 
         protected bool Equals(Consumer other)
         {
-            return string.Equals(PhotoUrl, other.PhotoUrl) && Anonymous == other.Anonymous && string.Equals(Name, other.Name) && string.Equals(Phone, other.Phone) && string.Equals(Email, other.Email) && Equals(Address, other.Address) && string.Equals(Notes, other.Notes);
+            return string.Equals(PhotoUrl, other.PhotoUrl) && Anonymous == other.Anonymous && string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) && string.Equals(Name, other.Name) && string.Equals(Phone, other.Phone) && string.Equals(Email, other.Email) && Equals(Address, other.Address) && string.Equals(Notes, other.Notes);
         }
 
         public override bool Equals(object obj)
@@ -95,6 +102,8 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ (Email != null ? Email.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Address != null ? Address.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Notes != null ? Notes.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (FirstName != null ? FirstName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (LastName != null ? LastName.GetHashCode() : 0);
                 return hashCode;
             }
         }

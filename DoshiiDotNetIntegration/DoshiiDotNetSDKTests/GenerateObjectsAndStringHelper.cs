@@ -562,17 +562,17 @@ namespace DoshiiDotNetSDKTests
             return reward;
         }
         
-        internal static List<Member> GenerateMemberList()
+        internal static List<MemberOrg> GenerateMemberList()
         {
-            var memberList = new List<Member>();
+            var memberList = new List<MemberOrg>();
             memberList.Add(GenerateMember1());
             memberList.Add(GenerateMember2());
             return memberList;
         }
 
-        internal static Member GenerateMember1()
+        internal static MemberOrg GenerateMember1()
         {
-            var member = new Member()
+            var member = new MemberOrg()
             {
                 Address = GenerateAddress1(),
                 Apps = GenerateAppList(),
@@ -588,9 +588,9 @@ namespace DoshiiDotNetSDKTests
             return member;
         }
 
-        internal static Member GenerateMember2()
+        internal static MemberOrg GenerateMember2()
         {
-            var member = new Member()
+            var member = new MemberOrg()
             {
                 Address = GenerateAddress1(),
                 Apps = GenerateAppList(),

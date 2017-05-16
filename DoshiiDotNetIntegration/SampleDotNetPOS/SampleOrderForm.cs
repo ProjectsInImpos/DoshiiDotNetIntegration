@@ -53,9 +53,9 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Updates the view with the order details.
+		/// Updates the view with the Order details.
 		/// </summary>
-		/// <param name="order">The order details to be displayed.</param>
+		/// <param name="order">The Order details to be displayed.</param>
 		public void UpdateView(Order order)
 		{
 			tbxOrderId.Text = order.Id;
@@ -63,9 +63,9 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Reads back the details of the order as entered in the view.
+		/// Reads back the details of the Order as entered in the view.
 		/// </summary>
-		/// <returns>The order details currently displayed in the view.</returns>
+		/// <returns>The Order details currently displayed in the view.</returns>
 		public Order ReadForm()
 		{
 			var order = new Order();

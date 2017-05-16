@@ -9,9 +9,9 @@ using Rhino.Mocks.Constraints;
 namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
-    /// A Doshii order
+    /// A Doshii Order
     /// </summary>
-    [DataContract(Name = "order")]
+    [DataContract(Name = "Order")]
     [Serializable]
     internal class JsonOrder : JsonBaseStatus<JsonOrder>
     {
@@ -42,7 +42,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Type { get; set; }
         
         /// <summary>
-        /// Unique identifier for the invoice once the order is paid for.
+        /// Unique identifier for the invoice once the Order is paid for.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "invoiceId")]
@@ -57,14 +57,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Phase { get; set; }
 
         /// <summary>
-        /// The CheckinId the order is associated with
+        /// The CheckinId the Order is associated with
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
 
 		/// <summary>
-		/// The Id of the location that the order was created in.
+		/// The Id of the location that the Order was created in.
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "locationId")]
@@ -73,7 +73,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
-		/// A list of all surcounts applied at and order level
+		/// A list of all surcounts applied at and Order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
 		[DataMember]
@@ -92,7 +92,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		}
         
         /// <summary>
-		/// An obfuscated string representation of the version of the order in Doshii.
+		/// An obfuscated string representation of the version of the Order in Doshii.
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "version")]
@@ -101,7 +101,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		
 
         /// <summary>
-        /// the dateTime the order is Required
+        /// the dateTime the Order is Required
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "requiredAt")]
@@ -116,7 +116,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string TransactionsUri { get; set; }
         
         /// <summary>
-        /// the dateTime the order is Required
+        /// the dateTime the Order is Required
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "availableEta")]
@@ -125,7 +125,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         private List<JsonOrderProduct> _items;
         
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
@@ -142,22 +142,9 @@ namespace DoshiiDotNetIntegration.Models.Json
 			set { _items = value; } 
         }
 
-        private List<JsonLog> _log;
-
         [DataMember]
         [JsonProperty(PropertyName = "log")]
-        public List<JsonLog> Log
-        {
-            get
-            {
-                if (_log == null)
-                {
-                    _log = new List<JsonLog>();
-                }
-                return _log;
-            }
-            set { _log = value; }
-        }
+        public string LogUri { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "rejectionCode")]

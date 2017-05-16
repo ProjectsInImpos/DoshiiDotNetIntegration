@@ -90,25 +90,25 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void PutOrder_SuccessfullResponse_ReturnsResponseOrder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
+            responseMessage.Data = Mapper.Map<JsonOrder>(Order).ToJsonString();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var responseOrder = MockHttpComs.PutOrder(order);
+            var responseOrder = MockHttpComs.PutOrder(Order);
 
-            Assert.AreEqual(responseOrder.Id, order.Id);
+            Assert.AreEqual(responseOrder.Id, Order.Id);
         }
 
         [Test]
         public void PutOrder_OrderToPutStatus_EqualsOrderStatus_Accepted()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
+            responseMessage.Data = Mapper.Map<JsonOrder>(Order).ToJsonString();
             MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Matches(data => data.Contains("accepted")))).Return(responseMessage);
 
-            MockHttpComs.PutOrder(order);
+            MockHttpComs.PutOrder(Order);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -117,12 +117,12 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullResponseDataReturnedException))]
         public void PutOrder_NullOrderReturned_ExceptionThrown()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            var Order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
+            responseMessage.Data = Mapper.Map<JsonOrder>(Order).ToJsonString();
             MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
 
-            MockHttpComs.PutOrder(order);
+            MockHttpComs.PutOrder(Order);
 
         }
 
@@ -169,7 +169,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInput);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
 
             MockHttpComs.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
 
@@ -185,7 +185,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
 
             MockHttpComs.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
 
@@ -222,7 +222,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInput);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
 
             MockHttpComs.GetUnlinkedOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -238,7 +238,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
 
             MockHttpComs.GetUnlinkedOrderFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId.ToString());
 
@@ -264,7 +264,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = "";
             Newtonsoft.Json.JsonConvert.SerializeObject(OrderInputList);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
 
             MockHttpComs.GetOrders();
 
@@ -276,7 +276,7 @@ namespace DoshiiDotNetSDKTests
         public void GetOrders_ReturnedOrdersReturnIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
 
             MockHttpComs.GetOrders();
 
@@ -302,7 +302,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = "";
             Newtonsoft.Json.JsonConvert.SerializeObject(OrderInputList);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
 
             MockHttpComs.GetUnlinkedOrders();
 
@@ -314,7 +314,7 @@ namespace DoshiiDotNetSDKTests
         public void GetUnlinkedOrders_ReturnedOrdersReturnIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
 
             MockHttpComs.GetUnlinkedOrders();
 
@@ -341,7 +341,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageTransactionPending();
             responseMessage.Data = "";
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransaction(GenerateObjectsAndStringHelper.TestTransactionId);
 
@@ -364,7 +364,7 @@ namespace DoshiiDotNetSDKTests
         public void GetTransaction_ReturnedTransactionDataIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransaction(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -380,7 +380,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransaction(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -394,7 +394,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageTransactionPending();
             responseMessage.Data = "";
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactions();
 
@@ -417,7 +417,7 @@ namespace DoshiiDotNetSDKTests
         public void GetTransactions_ReturnedTransactionDataIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactions();
 
@@ -433,7 +433,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactions();
 
@@ -448,7 +448,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageTransactionComplete();
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionListInput);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactions();
 
@@ -464,7 +464,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactionsFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -478,7 +478,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageTransactionPending();
             responseMessage.Data = "";
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactionsFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -501,7 +501,7 @@ namespace DoshiiDotNetSDKTests
         public void GetTransactionsFromDoshiiOrderId_ReturnedTransactionDataIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactionsFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -517,7 +517,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactionsFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -532,7 +532,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageTransactionComplete();
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionListInput);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetTransactionsFromDoshiiOrderId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -548,7 +548,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(consumerInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetConsumerFromCheckinId(GenerateObjectsAndStringHelper.GeneratePickupOrderPending().CheckinId);
 
@@ -562,7 +562,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageConsumer();
             responseMessage.Data = "";
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetConsumerFromCheckinId(GenerateObjectsAndStringHelper.GeneratePickupOrderPending().CheckinId);
 
@@ -585,7 +585,7 @@ namespace DoshiiDotNetSDKTests
         public void GetConsumerFromCheckinId_ReturnedTransactionDataIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetConsumerFromCheckinId(GenerateObjectsAndStringHelper.TestOrderId);
 
@@ -600,7 +600,7 @@ namespace DoshiiDotNetSDKTests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageConsumer();
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(consumerInput);
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.GetConsumerFromCheckinId(GenerateObjectsAndStringHelper.GeneratePickupOrderPending().CheckinId);
 
@@ -617,7 +617,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionResponseComplete);
             responseMessage.Status = HttpStatusCode.OK;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.PostTransaction(transactionInput);
 
@@ -633,7 +633,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = "";
             responseMessage.Status = HttpStatusCode.OK;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'POST' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.PostTransaction(transactionInput);
 
@@ -649,7 +649,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.PostTransaction(transactionInput);
 
@@ -677,7 +677,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionResponseComplete);
             responseMessage.Status = HttpStatusCode.OK;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.PutTransaction(transactionInput);
 
@@ -693,7 +693,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = "";
             responseMessage.Status = HttpStatusCode.OK;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'POST' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.PutTransaction(transactionInput);
 
@@ -709,7 +709,7 @@ namespace DoshiiDotNetSDKTests
             responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(transactionInput);
             responseMessage.Status = HttpStatusCode.Forbidden;
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Transaction, GenerateObjectsAndStringHelper.TestTransactionId.ToString()))));
 
             MockHttpComs.PutTransaction(transactionInput);
 
@@ -740,7 +740,7 @@ namespace DoshiiDotNetSDKTests
         public void DeleteTableAllocation_ResponceMessageIsNull()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", MockHttpComs.GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, GenerateObjectsAndStringHelper.TestOrderId))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", MockHttpComs.GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, GenerateObjectsAndStringHelper.TestOrderId))));
             
             bool result = MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
             Assert.AreEqual(result, false);
@@ -751,7 +751,7 @@ namespace DoshiiDotNetSDKTests
         public void DeleteTableAllocation_ResponceMessageIsNotNullButNotOk()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(GenerateObjectsAndStringHelper.GenerateResponseMessagePutTableAllocationFailure());
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", MockHttpComs.GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, GenerateObjectsAndStringHelper.TestOrderId))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'DELETE' request to {0} was not successful", MockHttpComs.GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, GenerateObjectsAndStringHelper.TestOrderId))));
 
             bool result = MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
             Assert.AreEqual(result, false);
@@ -762,7 +762,7 @@ namespace DoshiiDotNetSDKTests
         public void DeleteTableAllocation_ResponceMessageIsOk()
         {
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(GenerateObjectsAndStringHelper.GenerateResponseMessagePutTableAllocationSuccess());
-            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was successful. Allocations have been removed", MockHttpComs.GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, GenerateObjectsAndStringHelper.TestOrderId))));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(HttpController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format(" A 'DELETE' request to {0} was successful. Allocations have been removed", MockHttpComs.GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, GenerateObjectsAndStringHelper.TestOrderId))));
 
             bool result = MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
             Assert.AreEqual(result, true);

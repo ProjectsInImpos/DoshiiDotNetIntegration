@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Exceptions
 {
     /// <summary>
-    /// This is the general exception that is thrown from UpdateOrder when the order update was unsuccessful.
+    /// This is the general exception that is thrown from UpdateOrder when the Order update was unsuccessful.
     /// </summary>
     public class CheckinUpdateException: Exception
     {

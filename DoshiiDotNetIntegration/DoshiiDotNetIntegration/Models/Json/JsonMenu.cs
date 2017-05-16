@@ -18,7 +18,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         private List<JsonMenuSurcount> _surcounts;
 
         /// <summary>
-        /// A list of all order level surcounts available in the pos menu
+        /// A list of all Order level surcounts available in the pos menu
         /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
         [DataMember]

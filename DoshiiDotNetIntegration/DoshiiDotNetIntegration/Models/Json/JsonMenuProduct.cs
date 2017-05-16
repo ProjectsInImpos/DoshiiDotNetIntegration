@@ -155,7 +155,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         [DataMember]
-        [JsonProperty(PropertyName = "includedItems")]
+        [JsonProperty(PropertyName = "Uuid")]
         public string Uuid { get; set; }
 
 
@@ -173,6 +173,30 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "unitPrice")]
         public string UnitPrice { get; set; }
+
+
+        #region Serialize methods
+
+        public bool ShouldSerializeDescription()
+        {
+            return !string.IsNullOrEmpty(Description);
+        }
+        
+        public bool ShouldSerializeMenuDir()
+        {
+            return MenuDir.Any();
+        }
+
+        public bool ShouldSerializeIncludedItems()
+        {
+            return IncludedItems.Any();
+        }
+
+        public bool ShouldSerializeUuid()
+        {
+            return false;
+        }
+        #endregion
 
     }
 }

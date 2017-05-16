@@ -137,29 +137,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Type { get; set; }
 
 
-        private List<string> _menuDir;
-
-        /// <summary>
-        /// A list of surcounts that can / are applied to the product.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "menuDir")]
-        public List<string> MenuDir
-        {
-            get
-            {
-                if (_menuDir == null)
-                {
-                    _menuDir = new List<string>();
-                }
-                return _menuDir;
-            }
-            set
-            {
-                _menuDir = value;
-            }
-        }
-
         private List<JsonMenuProduct> _includedItems;
 
         /// <summary>
@@ -184,7 +161,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         [DataMember]
-        [JsonProperty(PropertyName = "includedItems")]
+        [JsonProperty(PropertyName = "uuid")]
         public string Uuid { get; set; }
 
 
@@ -205,6 +182,20 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return (!string.IsNullOrEmpty(Description));
         }
+
+        #region Serialize methods
+
+        public bool ShouldSerializeIncludedItems()
+        {
+            return IncludedItems.Any();
+        }
+
+        public bool ShouldSerializeUuid()
+        {
+            return false;
+        }
+
+        #endregion
 
    }
 }

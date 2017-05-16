@@ -59,7 +59,7 @@ namespace SampleDotNetPOS
         }
 
         /// <summary>
-        /// Reads back the details of the order as entered in the view.
+        /// Reads back the details of the Order as entered in the view.
         /// </summary>
         /// <returns>The table details currently displayed in the view.</returns>
         public Table ReadForm()

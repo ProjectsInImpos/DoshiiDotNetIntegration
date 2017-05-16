@@ -128,7 +128,7 @@ namespace SampleDotNetPOS
 
       _mController.Initialize(true);
 
-			// refresh the order list in memory
+			// refresh the Order list in memory
 			mOrders = _mController.GetOrders().ToList<Order>();
 			//mOrders.AddRange(_mController.GetUnlinkedOrders());
 
@@ -155,7 +155,7 @@ namespace SampleDotNetPOS
         #region Ordering
 
         /// <summary>
-        /// Opens a form that displays the current order list.
+        /// Opens a form that displays the current Order list.
         /// </summary>
         public void DisplayOrderList()
 		{
@@ -180,19 +180,19 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Retrieves an order from the current list of orders by <paramref name="orderId"/>.
+		/// Retrieves an Order from the current list of orders by <paramref name="orderId"/>.
 		/// </summary>
-		/// <param name="orderId">The ID of the order to be retrieved.</param>
-		/// <returns>The order if available; or <c>null</c> otherwise.</returns>
+		/// <param name="orderId">The ID of the Order to be retrieved.</param>
+		/// <returns>The Order if available; or <c>null</c> otherwise.</returns>
 		public Order RetrieveOrder(string orderId)
 		{
 			return mOrders.FirstOrDefault(o => o.Id == orderId);
 		}
 
 		/// <summary>
-		/// Sends a POS-generated update of an order to the Doshii Manager.
+		/// Sends a POS-generated update of an Order to the Doshii Manager.
 		/// </summary>
-		/// <returns>The updated details for the order.</returns>
+		/// <returns>The updated details for the Order.</returns>
 		public Order SendOrder()
 		{
 			var order = GenerateOrder();
@@ -207,9 +207,9 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Adds the order if it doesn't already exist, otherwise updates it.
+		/// Adds the Order if it doesn't already exist, otherwise updates it.
 		/// </summary>
-		/// <param name="order">The order to be added or updated.</param>
+		/// <param name="order">The Order to be added or updated.</param>
 		public void AddOrUpdateOrder(Order order)
 		{
 			int index = mOrders.IndexOf(order);
@@ -223,9 +223,9 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Removes the order from the list.
+		/// Removes the Order from the list.
 		/// </summary>
-		/// <param name="orderId">The Id of the order.</param>
+		/// <param name="orderId">The Id of the Order.</param>
 		public void RemoveOrder(string orderId)
 		{
 			var order = RetrieveOrder(orderId);
@@ -237,9 +237,9 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Generates a sample order via user input.
+		/// Generates a sample Order via user input.
 		/// </summary>
-		/// <returns>The details for the order.</returns>
+		/// <returns>The details for the Order.</returns>
 		private Order GenerateOrder()
 		{
 			using (var form = new SampleOrderForm())
@@ -278,10 +278,10 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
-		/// Retrieves the current list of transactions for the order with the supplied <paramref name="orderId"/>.
+		/// Retrieves the current list of transactions for the Order with the supplied <paramref name="orderId"/>.
 		/// </summary>
-		/// <param name="orderId">The Id of the order being queried.</param>
-		/// <returns>The list of payments for the order with the supplied <paramref name="orderId"/>.</returns>
+		/// <param name="orderId">The Id of the Order being queried.</param>
+		/// <returns>The list of payments for the Order with the supplied <paramref name="orderId"/>.</returns>
 		public IEnumerable<Transaction> RetrieveOrderTransactions(string orderId)
 		{
 			return mPayments.Where(o => o.OrderId == orderId);

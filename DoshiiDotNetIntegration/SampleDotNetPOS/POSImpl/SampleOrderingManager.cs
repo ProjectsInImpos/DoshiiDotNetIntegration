@@ -44,7 +44,7 @@ namespace SampleDotNetPOS.POSImpl
 	    {
 	        if (mPresenter != null)
 			{
-				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Recording checkinId {0} against order {1}", checkinId, posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Recording checkinId {0} against Order {1}", checkinId, posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				var order = RetrieveOrder(posOrderId);
 				if (order != null)
@@ -61,7 +61,7 @@ namespace SampleDotNetPOS.POSImpl
 	    {
 	        if (mPresenter != null)
 			{
-				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving checkinId for order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving checkinId for Order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				var order = RetrieveOrder(posOrderId);
 				if (order != null)
@@ -82,7 +82,7 @@ namespace SampleDotNetPOS.POSImpl
 		{
 			if (mPresenter != null)
 			{
-				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving Order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				return mPresenter.RetrieveOrder(posOrderId);
 			}
@@ -99,7 +99,7 @@ namespace SampleDotNetPOS.POSImpl
 		{
 			if (mPresenter != null)
 			{
-				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Setting order {0} to version {1} in POS", posOrderId, version), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Setting Order {0} to version {1} in POS", posOrderId, version), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				var order = RetrieveOrder(posOrderId);
 				if (order == null)
@@ -120,7 +120,7 @@ namespace SampleDotNetPOS.POSImpl
 		{
 			if (mPresenter != null)
 			{
-				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving version for order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving version for Order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				var order = RetrieveOrder(posOrderId);
 				if (order == null)
@@ -136,7 +136,7 @@ namespace SampleDotNetPOS.POSImpl
         {
             if (mPresenter != null)
             {
-                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new Order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				mPresenter.AddOrUpdateOrder(order);
 
@@ -150,7 +150,7 @@ namespace SampleDotNetPOS.POSImpl
         {
             if (mPresenter != null)
             {
-                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} with payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new Order with doshiiID {0} with payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				mPresenter.AddOrUpdateOrder(order);
 				foreach (var transaction in transactionList)
@@ -168,7 +168,7 @@ namespace SampleDotNetPOS.POSImpl
         {
             if (mPresenter != null)
             {
-                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new Order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				mPresenter.AddOrUpdateOrder(order); 
                 return;
@@ -181,7 +181,7 @@ namespace SampleDotNetPOS.POSImpl
         {
             if (mPresenter != null)
             {
-                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} with payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new Order with doshiiID {0} with payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				mPresenter.AddOrUpdateOrder(order);
 				foreach (var transaction in transactionList)
