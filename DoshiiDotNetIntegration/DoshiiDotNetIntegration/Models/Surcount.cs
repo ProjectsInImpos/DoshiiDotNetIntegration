@@ -51,7 +51,7 @@ namespace DoshiiDotNetIntegration.Models
         /// if the <see cref="Type"/> = 'absolute' this value will be equal to the amount that should be applied to the reward. 
         /// if the <see cref="Type"/> = 'percentage' this is the percent that needs to be used to calculate the value of the report. 
         /// </summary>
-        public int Value { get; set; }
+        public decimal Value { get; set; }
 
         /// <summary>
         /// The type of the surcount ('absolute' or 'percentage')
