@@ -17,10 +17,22 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
         public String Id { get; set; }
 
-        /// <summary>
-        /// the table names associated with the booking. 
-        /// </summary>
-		public List<String> TableNames { get; set; }
+	    private List<string> _tableNames;
+
+	    /// <summary>
+	    /// the table names associated with the booking. 
+	    /// </summary>
+	    public List<string> TableNames
+	    {
+	        get
+	        {
+	            if (_tableNames != null)
+	            {
+	                
+	            }
+	        }
+	        set { }
+	    }
 
         /// <summary>
         /// the dateTime of the booking. 
