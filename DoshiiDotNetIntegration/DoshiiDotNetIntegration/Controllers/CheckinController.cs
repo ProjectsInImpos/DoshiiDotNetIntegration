@@ -71,7 +71,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 return new ActionResultBasic()
                 {
                     Success = false,
-                    FailReason = "checkinId was empty"
+                    FailReason = "CheckinId was empty"
                 };
             }
             try

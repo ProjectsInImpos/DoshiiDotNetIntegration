@@ -124,10 +124,10 @@ namespace DoshiiDotNetIntegration.Helpers
         private static void MapOrginisationObjects()
         {
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<Orginisation, JsonOrginisation>();
+            Mapper.CreateMap<Organisation, JsonOrganisation>();
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonOrginisation, Orginisation>();
+            Mapper.CreateMap<JsonOrganisation, Organisation>();
 
         }
 

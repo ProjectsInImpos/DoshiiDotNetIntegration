@@ -164,7 +164,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     return _httpComs.DeleteSurcount(surcountPosId);
                 }
-                catch (Exceptions.RestfulApiErrorResponseException rex)
+                catch (Exception rex)
                 {
                     throw rex;
                 }
@@ -198,7 +198,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     return _httpComs.DeleteProduct(productPosId);
                 }
-                catch (Exceptions.RestfulApiErrorResponseException rex)
+                catch (Exception rex)
                 {
                     throw rex;
                 }

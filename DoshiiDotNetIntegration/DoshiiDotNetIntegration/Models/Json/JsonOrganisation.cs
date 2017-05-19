@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonOrginisation : JsonSerializationBase<JsonOrginisation>
+    internal class JsonOrganisation : JsonSerializationBase<JsonOrganisation>
     {
         [DataMember]
         [JsonProperty(PropertyName = "name")]

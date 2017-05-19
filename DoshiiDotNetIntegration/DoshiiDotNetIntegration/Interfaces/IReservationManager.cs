@@ -43,10 +43,10 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// The <see cref="DoshiiController"/> uses this call to inform the pos the checkin 
         /// associated with an booking stored on Doshii. The <paramref name="checkinId"/> string must be persisted in
-        /// the POS against the booking - the checkinId is the link between booking and orders and tables and also consumers, in the doshii API. 
+        /// the POS against the booking - the CheckinId is the link between booking and orders and tables and also consumers, in the doshii API. 
         /// </summary>
         /// <param name="bookingId"></param>
-        /// <param name="checkinId">The current checkinId related to the booking in Doshii.</param>
+        /// <param name="checkinId">The current CheckinId related to the booking in Doshii.</param>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.BookingDoesNotExistOnPosException">This exception 
         /// should be thrown when there is no booking in the POS with the corresponding 
         /// <paramref name="bookingId"/>.</exception>

@@ -220,7 +220,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 UpdateOrderCheckin<Order>(response.ReturnObject);
                 return response;
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -246,7 +246,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return response;
 
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -370,7 +370,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         
         /// <summary>
-        /// Deletes a table allocation from doshii for the provided checkinId. 
+        /// Deletes a table allocation from doshii for the provided CheckinId. 
         /// </summary>
         /// <returns>
         /// true if successful
@@ -384,7 +384,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return MakeHttpRequest(DeleteMethod, EndPointPurposes.DeleteAllocationFromCheckin,
                     "delete table allocation", checkinId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -401,7 +401,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return MakeHttpRequestWithForResponseData<List<App>, List<JsonApp>>(
                     WebRequestMethods.Http.Get, EndPointPurposes.App, "get apps");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -432,7 +432,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.TransactionFromDoshiiOrderId,
                         "get transactions for order", doshiiOrderId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -458,7 +458,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
                         "get transactions for order", posOrderId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -484,7 +484,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
                         "get transaction", transactionId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -507,7 +507,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.Transaction,
                         "get transactions");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -531,7 +531,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Post, EndPointPurposes.Transaction,
                         "post transactions", jsonTransaction.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -558,7 +558,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         "put transactions", jsonTransaction.ToJsonString(), transaction.Id);
                 
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -576,7 +576,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
                         "get member", memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -591,7 +591,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
                         "get members");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -608,7 +608,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.Members,
                         "put members", jsonMember.ToJsonString(), member.Id);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -624,7 +624,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Post, EndPointPurposes.Members,
                         "post members", jsonMember.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -639,7 +639,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         HttpController.DeleteMethod, EndPointPurposes.Members,
                         "delete Member", "", memberId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -654,7 +654,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.MemberGetRewards,
                         "get rewards for member", "", memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -671,7 +671,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Post, EndPointPurposes.MemberRewardsRedeem,
                         "redeem reward for member", jsonOrderIdSimple.ToJsonString(), memberId, rewardId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -687,7 +687,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberRewardsRedeemCancel,
                         "redeem reward for member cancel", "{ \"reason\": \"" + cancelReason + "\"}", memberId, rewardId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -703,7 +703,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberRewardsRedeemConfirm,
                         "redeem reward for member confirm", "", memberId, rewardId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -719,7 +719,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Post, EndPointPurposes.MemberPointsRedeem,
                         "redeem points for member", jsonPointsRedeem.ToJsonString(), member.Id);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -734,7 +734,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberPointsRedeemConfirm,
                         "redeem points for member confirm", "", memberId);
         }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -749,7 +749,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberPointsRedeemCancel,
                         "redeem points for member cancel", "{ \"reason\": \"" + cancelReason + "\"}", memberId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -758,10 +758,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region checkins / consumers
         /// <summary>
-        /// This method is use to get a consumer from Doshii that corresponds with the checkinId 
+        /// This method is use to get a consumer from Doshii that corresponds with the CheckinId 
         /// </summary>
         /// <param name="checkinId">
-        /// The checkinId identifying the consumer. 
+        /// The CheckinId identifying the consumer. 
         /// </param>
         /// <returns>
         /// The consumer returned by doshii
@@ -775,9 +775,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<Consumer, JsonConsumer>(
                         WebRequestMethods.Http.Get, EndPointPurposes.ConsumerFromCheckinId,
-                        "get consumer from checkinId", "", checkinId);
+                        "get consumer from CheckinId", "", checkinId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -795,7 +795,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Post, EndPointPurposes.Checkins,
                         "post checkin", jsonCheckin.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -811,7 +811,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.Checkins,
                         "put checkin", jsonCheckin.ToJsonString(), checkin.Id);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw new CheckinUpdateException("Exception updating checkin", rex);
             }
@@ -825,7 +825,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     MakeHttpRequest(DeleteMethod, EndPointPurposes.Checkins,
                         "delete checkin", "", checkinId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -840,7 +840,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
                         "Get checkin", "", checkinId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -855,7 +855,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
                         "Get checkins");
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -874,7 +874,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Get, EndPointPurposes.Menu,
                         "get menu");
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -901,7 +901,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Post, EndPointPurposes.Menu,
                         "post menu", jsonMenu.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -927,7 +927,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.Surcounts,
                         "put surcount", jsonSurcount.ToJsonString(), surcount.Id);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -950,7 +950,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         DeleteMethod, EndPointPurposes.Surcounts,
                         "delete surcount", "", posId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -976,7 +976,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         WebRequestMethods.Http.Put, EndPointPurposes.Products,
                         "put product", jsonProduct.ToJsonString(), product.PosId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1002,7 +1002,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         DeleteMethod, EndPointPurposes.Products,
                         "delete product", "", posId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1036,7 +1036,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1055,7 +1055,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Post, EndPointPurposes.Location,
                             "post location", locationToPost.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1070,23 +1070,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.Locations,
                             "get locations");
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
         }
 
-        internal virtual ObjectActionResult<Orginisation> PostOrginisation(Orginisation orginisation)
+        internal virtual ObjectActionResult<Organisation> PostOrginisation(Organisation organisation)
         {
             try
             {
-                var orginisationToPost = Mapper.Map<JsonOrginisation>(orginisation);
+                var orginisationToPost = Mapper.Map<JsonOrganisation>(organisation);
                 return
-                    MakeHttpRequestWithForResponseData<Orginisation, JsonOrginisation>(
+                    MakeHttpRequestWithForResponseData<Organisation, JsonOrganisation>(
                             WebRequestMethods.Http.Post, EndPointPurposes.Orginisation,
-                            "post orginisation", orginisationToPost.ToJsonString());
+                            "post organisation", orginisationToPost.ToJsonString(), "", "", true);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1106,7 +1106,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Post, EndPointPurposes.Tables,
                             "post table", jsonTable.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1122,7 +1122,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Put, EndPointPurposes.Tables,
                             "put table", jsonTable.ToJsonString(), oldTableName);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1142,7 +1142,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Put, EndPointPurposes.Tables,
                             "put tables", JsonConvert.SerializeObject(jsonTableList));
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1157,7 +1157,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             DeleteMethod, EndPointPurposes.Tables,
                             "delete table", "", tableName);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1172,7 +1172,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.Tables,
                             "get table", "", tableName);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1187,7 +1187,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.Tables,
                             "get tables");
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1207,7 +1207,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Put, EndPointPurposes.Booking,
                             "put booking", jsonBooking.ToJsonString(), booking.Id);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1223,7 +1223,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Post, EndPointPurposes.Booking,
                             "post booking", jsonBooking.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1235,10 +1235,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequest(
-                            WebRequestMethods.Http.Post, EndPointPurposes.Booking,
+                            DeleteMethod, EndPointPurposes.Booking,
                             "delete booking", "", bookingId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1254,7 +1254,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
                             "seat booking", jsonCheckin.ToJsonString(), bookingId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1269,7 +1269,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
                             "seat booking without checkin", "", bookingId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1284,9 +1284,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.Booking,
                             "get booking", "", bookingId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception ex)
             {
-                throw rex;
+                throw ex;
             }
         }
 
@@ -1299,7 +1299,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.BookingsWithDateFilter,
                             "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1317,7 +1317,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.RejectionCodes,
                             "get rejectionCodes");
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1332,7 +1332,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.RejectionCodes,
                             "get rejectionCode", "", code);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1354,7 +1354,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.Employee,
                             "get employees");
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1369,7 +1369,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Get, EndPointPurposes.Employee,
                             "get employee", "", doshiiId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1385,7 +1385,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Post, EndPointPurposes.Employee,
                             "post employee", employeeToPost.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1401,7 +1401,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             WebRequestMethods.Http.Put, EndPointPurposes.Employee,
                             "put employee", employeeToPut.ToJsonString());
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1416,7 +1416,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             DeleteMethod, EndPointPurposes.Employee,
                             "delete employee", "", employeeId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -1649,25 +1649,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier);
             try
             {
-                try
-                {
-                    responseMessage = MakeRequest(urlForRequest, requestMethod, requestData);
-                }
-                catch (Exceptions.RestfulApiErrorResponseException rex)
-                {
-                    throw rex;
-                }
-                
+                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception ex)
             {
-                throw rex;
+                throw ex;
             }
-
+            
             if (responseMessage != null)
             {
                 actionResult.responseStatusCode = responseMessage.Status;
-                if (responseMessage.Status == HttpStatusCode.OK)
+                if (responseMessage.Status == HttpStatusCode.OK || responseMessage.Status == HttpStatusCode.Created)
                 {
                     actionResult.Success = true;
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
@@ -1679,23 +1671,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     actionResult.Success = false;
                     actionResult.FailReason = responseMessage.ErrorMessage;
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
-                        DoshiiStrings.GetUnsucessfulHttpResponseMessage(requestMethod,
-                            urlForRequest));
                 }
             }
             else
             {
                 actionResult.Success = false;
                 actionResult.FailReason = DoshiiStrings.GetUnknownErrorString(string.Format(processName));
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
-                    DoshiiStrings.GetNullHttpResponseMessage(requestMethod, urlForRequest));
             }
 
             return actionResult;
         }
 
-        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "")
+        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool isCreateOrg = false)
             where TReturnType : class, new()
         {
             var actionResult = new ObjectActionResult<TReturnType>();
@@ -1705,34 +1692,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             try
             {
-                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData);
+                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData, isCreateOrg);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception ex)
             {
-                throw rex;
+                throw ex;
             }
 
             if (responseMessage != null)
             {
                 actionResult.responseStatusCode = responseMessage.Status;
-                if (responseMessage.Status == HttpStatusCode.OK)
+                if (responseMessage.Status == HttpStatusCode.OK || responseMessage.Status == HttpStatusCode.Created)
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonList = JsonConvert.DeserializeObject<TJsonReturnType>(responseMessage.Data);
                         actionResult.ReturnObject =
                             AutoMapperGenericsHelper<TJsonReturnType, TReturnType>.ConvertToDBEntity(jsonList);
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
-                            DoshiiLogLevels.Warning,
-                            DoshiiStrings.GetSuccessfulHttpResponseMessagesWithData(requestMethod,
-                                urlForRequest, responseMessage.Data));
-                    }
-                    else
-                    {
-                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
-                            DoshiiLogLevels.Warning,
-                            DoshiiStrings.GetSuccessfulHttpResponseWithNoDataMessages(requestMethod,
-                                urlForRequest));
                     }
                     actionResult.Success = true;
                 }
@@ -1740,17 +1716,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     actionResult.Success = false;
                     actionResult.FailReason = responseMessage.ErrorMessage;
-                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
-                        DoshiiStrings.GetUnsucessfulHttpResponseMessage(requestMethod,
-                            urlForRequest));
                 }
             }
             else
             {
                 actionResult.Success = false;
                 actionResult.FailReason = DoshiiStrings.GetUnknownErrorString(string.Format(processName));
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
-                    DoshiiStrings.GetNullHttpResponseMessage(requestMethod, urlForRequest));
             }
 
             return actionResult;
@@ -1784,7 +1755,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <item> HttpStatusCode.Conflict </item>
         /// This must be handled where a conflict needs special treatment - this is especially important when orders are being updated by both the pos and the partner. 
         /// </exception>
-        private DoshiHttpResponseMessage MakeRequest(string url, string method, string data = "")
+        private DoshiHttpResponseMessage MakeRequest(string url, string method, string data = "", bool createOrginisation = false)
         {
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -1801,7 +1772,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
-            request.Headers.Add("authorization", AuthHelper.CreateToken(_controllersCollection.ConfigurationManager.GetLocationTokenFromPos(), _controllersCollection.ConfigurationManager.GetSecretKeyFromPos()));
+            if (createOrginisation)
+            {
+                request.Headers.Add("authorization", AuthHelper.CreateTokenForOrginisationCreate(_controllersCollection.ConfigurationManager.GetSecretKeyFromPos()));
+            }
+            else
+            {
+                request.Headers.Add("authorization", AuthHelper.CreateToken(_controllersCollection.ConfigurationManager.GetLocationTokenFromPos(), _controllersCollection.ConfigurationManager.GetSecretKeyFromPos()));
+            }
             request.Headers.Add("vendor", _controllersCollection.ConfigurationManager.GetVendorFromPos());
             request.ContentType = "application/json";
 
@@ -1835,27 +1813,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responceMessage.Status == HttpStatusCode.OK || responceMessage.Status == HttpStatusCode.Created)
                 {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Info, string.Format(" Successful response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
-                }
-                else if (responceMessage.Status == HttpStatusCode.BadRequest || 
-                    responceMessage.Status == HttpStatusCode.Unauthorized || 
-                    responceMessage.Status == HttpStatusCode.Forbidden || 
-                    responceMessage.Status == HttpStatusCode.InternalServerError || 
-                    responceMessage.Status == HttpStatusCode.NotFound || 
-                    responceMessage.Status == HttpStatusCode.Conflict ||
-                    responceMessage.Status == (HttpStatusCode)456) //Upstream rejected
-                {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
-                    throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status, responceMessage.Message);
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
+                        DoshiiLogLevels.Warning,
+                        DoshiiStrings.GetSuccessfulHttpResponseMessagesWithData(method,
+                            url, responceMessage.Data));
                 }
                 else
                 {
-					_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format(" Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                        DoshiiStrings.GetUnsucessfulHttpResponseMessage(method,
+                            url, responceMessage.Data));
                 }
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
             }
             catch (WebException wex)
             {
@@ -1881,38 +1849,33 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         responceMessage.StatusDescription = httpResponse.StatusDescription;
                         var theErrorMessage = DoshiiHttpErrorMessage.deseralizeFromJson(errorResponce);
                         responceMessage.ErrorMessage = theErrorMessage.Message;
-                        if (httpResponse.StatusCode == HttpStatusCode.BadRequest ||
-                            httpResponse.StatusCode == HttpStatusCode.Unauthorized ||
-                            httpResponse.StatusCode == HttpStatusCode.Forbidden ||
-                            httpResponse.StatusCode == HttpStatusCode.InternalServerError ||
-                            httpResponse.StatusCode == HttpStatusCode.NotFound ||
-                            httpResponse.StatusCode == HttpStatusCode.Conflict)
-                        {
-                            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
-                                string.Format(
-                                    " A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
-                                    method, url, data, errorResponce, wex));
-                            throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, errorResponce, wex);
-                        }
-                        else
-                        {
-                            _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
-                                string.Format(
-                                    " A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
-                                    method, url, data, errorResponce, wex));
-                        }
+                        _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                            DoshiiStrings.GetUnsucessfulHttpResponseMessage(method,
+                                url, errorResponce + " " + wex));
                     }
                 }
                 else
                 {
-                    throw new Exceptions.RestfulApiErrorResponseException("There was no response in the web exception while making a request.");
+                    responceMessage.StatusDescription =
+                        "There was no response in the web exception while making a request.";
+                    responceMessage.ErrorMessage = wex.ToString();
+
+                    _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                            DoshiiStrings.GetNullHttpResponseMessage(method,
+                                url, "There was no response in the web exception while making a request." + " " + wex));
                 }
                 
             }
             catch (Exception ex)
             {
 				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), Enums.DoshiiLogLevels.Error, string.Format(" As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} and status {3} : {4}", method, url, data, responceMessage.Status.ToString(), ex));
-				throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status, ex);
+                responceMessage.StatusDescription =
+                        "There was no response in the web exception while making a request.";
+                responceMessage.ErrorMessage = ex.ToString();
+
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                           DoshiiStrings.GetNullHttpResponseMessage(method,
+                               url, "There was no response in the web exception while making a request." + " " + ex));
             }
 
             return responceMessage;

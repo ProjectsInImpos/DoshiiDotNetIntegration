@@ -95,11 +95,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        public virtual ObjectActionResult<Orginisation> CreateOrginisation(Orginisation orginisation)
+        public virtual ObjectActionResult<Organisation> CreateOrginisation(Organisation organisation)
         {
             try
             {
-                return _httpComs.PostOrginisation(orginisation);
+                return _httpComs.PostOrginisation(organisation);
             }
             catch (Exception ex)
             {

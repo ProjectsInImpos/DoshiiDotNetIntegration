@@ -148,7 +148,6 @@
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\CheckinUpdateException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
-    <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Helpers\AuthHelper.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
@@ -192,7 +191,7 @@
     <Compile Include="Models\Json\JsonMenu.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
-    <Compile Include="Models\Json\JsonOrginisation.cs" />
+    <Compile Include="Models\Json\JsonOrganisation.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonCheckin.cs" />
     <Compile Include="Models\Json\JsonRejectionCode.cs" />
@@ -223,7 +222,7 @@
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
-    <Compile Include="Models\Orginisation.cs" />
+    <Compile Include="Models\Organisation.cs" />
     <Compile Include="Models\PointsRedeem.cs" />
     <Compile Include="Models\RedeemOrderResult.cs" />
     <Compile Include="Models\Checkin.cs" />

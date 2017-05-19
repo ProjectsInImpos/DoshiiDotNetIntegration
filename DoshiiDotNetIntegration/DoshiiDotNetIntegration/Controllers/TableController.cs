@@ -59,7 +59,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetTable(tableName);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -71,7 +71,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetTables();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -83,7 +83,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.PostTable(table);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -95,7 +95,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.PutTable(table, oldTableName);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -107,7 +107,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.DeleteTable(tableName);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -119,7 +119,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.PutTables(tableList);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

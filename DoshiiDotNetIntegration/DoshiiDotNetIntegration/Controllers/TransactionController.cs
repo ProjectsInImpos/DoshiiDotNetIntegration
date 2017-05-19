@@ -120,7 +120,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetTransaction(transactionId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -138,22 +138,9 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetTransactionsFromDoshiiOrderId(doshiiOrderId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
-                //this means there were no transactions for the unlinked Order. 
-                if (rex.StatusCode == HttpStatusCode.NotFound)
-                {
-                    List<Transaction> emplyTransactionList = new List<Transaction>();
-                    return new ObjectActionResult<List<Transaction>>()
-                    {
-                        Success = true,
-                        ReturnObject = emplyTransactionList
-                    };
-                }
-                else
-                {
-                    throw rex;
-                }
+                throw rex;
             }
         }
 
@@ -168,21 +155,9 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetTransactionsFromPosOrderId(posOrderId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
-                //this means there were no transactions for the unlinked Order. 
-                if (rex.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return new ObjectActionResult<List<Transaction>>()
-                    {
-                        Success = true,
-                        ReturnObject = new List<Transaction>()
-                    };
-                }
-                else
-                {
-                    throw rex;
-                }
+                throw rex;
             }
         }
 
@@ -196,7 +171,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetTransactions();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -219,30 +194,6 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 return _httpComs.PutTransaction(transaction);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                if (rex.StatusCode == HttpStatusCode.NotFound)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" The partner could not locate the transaction for Order.Id{0}", transaction.OrderId), rex);
-                }
-                else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
-                {
-                    // this just means that the partner failed to claim payment when requested
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
-                        string.Format(" The partner could not claim the payment for for Order.Id{0}", transaction.OrderId), rex);
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
-                        string.Format(" There was an unknown exception while attempting to get a payment from doshii"), rex);
-                }
-                _controllersCollection.TransactionManager.CancelPayment(transaction);
-                return new ActionResultBasic()
-                {
-                    Success = false,
-                    FailReason = string.Format(DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("put transaction"))
-                };
             }
             catch (NullResponseDataReturnedException ndr)
             {
@@ -288,16 +239,6 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 return _httpComs.PutTransaction(transaction);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" The partner could not locate the transaction for transaction.Id{0}", transaction.OrderId));
-                return new ActionResultBasic()
-                {
-                    Success = false,
-                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("put transaction")
-                };
-
             }
             catch (Exception ex)
             {
@@ -389,30 +330,6 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 return _httpComs.PostTransaction(refundTransaction);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                if (rex.StatusCode == HttpStatusCode.NotFound)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" The partner could not locate the transaction for Order.Id{0}", refundTransaction.OrderId), rex);
-                }
-                else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
-                {
-                    // this just means that the partner failed to claim payment when requested
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
-                        string.Format(" The partner could not refund the payment for for Order.Id{0}", refundTransaction.OrderId), rex);
-                }
-                else
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error,
-                        string.Format(" There was an unknown exception while attempting to get a refund from doshii"), rex);
-                }
-                _controllersCollection.TransactionManager.CancelPayment(refundTransaction);
-                return new ActionResultBasic()
-                {
-                    Success = false,
-                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("post transaction")
-                };
             }
             catch (NullResponseDataReturnedException)
             {

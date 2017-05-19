@@ -887,11 +887,11 @@ namespace DoshiiDotNetIntegration
         /// This method returns a consumer from Doshii corresponding to the CheckinId
         /// </summary>
         /// <param name="checkinId">
-        /// The checkinId for the consumer that is being requiested. 
+        /// The CheckinId for the consumer that is being requiested. 
         /// </param>
         /// <returns>
-        /// The consumer with the corresponding checkinId
-        /// <para/>If there is no consumer corresponding to the checkinId, a blank consumer may be returned. 
+        /// The consumer with the corresponding CheckinId
+        /// <para/>If there is no consumer corresponding to the CheckinId, a blank consumer may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
@@ -1059,7 +1059,7 @@ namespace DoshiiDotNetIntegration
         /// Returns all the Doshii members for the organization 
         /// </summary>
         /// <returns>
-        /// IEnumerable of all the members registered in the orginisation. 
+        /// IEnumerable of all the members registered in the organisation. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
@@ -1153,7 +1153,7 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// This method will return all the rewards available for a member of the orginisation on Doshii.
+        /// This method will return all the rewards available for a member of the organisation on Doshii.
         /// The following process is used to retreive the rewards.
         /// <list type="bullet">
         ///   <item>Retreives the Order from the pos with the orderId and attempts to update the Order on Doshii</item>
@@ -1385,7 +1385,7 @@ namespace DoshiiDotNetIntegration
         /// This method is used to modify the table allocation of a checkin at the venue, 
         /// If you wish to un-allocate the checkin from a table without allocating it to another table you should pass an empty list to the tableNames parameter.
         /// </summary>
-        /// <param name="checkinId">The checkinId to be modified</param>
+        /// <param name="checkinId">The CheckinId to be modified</param>
         /// <param name="tableNames">The table names to be allocated to the checkin</param>
         /// <param name="covers">The amount of covers associated with the allocation.</param>
         /// <returns>
@@ -1415,7 +1415,7 @@ namespace DoshiiDotNetIntegration
         /// this method should be called when a checkin has finished at the venue, eg the checkins check has been completly paid. 
         /// </summary>
         /// <param name="checkinId">
-        /// The checkinId that represents the checkin at the venue. 
+        /// The CheckinId that represents the checkin at the venue. 
         /// </param>
         /// <returns>
         /// True when the checkin was successfully closed.
@@ -1943,7 +1943,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual ObjectActionResult<Orginisation> CreateOrginisation(Orginisation orginisation)
+        public virtual ObjectActionResult<Organisation> CreateOrginisation(Organisation organisation)
 	    {
             if (!m_IsInitalized)
             {
@@ -1951,7 +1951,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return _controllersCollection.LocationController.CreateOrginisation(orginisation);
+                return _controllersCollection.LocationController.CreateOrginisation(organisation);
             }
             catch (Exception ex)
             {

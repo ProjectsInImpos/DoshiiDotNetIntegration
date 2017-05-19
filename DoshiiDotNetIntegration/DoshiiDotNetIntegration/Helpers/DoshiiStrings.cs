@@ -28,16 +28,16 @@ namespace DoshiiDotNetIntegration.Helpers
                 httpMethod.ToUpperInvariant(), url);
         }
 
-        public static string GetUnsucessfulHttpResponseMessage(string httpMethod, string url)
+        public static string GetUnsucessfulHttpResponseMessage(string httpMethod, string url, string errorData)
         {
-            return string.Format("A {0} request to {1} was not successful", 
-                httpMethod.ToUpperInvariant(), url);
+            return string.Format("A {0} request to {1} was not successful with error message {2}", 
+                httpMethod.ToUpperInvariant(), url, errorData);
         }
 
-        public static string GetNullHttpResponseMessage(string httpMethod, string url)
+        public static string GetNullHttpResponseMessage(string httpMethod, string url, string errorData = "")
         {
-            return string.Format("DoshiiHttpCommuication.MakeRequest returned NUll for a {0} request to {1}",
-                httpMethod.ToUpperInvariant(), url);
+            return string.Format("DoshiiHttpCommuication.MakeRequest returned NUll for a {0} request to {1}, error data {2}",
+                httpMethod.ToUpperInvariant(), url, errorData);
         }
 
         public static string GetAttemptingActionWithEmptyId(string action, string modelRequiringId)

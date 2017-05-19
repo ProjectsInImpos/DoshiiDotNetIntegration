@@ -71,12 +71,12 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// The <see cref="DoshiiController"/> uses this call to inform the pos the checkin 
         /// associated with an Order stored on Doshii. The <paramref name="checkinId"/> string must be persisted in
-        /// the POS against the Order - the checkinId is the link between orders and tables and also orders and consumers, in the doshii API. 
+        /// the POS against the Order - the CheckinId is the link between orders and tables and also orders and consumers, in the doshii API. 
         /// </summary>
         /// <remarks>
         /// </remarks>
         /// <param name="posOrderId">The unique identifier of the Order being updated in the POS.</param>
-        /// <param name="checkinId">The current checkinId related to the Order in Doshii.</param>
+        /// <param name="checkinId">The current CheckinId related to the Order in Doshii.</param>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
         /// should be thrown when there is no Order in the POS with the corresponding 
         /// <paramref name="posOrderId"/>.</exception>
@@ -84,7 +84,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 
         /// <summary>
         /// The <see cref="DoshiiController"/> uses this call to request the current
-        /// checkinId associated with an Order.
+        /// CheckinId associated with an Order.
         /// </summary>
         /// <param name="posOrderId">The unique identifier of the Order being queried on the POS.</param>
         /// <returns>The current version of the Order in the POS.</returns>

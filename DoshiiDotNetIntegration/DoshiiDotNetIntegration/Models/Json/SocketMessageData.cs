@@ -80,7 +80,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
         /// The CheckInId associated with the message
         /// </summary>
-        [JsonProperty(PropertyName = "checkinId")]
+        [JsonProperty(PropertyName = "CheckinId")]
         public string CheckinId { get; set; }
 
         /// <summary>

@@ -83,6 +83,28 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(LastName));
         }
 
+        public bool ShouldSerializeAddress()
+        {
+            return (this.Address != null);
+        }
+
+        public bool ShouldSerializePhotoUrl()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeAnonymous()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeNotes()
+        {
+            return (!string.IsNullOrEmpty(Notes));
+        }
+        
+
+        
         #endregion
     }
 }

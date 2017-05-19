@@ -54,7 +54,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetApps();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

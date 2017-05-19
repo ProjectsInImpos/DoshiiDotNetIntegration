@@ -53,7 +53,7 @@ namespace DoshiiDotNetIntegration.Controllers
         }
 
         /// <summary>
-        /// returns a consumer from the checkinId 
+        /// returns a consumer from the CheckinId 
         /// </summary>
         /// <param name="checkinId"></param>
         /// <returns></returns>
@@ -63,7 +63,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetConsumerFromCheckinId(checkinId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

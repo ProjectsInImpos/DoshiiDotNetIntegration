@@ -34,16 +34,30 @@ namespace DoshiiDotNetIntegration.Models.Json
         public JsonConsumer Consumer { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "checkinId")]
-        public String checkinId { get; set; }
+        [JsonProperty(PropertyName = "CheckinId")]
+        public String CheckinId { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "app")]
         public String App { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "status")]
+        public String Status { get; set; }
+
         #region serializeMembers
 
         public bool ShouldSerializeApp()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeCheckinId()
         {
             return false;
         }

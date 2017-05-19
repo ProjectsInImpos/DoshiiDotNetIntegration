@@ -53,7 +53,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetRejectionCodes();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -65,7 +65,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetRejectionCode(rejectionCodeId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

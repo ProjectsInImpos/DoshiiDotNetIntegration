@@ -54,7 +54,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetEmployee(doshiiId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -66,7 +66,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetEmployees();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -80,7 +80,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     return _httpComs.PostEmployee(employee);
                 }
-                catch (Exceptions.RestfulApiErrorResponseException rex)
+                catch (Exception rex)
                 {
                     throw rex;
                 }
@@ -91,7 +91,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     return _httpComs.PutEmployee(employee);
                 }
-                catch (Exceptions.RestfulApiErrorResponseException rex)
+                catch (Exception rex)
                 {
                     throw rex;
                 }
@@ -106,7 +106,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 return new ActionResultBasic()
                 {
                     Success = false,
-                    FailReason = "checkinId was empty"
+                    FailReason = "CheckinId was empty"
                 };
             }
             else
@@ -115,7 +115,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     return _httpComs.DeleteEmployee(employeeId);
                 }
-                catch (Exceptions.RestfulApiErrorResponseException rex)
+                catch (Exception rex)
                 {
                     throw rex;
                 }

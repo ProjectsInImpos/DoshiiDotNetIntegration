@@ -109,7 +109,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return  PopupateAppIdPropsInOrder(_httpComs.GetOrder(orderId));
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -129,7 +129,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
                 
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -154,7 +154,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return PopupateAppIdPropsInOrder(_httpComs.GetOrderFromDoshiiOrderId(doshiiOrderId));
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -171,7 +171,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetOrders();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -191,7 +191,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetUnlinkedOrders();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -211,10 +211,6 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 return _httpComs.PutOrder(order);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                throw new OrderUpdateException("Update Order not successful", rex);
             }
             catch (NullResponseDataReturnedException Nex)
             {
@@ -248,15 +244,6 @@ namespace DoshiiDotNetIntegration.Controllers
             try
             {
                 return _httpComs.PutOrderCreatedResult(order);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                if (rex.StatusCode == HttpStatusCode.Conflict)
-                {
-                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format("There was a conflict updating Order.id {0}", order.Id.ToString()));
-                    throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating Order.id {0}", order.Id.ToString()));
-                }
-                throw new OrderUpdateException("Update Order not successful", rex);
             }
             catch (NullResponseDataReturnedException Nex)
             {
@@ -296,7 +283,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 //Check assigned orders
                 //This is not yet implemented as its not necessary when only OrderAhead is a possibility. 
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -505,7 +492,7 @@ namespace DoshiiDotNetIntegration.Controllers
         }
 
         /// <summary>
-        /// Calls the appropriate callback method in <see cref="Interfaces.IOrderingManager"/> to record the checkinId for an Order on the pos. 
+        /// Calls the appropriate callback method in <see cref="Interfaces.IOrderingManager"/> to record the CheckinId for an Order on the pos. 
         /// </summary>
         /// <param name="order">
         /// The Order that need to be recorded. 
@@ -518,12 +505,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             catch (OrderDoesNotExistOnPosException nex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Attempted to update a checkinId for an Order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", posOrderId, checkinId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, string.Format(" Attempted to update a CheckinId for an Order that does not exist on the Pos, Order.id - {0}, CheckinId - {1}", posOrderId, checkinId));
                 //maybe we should call reject Order here. 
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" Exception while attempting to update a checkinId for an Order on the pos, Order.Id - {0}, checkinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" Exception while attempting to update a CheckinId for an Order on the pos, Order.Id - {0}, CheckinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
                 //maybe we should call reject Order here. 
             }
         }

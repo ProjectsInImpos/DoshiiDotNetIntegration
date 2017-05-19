@@ -60,7 +60,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// The CheckinId the Order is associated with
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "checkinId")]
+        [JsonProperty(PropertyName = "CheckinId")]
         public string CheckinId { get; set; }
 
 		/// <summary>

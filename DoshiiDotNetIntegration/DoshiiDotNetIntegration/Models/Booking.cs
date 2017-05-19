@@ -26,12 +26,13 @@ namespace DoshiiDotNetIntegration.Models
 	    {
 	        get
 	        {
-	            if (_tableNames != null)
+	            if (_tableNames == null)
 	            {
-	                
+	                _tableNames = new List<string>();
 	            }
+                return _tableNames;
 	        }
-	        set { }
+	        set { _tableNames = value; }
 	    }
 
         /// <summary>
@@ -48,7 +49,10 @@ namespace DoshiiDotNetIntegration.Models
         /// the <see cref="Consumer"/> associated with the booking. 
         /// </summary>
 		public Consumer Consumer { get; set; }
+        
         public String CheckinId { get; set; }
+        
+        public String Status { get; set; }
 
         /// <summary>
         /// the <see cref="App"/> associated with the booking. 
@@ -64,6 +68,7 @@ namespace DoshiiDotNetIntegration.Models
             this.Consumer = new Consumer();
             this.CheckinId = string.Empty;
             this.App = string.Empty;
+            this.Status = string.Empty;
         }
         
         protected bool Equals(Booking other)

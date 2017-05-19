@@ -75,7 +75,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetMember(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -91,7 +91,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetMembers();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -117,7 +117,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.DeleteMember(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -146,7 +146,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
 
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -263,7 +263,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetRewardsForMember(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -300,7 +300,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemRewardForMember(member.Id, reward.Id, order);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -319,7 +319,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -337,7 +337,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemRewardForMemberConfirm(memberId, rewardId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -381,7 +381,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemPointsForMember(pr, member);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -398,7 +398,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemPointsForMemberConfirm(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -416,7 +416,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemPointsForMemberCancel(memberId, cancelReason);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

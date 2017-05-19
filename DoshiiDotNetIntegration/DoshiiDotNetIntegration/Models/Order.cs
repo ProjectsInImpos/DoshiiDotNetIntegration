@@ -81,7 +81,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Phase { get; set; }
 
         /// <summary>
-        /// The CheckinId the Order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
+        /// The CheckinId the Order is associated with, the doshii system uses this CheckinId to relate tables to orders, to delete a table allocation you must have the
         /// Order checkIn Id. 
         /// </summary>
         public string CheckinId { get; set; }

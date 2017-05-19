@@ -25,6 +25,7 @@ namespace DoshiiDotNetIntegration.Models
         {
             Name = String.Empty;
             Phone = String.Empty;
+            Email = string.Empty;
             Address = null;
             Notes = String.Empty;
             PhotoUrl = string.Empty;

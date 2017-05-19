@@ -81,7 +81,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetBooking(bookingId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -99,7 +99,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return GetBookings(DateTime.Now.AddHours(-1), DateTime.MaxValue);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -117,9 +117,9 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.GetBookings(from, to);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception ex)
             {
-                throw rex;
+                throw ex;
             }
         }
 

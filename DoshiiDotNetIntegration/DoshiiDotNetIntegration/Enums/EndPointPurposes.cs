@@ -41,7 +41,7 @@ namespace DoshiiDotNetIntegration.Enums
         UnlinkedOrders = 6,
 
         /// <summary>
-        /// Request for a consumer with a checkinId.
+        /// Request for a consumer with a CheckinId.
         /// </summary>
         ConsumerFromCheckinId = 7,
 
