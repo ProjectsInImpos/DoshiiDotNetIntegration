@@ -66,6 +66,14 @@ namespace DoshiiDotNetIntegration.Models
 
         public string Longitude { get; set; }
 
+        public string VendorId { get; set; }
+
+        public string OrganisationId { get; set; }
+
+        public string Token { get; set; }
+
+        public string ApiVersion { get; set; }
+
 
         /// <summary>
         /// Resets all property values to default settings.
@@ -85,11 +93,17 @@ namespace DoshiiDotNetIntegration.Models
             CreatedAt = null;
             UpdatedAt = null;
             Uri = string.Empty;
+            Latitude = string.Empty;
+            Longitude = string.Empty;
+            VendorId = string.Empty;
+            Token = string.Empty;
+            ApiVersion = string.Empty;
+            OrganisationId = string.Empty;
         }
 
         protected bool Equals(Location other)
         {
-            return string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(AddressLine1, other.AddressLine1) && string.Equals(AddressLine2, other.AddressLine2) && string.Equals(City, other.City) && string.Equals(State, other.State) && string.Equals(PostalCode, other.PostalCode) && string.Equals(Country, other.Country) && string.Equals(PhoneNumber, other.PhoneNumber) && DisconnectedDate.Equals(other.DisconnectedDate) && string.Equals(Latitude, other.Latitude) && string.Equals(Longitude, other.Longitude);
+            return string.Equals(Token, other.Token) && string.Equals(ApiVersion, other.ApiVersion) && string.Equals(VendorId, other.VendorId) && string.Equals(OrganisationId, other.OrganisationId) && string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(AddressLine1, other.AddressLine1) && string.Equals(AddressLine2, other.AddressLine2) && string.Equals(City, other.City) && string.Equals(State, other.State) && string.Equals(PostalCode, other.PostalCode) && string.Equals(Country, other.Country) && string.Equals(PhoneNumber, other.PhoneNumber) && DisconnectedDate.Equals(other.DisconnectedDate) && string.Equals(Latitude, other.Latitude) && string.Equals(Longitude, other.Longitude);
         }
 
         public override bool Equals(object obj)
@@ -116,6 +130,10 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ DisconnectedDate.GetHashCode();
                 hashCode = (hashCode*397) ^ (Latitude != null ? Latitude.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Longitude != null ? Longitude.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (VendorId != null ? VendorId.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (OrganisationId != null ? OrganisationId.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Token != null ? Token.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ApiVersion != null ? ApiVersion.GetHashCode() : 0);
                 return hashCode;
             }
         }

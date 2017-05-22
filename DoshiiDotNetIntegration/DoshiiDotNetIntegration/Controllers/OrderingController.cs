@@ -535,24 +535,40 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             try
             {
-                logActionResult = _httpComs.GetOrderLog(order.DoshiiId);
+                if (order.Id != null && !string.IsNullOrEmpty(order.Id))
+                {
+                    logActionResult = _httpComs.GetOrderLog(order.Id);
+                }
+                else
+                {
+                    logActionResult = _httpComs.GetUnlinkedOrderLog(order.DoshiiId);
+                }
+                
             }
             catch (Exception ex)
             {
-                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("There was an exception getting the logs for on Order with doshiiId = {0}. The partner Id will not be populated on this Order.", order.DoshiiId));
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("There was an exception getting the logs for on Order with doshiiId = {0} and Id = {1}. The partner Id will not be populated on this Order.", order.DoshiiId, order.Id));
                 return actionResult;
             }
 
-            var orderLogForCreated = logActionResult.ReturnObject.FirstOrDefault(l => l.Action == "order_created");
-            if (orderLogForCreated != null)
+            if (logActionResult.Success && logActionResult.ReturnObject != null && logActionResult.ReturnObject.Any())
             {
-                order.OrderCreatedByAppId = orderLogForCreated.AppId;
+                var orderLogForCreated = logActionResult.ReturnObject.FirstOrDefault(l => l.Action == "order_created");
+                if (orderLogForCreated != null)
+                {
+                    order.OrderCreatedByAppId = orderLogForCreated.AppId;
+                }
+                var orderLogForUpdated = logActionResult.ReturnObject.LastOrDefault(l => l.Action == "order_updated");
+                if (orderLogForUpdated != null)
+                {
+                    order.OrderCreatedByAppId = orderLogForUpdated.AppId;
+                }
             }
-            var orderLogForUpdated = logActionResult.ReturnObject.LastOrDefault(l => l.Action == "order_updated");
-            if (orderLogForUpdated != null)
+            else
             {
-                order.OrderCreatedByAppId = orderLogForUpdated.AppId;
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("No logs were returned by doshii for Order with doshiiId = {0} and Id = {1}. The partner Id will not be populated on this Order.", order.DoshiiId, order.Id));
             }
+            
 
             return actionResult;
         }

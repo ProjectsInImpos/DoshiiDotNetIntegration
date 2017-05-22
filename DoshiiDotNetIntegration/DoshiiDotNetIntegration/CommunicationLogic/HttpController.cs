@@ -382,7 +382,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return MakeHttpRequest(DeleteMethod, EndPointPurposes.DeleteAllocationFromCheckin,
-                    "delete table allocation", checkinId);
+                    "delete table allocation", "", checkinId);
             }
             catch (Exception rex)
             {
@@ -430,7 +430,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
                         WebRequestMethods.Http.Get, EndPointPurposes.TransactionFromDoshiiOrderId,
-                        "get transactions for order", doshiiOrderId);
+                        "get transactions for order", "", doshiiOrderId);
             }
             catch (Exception rex)
             {
@@ -456,7 +456,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
                         WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
-                        "get transactions for order", posOrderId);
+                        "get transactions for order", "", posOrderId);
             }
             catch (Exception rex)
             {
@@ -482,7 +482,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
                         WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
-                        "get transaction", transactionId);
+                        "get transaction", "", transactionId);
             }
             catch (Exception rex)
             {
@@ -574,7 +574,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
-                        "get member", memberId);
+                        "get member", "", memberId);
             }
             catch (Exception rex)
             {
@@ -1016,24 +1016,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The location information for the connected venue in doshii
         /// </returns>
-        internal virtual ObjectActionResult<Location> GetLocation(string hashedLocationId = "")
+        internal virtual ObjectActionResult<Location> GetLocation()
         {
             try
             {
-                if (string.IsNullOrEmpty(hashedLocationId))
-                {
-                    return
-                        MakeHttpRequestWithForResponseData<Location, JsonLocation>(
-                            WebRequestMethods.Http.Get, EndPointPurposes.Location,
-                            "get location");
-                }
-                else
-                {
-                    return
-                        MakeHttpRequestWithForResponseData<Location, JsonLocation>(
-                            WebRequestMethods.Http.Get, EndPointPurposes.Location,
-                            "get location","",hashedLocationId);
-                }
+                return
+                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Location,
+                        "get location");
                 
             }
             catch (Exception rex)
@@ -1044,16 +1034,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         internal virtual ObjectActionResult<Location> PostLocation(Location location)
         {
-            var retreivedLocation = new Location();
-            
-            DoshiHttpResponseMessage responseMessage;
             try
             {
-                var locationToPost = Mapper.Map<JsonEmployee>(location);
+                var locationToPost = Mapper.Map<JsonLocation>(location);
                 return 
                     MakeHttpRequestWithForResponseData<Location, JsonLocation>(
-                            WebRequestMethods.Http.Post, EndPointPurposes.Location,
-                            "post location", locationToPost.ToJsonString());
+                            WebRequestMethods.Http.Post, EndPointPurposes.Locations,
+                            "post location", locationToPost.ToJsonString(), "","",true);
             }
             catch (Exception rex)
             {
@@ -1068,7 +1055,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<List<Location>, List<JsonLocation>>(
                             WebRequestMethods.Http.Get, EndPointPurposes.Locations,
-                            "get locations");
+                            "get locations", "", "", "", true);
+            }
+            catch (Exception rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                        WebRequestMethods.Http.Get, EndPointPurposes.Locations,
+                        "get location", "", hashedLocationId, "", true);
+                
             }
             catch (Exception rex)
             {
@@ -1682,7 +1685,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return actionResult;
         }
 
-        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool isCreateOrg = false)
+        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool useSecretKeyAsBearerAuth = false)
             where TReturnType : class, new()
         {
             var actionResult = new ObjectActionResult<TReturnType>();
@@ -1692,7 +1695,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             try
             {
-                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData, isCreateOrg);
+                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData, useSecretKeyAsBearerAuth);
             }
             catch (Exception ex)
             {
@@ -1787,8 +1790,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             request.Method = GetHttpMethodFromMethodString(method);
             if (!string.IsNullOrWhiteSpace(data))
             {
-                
-
                 using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
                 {
                     writer.Write(data);
@@ -1814,7 +1815,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 if (responceMessage.Status == HttpStatusCode.OK || responceMessage.Status == HttpStatusCode.Created)
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController),
-                        DoshiiLogLevels.Warning,
+                        DoshiiLogLevels.Info,
                         DoshiiStrings.GetSuccessfulHttpResponseMessagesWithData(method,
                             url, responceMessage.Data));
                 }
@@ -1847,6 +1848,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         
                         responceMessage.Status = httpResponse.StatusCode;
                         responceMessage.StatusDescription = httpResponse.StatusDescription;
+                        if ((int)httpResponse.StatusCode >= 500 && (int)httpResponse.StatusCode < 600)
+                        {
+                            throw wex;
+                        }
                         var theErrorMessage = DoshiiHttpErrorMessage.deseralizeFromJson(errorResponce);
                         responceMessage.ErrorMessage = theErrorMessage.Message;
                         _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
@@ -1873,11 +1878,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         "There was no response in the web exception while making a request.";
                 responceMessage.ErrorMessage = ex.ToString();
 
-                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
+                _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error,
                            DoshiiStrings.GetNullHttpResponseMessage(method,
                                url, "There was no response in the web exception while making a request." + " " + ex));
+                throw ex;
             }
-
             return responceMessage;
         }
 

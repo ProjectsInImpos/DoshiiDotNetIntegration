@@ -17,8 +17,8 @@ namespace DoshiiDotNetIntegration.Helpers
 
         public static string GetSuccessfulHttpResponseMessagesWithData(string httpMethod, string url, string data)
         {
-            return string.Format("A {0} request to {1} returned a successful response with data", 
-                httpMethod.ToUpperInvariant(), url);
+            return string.Format("A {0} request to {1} returned a successful response with data - {2}", 
+                httpMethod.ToUpperInvariant(), url, data);
         }
 
 

@@ -810,18 +810,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, (int)(amountToRefund* 100), transacitonIdsToRefund);
-            }
-            catch (Exception ex)
-            {
-                return new ActionResultBasic()
-                {
-                    Success = false,
-                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("requesting refund")
-                };
-            }
+            return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, (int)(amountToRefund * 100), transacitonIdsToRefund);
         }
 
         public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
@@ -1370,15 +1359,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-		    try
-		    {
-		        return _controllersCollection.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
-		    }
-		    catch (Exception ex)
-		    {
-		        throw ex;
-		    }
-		    
+            return _controllersCollection.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
 		}
 
         /// <summary>
@@ -1400,14 +1381,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return _controllersCollection.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
             
         }
 
@@ -1776,27 +1750,20 @@ namespace DoshiiDotNetIntegration
 
         #region partner Apps
 
-        public virtual ObjectActionResult<List<App>> GetApps()
-        {
-            if (!m_IsInitalized)
-            {
-                this.ThrowDoshiiManagerNotInitializedException();
-            }
-            if (_controllersCollection.AppManager == null)
-            {
-                this.ThrowDoshiiAppNotInitializedException();
-            }
-            try
-            {
-                return _controllersCollection.AppController.GetApps();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+	    public virtual ObjectActionResult<List<App>> GetApps()
+	    {
+	        if (!m_IsInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        if (_controllersCollection.AppManager == null)
+	        {
+	            this.ThrowDoshiiAppNotInitializedException();
+	        }
+	        return _controllersCollection.AppController.GetApps();
+	    }
 
-        #endregion
+	    #endregion
 
         #region Employee
 
@@ -1806,14 +1773,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.EmployeeController.GetEmployees();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return _controllersCollection.EmployeeController.GetEmployees();
         }
 
         public virtual ObjectActionResult<Employee> GetEmployee(string doshiiId)
@@ -1822,15 +1782,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.EmployeeController.GetEmployee(doshiiId);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
+            return _controllersCollection.EmployeeController.GetEmployee(doshiiId);
         }
 
         public virtual ObjectActionResult<Employee> SaveEmployee(Employee employee)
@@ -1839,15 +1791,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.EmployeeController.SaveEmployee(employee);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
+            return _controllersCollection.EmployeeController.SaveEmployee(employee);
         }
 
         public virtual ActionResultBasic DeleteEmployee(string employeeId)
@@ -1856,15 +1800,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.EmployeeController.DeleteEmployee(employeeId);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
+            return _controllersCollection.EmployeeController.DeleteEmployee(employeeId);
         }
 
         #endregion
@@ -1885,14 +1821,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.LocationController.GetLocation();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.LocationController.GetLocation();
         }
 
         public virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
@@ -1901,14 +1830,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.LocationController.GetLocation(hashedLocationId);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.LocationController.GetLocation(hashedLocationId);
         }
 
         public virtual ObjectActionResult<List<Location>> GetLocations()
@@ -1917,14 +1839,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.LocationController.GetLocations();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.LocationController.GetLocations();
         }
 
         public virtual ObjectActionResult<Location> CreateLocation(Location location)
@@ -1933,14 +1848,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.LocationController.CreateLocation(location);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.LocationController.CreateLocation(location);
         }
 
         public virtual ObjectActionResult<Organisation> CreateOrginisation(Organisation organisation)
@@ -1949,14 +1857,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.LocationController.CreateOrginisation(organisation);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.LocationController.CreateOrginisation(organisation);
 	    }
 
         #endregion
@@ -1969,14 +1870,7 @@ namespace DoshiiDotNetIntegration
 	        {
                 this.ThrowDoshiiManagerNotInitializedException();
 	        }
-	        try
-	        {
-	            return _controllersCollection.RejectionCodeController.GetRejectionCodes();
-	        }
-	        catch (Exception ex)
-	        {
-	            return null;
-	        }
+            return _controllersCollection.RejectionCodeController.GetRejectionCodes();
 	    }
 
         public virtual ObjectActionResult<RejectionCode> GetRejectionCode(string code)
@@ -1985,14 +1879,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            try
-            {
-                return _controllersCollection.RejectionCodeController.GetRejectionCode(code);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.RejectionCodeController.GetRejectionCode(code);
         }
 
         #endregion

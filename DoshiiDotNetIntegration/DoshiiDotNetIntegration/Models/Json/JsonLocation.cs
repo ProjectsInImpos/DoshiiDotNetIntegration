@@ -90,5 +90,66 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "longitude")]
         public string Longitude { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "vendorId")]
+        public string VendorId { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "organisationId")]
+        public string OrganisationId { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "token")]
+        public string Token { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "apiVersion")]
+        public string ApiVersion { get; set; }
+
+        #region serializeMembers
+
+        public bool ShouldSerializeLatitude()
+        {
+            return !string.IsNullOrEmpty(Latitude);
+        }
+
+        public bool ShouldSerializeLongitude()
+        {
+            return !string.IsNullOrEmpty(Longitude);
+        }
+        
+        public bool ShouldSerializeVendorId()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeOrganisationId()
+        {
+            return !string.IsNullOrEmpty(OrganisationId);
+        }
+
+        public bool ShouldSerializeToken()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeApiVersion()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeDisconnectedDate()
+        {
+            return false;
+        }
+
+        
+        #endregion
     }
 }
