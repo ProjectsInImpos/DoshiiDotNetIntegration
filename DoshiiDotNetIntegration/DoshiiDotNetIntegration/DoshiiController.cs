@@ -1785,7 +1785,7 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.EmployeeController.GetEmployee(doshiiId);
         }
 
-        public virtual ObjectActionResult<Employee> SaveEmployee(Employee employee)
+        public virtual ObjectActionResult<Employee> UpdateEmployee(Employee employee)
         {
             if (!m_IsInitalized)
             {

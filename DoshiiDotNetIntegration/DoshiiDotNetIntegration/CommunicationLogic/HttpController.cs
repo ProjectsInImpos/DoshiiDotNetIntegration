@@ -1402,7 +1402,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return
                     MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
                             WebRequestMethods.Http.Put, EndPointPurposes.Employee,
-                            "put employee", employeeToPut.ToJsonString());
+                            "put employee", employeeToPut.ToJsonString(), employee.Id);
             }
             catch (Exception rex)
             {

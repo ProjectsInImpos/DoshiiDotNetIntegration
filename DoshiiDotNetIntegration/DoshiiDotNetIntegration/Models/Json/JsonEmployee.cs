@@ -14,6 +14,10 @@ namespace DoshiiDotNetIntegration.Models.Json
     internal class JsonEmployee : JsonBaseCreatedAt<JsonEmployee>
     {
         [DataMember]
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+        
+        [DataMember]
         [JsonProperty(PropertyName = "firstName")]
         public string FirstName { get; set; }
 
@@ -42,8 +46,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Id { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "orginistaionId")]
-        public string OrginistaionId { get; set; }
+        [JsonProperty(PropertyName = "locationId")]
+        public string LocationId { get; set; }
         
         #region Serialize methods
 
@@ -76,12 +80,12 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         public bool ShouldSerializeId()
         {
-            return (!string.IsNullOrEmpty(Id));
+            return false;
         }
 
-        public bool ShouldSerializeOrginistaionId()
+        public bool ShouldSerializeLocationId()
         {
-            return (!string.IsNullOrEmpty(OrginistaionId));
+            return false;
         }
 
         public bool ShouldSerializeUpdatedAt()
