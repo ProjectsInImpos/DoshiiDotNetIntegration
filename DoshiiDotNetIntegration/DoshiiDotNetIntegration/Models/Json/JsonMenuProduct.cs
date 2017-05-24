@@ -196,6 +196,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return false;
         }
+
+        public bool ShouldSerializeType()
+        {
+            return !string.IsNullOrEmpty(Type);
+        }
+
+        
         #endregion
 
     }

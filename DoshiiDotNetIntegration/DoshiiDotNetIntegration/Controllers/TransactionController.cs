@@ -190,7 +190,62 @@ namespace DoshiiDotNetIntegration.Controllers
         internal virtual ActionResultBasic RequestPaymentForOrderExistingTransaction(Transaction transaction)
         {
             transaction.Status = "waiting";
+            var result = RequestTransactionProcessing(transaction);
 
+            if (result.ReturnObject != null && result.ReturnObject.Id == transaction.Id)
+            {
+                var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
+                //returnedTransaction.OrderId = transaction.OrderId;
+                _controllersCollection.TransactionManager.RecordSuccessfulPayment(result.ReturnObject);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(result.ReturnObject.Id, result.ReturnObject.Version);
+                return new ActionResultBasic()
+                {
+                    Success = true
+                };
+            }
+            else
+            {
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = string.Format("The transaciton was not returned successfully from Doshii.")
+                };
+            }
+        }
+
+        internal virtual ActionResultBasic RequestPaymentForRefund(Transaction transaction)
+        {
+            transaction.Status = "waiting";
+            var result = RequestTransactionProcessing(transaction);
+
+            if (result.ReturnObject != null && result.ReturnObject.Id == transaction.Id)
+            {
+                var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for refund - '{0}'", jsonTransaction.ToJsonString()));
+                //returnedTransaction.OrderId = transaction.OrderId;
+                _controllersCollection.TransactionManager.RecordSuccessfulRefund(result.ReturnObject);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(result.ReturnObject.Id, result.ReturnObject.Version);
+                return new ActionResultBasic()
+                {
+                    Success = true
+                };
+            }
+            else
+            {
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = string.Format("The transaciton was not returned successfully from Doshii.")
+                };
+            }
+        }
+
+        internal virtual ObjectActionResult<Transaction> RequestTransactionProcessing(Transaction transaction)
+        {
+            transaction.Status = "waiting";
             try
             {
                 return _httpComs.PutTransaction(transaction);
@@ -199,7 +254,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a Null response was returned during a postTransaction for Order.Id{0}", transaction.OrderId));
                 _controllersCollection.TransactionManager.CancelPayment(transaction);
-                return new ActionResultBasic()
+                return new ObjectActionResult<Transaction>()
                 {
                     Success = false,
                     FailReason = string.Format(DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("put transaction"))
@@ -209,7 +264,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown during a postTransaction for Order.Id {0} : {1}", transaction.OrderId, ex));
                 _controllersCollection.TransactionManager.CancelPayment(transaction);
-                return new ActionResultBasic()
+                return new ObjectActionResult<Transaction>()
                 {
                     Success = false,
                     FailReason = string.Format(DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("put transaction"))
@@ -269,7 +324,7 @@ namespace DoshiiDotNetIntegration.Controllers
             if (transactionFromPos != null)
             {
                 _controllersCollection.TransactionManager.RecordTransactionVersion(receivedTransaction.Id, receivedTransaction.Version);
-                RequestPaymentForOrderExistingTransaction(transactionFromPos);
+                RequestPaymentForRefund(transactionFromPos);
             }
             else
             {
@@ -329,7 +384,7 @@ namespace DoshiiDotNetIntegration.Controllers
             };
             try
             {
-                return _httpComs.PostTransaction(refundTransaction);
+                return RequestPaymentForRefund(refundTransaction); 
             }
             catch (NullResponseDataReturnedException)
             {

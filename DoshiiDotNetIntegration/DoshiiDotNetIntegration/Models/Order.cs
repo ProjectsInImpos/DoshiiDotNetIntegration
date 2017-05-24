@@ -46,6 +46,8 @@ namespace DoshiiDotNetIntegration.Models
             _log.Clear();
 		    RejectionCode = string.Empty;
 		    RejectionReason = string.Empty;
+		    OrderCreatedByAppId = string.Empty;
+		    OrderLastUpdateByAppId = string.Empty;
 		    Consumer = null;
 		}
 
