@@ -88,21 +88,6 @@ namespace DoshiiDotNetIntegration.Models.Json
             return false;
         }
 
-        public bool ShouldSerializeUpdatedAt()
-        {
-            return false;
-        }
-
-        public bool ShouldSerializeCreatedAt()
-        {
-            return false;
-        }
-
-        public bool ShouldSerializeUri()
-        {
-            return false;
-        }
-
         #endregion
 
         
