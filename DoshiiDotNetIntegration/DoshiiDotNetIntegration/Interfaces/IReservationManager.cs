@@ -28,7 +28,9 @@ namespace DoshiiDotNetIntegration.Interfaces
 
 		/// <summary>
 		/// This method should update a doshii booking on the Pos.
-		/// </summary>
+        /// This will be called whenever a doshii booking is updated in the cloud. 
+        /// The method will also be called when the sdk is initialized it does a sync with the cloud it will not have an Id when it is updated in the cloud so another prop will need to be used to identify it on the pos. 
+        /// </summary>
 		/// <param name="booking"></param>
 		/// <returns></returns>
 		void UpdateBookingOnPos(Booking booking);

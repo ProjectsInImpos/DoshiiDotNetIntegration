@@ -322,12 +322,23 @@ namespace DoshiiDotNetIntegration.Controllers
                 var doshiiBookingHashSet = new HashSet<string>(DoshiiBookingList.Select(p => p.Id));
                 var posBookingHashSet = new HashSet<string>(PosBookingList.Select(p => p.Id));
 
-                var bookingsNotInDoshii = PosBookingList.Where(p => !doshiiBookingHashSet.Contains(p.Id));
+                var bookingsNotInDoshii = PosBookingList.Where(p => !doshiiBookingHashSet.Contains(p.Id) || string.IsNullOrEmpty(p.Id) || p.Id == null);
                 foreach (var book in bookingsNotInDoshii)
                 {
                     try
                     {
-                        _controllersCollection.ReservationManager.DeleteBookingOnPos(book);
+                        if (string.IsNullOrEmpty(book.Id) || book.Id == null)
+                        {
+                            var createResult = _controllersCollection.ReservationController.UpdateBooking(book);
+                            if (createResult.Success)
+                            {
+                                _controllersCollection.ReservationManager.UpdateBookingOnPos(createResult.ReturnObject);
+                            }
+                        }
+                        else
+                        {
+                            _controllersCollection.ReservationManager.DeleteBookingOnPos(book);
+                        }
                     }
                     catch (Exception ex)
                     {

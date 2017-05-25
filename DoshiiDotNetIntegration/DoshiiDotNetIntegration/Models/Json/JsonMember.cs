@@ -69,6 +69,21 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(Ref));
         }
 
+        public bool ShouldSerializeFirstName()
+        {
+            return (!string.IsNullOrEmpty(FirstName));
+        }
+
+        public bool ShouldSerializeLastName()
+        {
+            return (!string.IsNullOrEmpty(LastName));
+        }
+
+        public bool ShouldSerializeName()
+        {
+            return (!string.IsNullOrEmpty(Name));
+        }
+
 #endregion
     }
 }

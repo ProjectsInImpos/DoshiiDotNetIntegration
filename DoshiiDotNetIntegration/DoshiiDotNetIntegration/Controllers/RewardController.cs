@@ -171,12 +171,27 @@ namespace DoshiiDotNetIntegration.Controllers
                 var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
                 var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
 
-                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id) || string.IsNullOrEmpty(p.Id) || p.Id == null);
                 foreach (var mem in membersNotInDoshii)
                 {
                     try
                     {
-                        _controllersCollection.RewardController.UpdateMember(mem);
+                        if (string.IsNullOrEmpty(mem.Id) || mem.Id == null)
+                        {
+                            var createResult = _controllersCollection.RewardController.UpdateMember(mem);
+                            if (createResult.Success)
+                            {
+                                _controllersCollection.RewardManager.UpdateMemberOnPosByEmail(createResult.ReturnObject);
+                            }
+                            else
+                            {
+                                _controllersCollection.RewardManager.DeleteMemberOnPosByEmail(mem.Email);
+                            }
+                        }
+                        else
+                        {
+                            _controllersCollection.RewardManager.DeleteMemberOnPos(mem.Id);
+                        }
                     }
                     catch (Exception ex)
                     {
