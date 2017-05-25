@@ -86,13 +86,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual ObjectActionResult<List<Log>> GetUnlinkedOrderLog(string doshiiOrderId)
         {
 
-            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(WebRequestMethods.Http.Get,
+            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.UnlinkedOrderLog, "get unliked order log", "", doshiiOrderId);
         }
 
         internal virtual ObjectActionResult<List<Log>> GetOrderLog(string orderId)
         {
-            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(WebRequestMethods.Http.Get,
+            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.OrderLog, "get order log", "", orderId);
         }
 
@@ -109,7 +109,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </returns>
         internal virtual ObjectActionResult<Order> GetOrder(string orderId)
         {
-            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(WebRequestMethods.Http.Get,
+            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.Order, "get order", "", orderId);
         }
 
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </returns>
         internal virtual ObjectActionResult<Order> GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
-            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(WebRequestMethods.Http.Get,
+            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.UnlinkedOrders, "get unlinked order", "", doshiiOrderId);
         }
 
@@ -141,7 +141,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </returns>
         internal virtual ObjectActionResult<List<Order>> GetOrders()
         {
-            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(WebRequestMethods.Http.Get,
+            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.Order, "get orders");
 
             var fullOrderList = new List<Models.Order>();
@@ -167,7 +167,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </returns>
         internal virtual ObjectActionResult<List<Order>> GetUnlinkedOrders()
         {
-            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(WebRequestMethods.Http.Get,
+            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.UnlinkedOrders, "get unlinked orders");
 
             var fullOrderList = new List<Models.Order>();
@@ -210,11 +210,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(order);
                 if (String.IsNullOrEmpty(order.Id))
                 {
-                    response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(method, EndPointPurposes.UnlinkedOrders, "create order on doshii", jsonOrderToPut.ToJsonString());
+                    response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, method, EndPointPurposes.UnlinkedOrders, "create order on doshii", jsonOrderToPut.ToJsonString());
                 }
                 else
                 {
-                    response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(method, EndPointPurposes.Order, "update order on doshii", jsonOrderToPut.ToJsonString(), order.Id);
+                    response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, method, EndPointPurposes.Order, "update order on doshii", jsonOrderToPut.ToJsonString(), order.Id);
                 }
                 UpdateOrderVersion<Order>(response.ReturnObject);
                 UpdateOrderCheckin<Order>(response.ReturnObject);
@@ -240,7 +240,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 var jsonOrderToPut = Mapper.Map<JsonUnlinkedOrderToPut>(order);
-                var response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(WebRequestMethods.Http.Put, EndPointPurposes.UnlinkedOrders, "confirm order on doshii", jsonOrderToPut.ToJsonString(), order.DoshiiId); 
+                var response = MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, WebRequestMethods.Http.Put, EndPointPurposes.UnlinkedOrders, "confirm order on doshii", jsonOrderToPut.ToJsonString(), order.DoshiiId); 
                 UpdateOrderVersion<Order>(response.ReturnObject);
                 UpdateOrderCheckin<Order>(response.ReturnObject);
                 return response;
@@ -381,7 +381,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                return MakeHttpRequest(DeleteMethod, EndPointPurposes.DeleteAllocationFromCheckin,
+                return MakeHttpRequest(60000, DeleteMethod, EndPointPurposes.DeleteAllocationFromCheckin,
                     "delete table allocation", "", checkinId);
             }
             catch (Exception rex)
@@ -398,7 +398,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                return MakeHttpRequestWithForResponseData<List<App>, List<JsonApp>>(
+                return MakeHttpRequestWithForResponseData<List<App>, List<JsonApp>>(60000,
                     WebRequestMethods.Http.Get, EndPointPurposes.App, "get apps");
             }
             catch (Exception rex)
@@ -428,7 +428,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
+                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.TransactionFromDoshiiOrderId,
                         "get transactions for order", "", doshiiOrderId);
             }
@@ -454,7 +454,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
+                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(60000,
                         WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
                         "get transactions for order", "", posOrderId);
             }
@@ -480,7 +480,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
+                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(60000,
                         WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
                         "get transaction", "", transactionId);
             }
@@ -503,7 +503,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(
+                    MakeHttpRequestWithForResponseData<List<Transaction>, List<JsonTransaction>>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Transaction,
                         "get transactions");
             }
@@ -527,7 +527,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 return
-                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
+                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(180000,
                         WebRequestMethods.Http.Post, EndPointPurposes.Transaction,
                         "post transactions", jsonTransaction.ToJsonString());
             }
@@ -553,7 +553,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 return
-                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(
+                    MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(180000,
                         WebRequestMethods.Http.Put, EndPointPurposes.Transaction,
                         "put transactions", jsonTransaction.ToJsonString(), transaction.Id);
                 
@@ -572,7 +572,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
                         "get member", "", memberId);
             }
@@ -587,7 +587,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<MemberOrg>, List<JsonMember>>(
+                    MakeHttpRequestWithForResponseData<List<MemberOrg>, List<JsonMember>>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Members,
                         "get members");
             }
@@ -604,7 +604,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
                 return
-                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(60000,
                         WebRequestMethods.Http.Put, EndPointPurposes.Members,
                         "put members", jsonMember.ToJsonString(), member.Id);
             }
@@ -620,7 +620,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
                 return
-                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(60000,
                         WebRequestMethods.Http.Post, EndPointPurposes.Members,
                         "post members", jsonMember.ToJsonString());
             }
@@ -635,7 +635,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(
+                    MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(60000,
                         HttpController.DeleteMethod, EndPointPurposes.Members,
                         "delete Member", "", memberId);
             }
@@ -650,7 +650,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Reward>, List<JsonReward>>(
+                    MakeHttpRequestWithForResponseData<List<Reward>, List<JsonReward>>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.MemberGetRewards,
                         "get rewards for member", "", memberId);
             }
@@ -667,7 +667,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonOrderIdSimple = Mapper.Map<JsonOrderIdSimple>(order);
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(180000,
                         WebRequestMethods.Http.Post, EndPointPurposes.MemberRewardsRedeem,
                         "redeem reward for member", jsonOrderIdSimple.ToJsonString(), memberId, rewardId);
             }
@@ -683,7 +683,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(180000,
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberRewardsRedeemCancel,
                         "redeem reward for member cancel", "{ \"reason\": \"" + cancelReason + "\"}", memberId, rewardId);
             }
@@ -699,7 +699,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(180000,
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberRewardsRedeemConfirm,
                         "redeem reward for member confirm", "", memberId, rewardId);
             }
@@ -715,7 +715,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonPointsRedeem = Mapper.Map<JsonPointsRedeem>(pr);
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(180000,
                         WebRequestMethods.Http.Post, EndPointPurposes.MemberPointsRedeem,
                         "redeem points for member", jsonPointsRedeem.ToJsonString(), member.Id);
             }
@@ -730,7 +730,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(180000,
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberPointsRedeemConfirm,
                         "redeem points for member confirm", "", memberId);
         }
@@ -745,7 +745,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(180000,
                         WebRequestMethods.Http.Put, EndPointPurposes.MemberPointsRedeemCancel,
                         "redeem points for member cancel", "{ \"reason\": \"" + cancelReason + "\"}", memberId);
             }
@@ -773,7 +773,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Consumer, JsonConsumer>(
+                    MakeHttpRequestWithForResponseData<Consumer, JsonConsumer>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.ConsumerFromCheckinId,
                         "get consumer from CheckinId", "", checkinId);
             }
@@ -791,7 +791,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
                 return
-                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
                         WebRequestMethods.Http.Post, EndPointPurposes.Checkins,
                         "post checkin", jsonCheckin.ToJsonString());
             }
@@ -807,7 +807,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
                 return
-                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
                         WebRequestMethods.Http.Put, EndPointPurposes.Checkins,
                         "put checkin", jsonCheckin.ToJsonString(), checkin.Id);
             }
@@ -822,7 +822,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(DeleteMethod, EndPointPurposes.Checkins,
+                    MakeHttpRequest(60000, DeleteMethod, EndPointPurposes.Checkins,
                         "delete checkin", "", checkinId);
             }
             catch (Exception rex)
@@ -836,7 +836,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
                         "Get checkin", "", checkinId);
             }
@@ -851,7 +851,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Checkin>, List<JsonCheckin>>(
+                    MakeHttpRequestWithForResponseData<List<Checkin>, List<JsonCheckin>>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
                         "Get checkins");
             }
@@ -870,7 +870,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(
+                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Menu,
                         "get menu");
             }
@@ -897,7 +897,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonMenu = Mapper.Map<JsonMenu>(menu);
                 return
-                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(
+                    MakeHttpRequestWithForResponseData<Menu, JsonMenu>(60000,
                         WebRequestMethods.Http.Post, EndPointPurposes.Menu,
                         "post menu", jsonMenu.ToJsonString());
             }
@@ -923,7 +923,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonSurcount = Mapper.Map<JsonMenuSurcount>(surcount);
                 return
-                    MakeHttpRequestWithForResponseData<Surcount, JsonMenuSurcount>(
+                    MakeHttpRequestWithForResponseData<Surcount, JsonMenuSurcount>(60000,
                         WebRequestMethods.Http.Put, EndPointPurposes.Surcounts,
                         "put surcount", jsonSurcount.ToJsonString(), surcount.Id);
             }
@@ -946,7 +946,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(60000,
                         DeleteMethod, EndPointPurposes.Surcounts,
                         "delete surcount", "", posId);
             }
@@ -972,7 +972,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonProduct = Mapper.Map<JsonMenuProduct>(product);
                 return
-                    MakeHttpRequestWithForResponseData<Product, JsonMenuProduct>(
+                    MakeHttpRequestWithForResponseData<Product, JsonMenuProduct>(60000,
                         WebRequestMethods.Http.Put, EndPointPurposes.Products,
                         "put product", jsonProduct.ToJsonString(), product.PosId);
             }
@@ -998,7 +998,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(60000,
                         DeleteMethod, EndPointPurposes.Products,
                         "delete product", "", posId);
             }
@@ -1021,7 +1021,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Location,
                         "get location");
                 
@@ -1037,8 +1037,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 var locationToPost = Mapper.Map<JsonLocation>(location);
-                return 
-                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                return
+                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(60000,
                             WebRequestMethods.Http.Post, EndPointPurposes.Locations,
                             "post location", locationToPost.ToJsonString(), "","",true);
             }
@@ -1053,7 +1053,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Location>, List<JsonLocation>>(
+                    MakeHttpRequestWithForResponseData<List<Location>, List<JsonLocation>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.Locations,
                             "get locations", "", "", "", true);
             }
@@ -1068,7 +1068,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(
+                    MakeHttpRequestWithForResponseData<Location, JsonLocation>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Locations,
                         "get location", "", hashedLocationId, "", true);
                 
@@ -1085,7 +1085,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var orginisationToPost = Mapper.Map<JsonOrganisation>(organisation);
                 return
-                    MakeHttpRequestWithForResponseData<Organisation, JsonOrganisation>(
+                    MakeHttpRequestWithForResponseData<Organisation, JsonOrganisation>(60000,
                             WebRequestMethods.Http.Post, EndPointPurposes.Orginisation,
                             "post organisation", orginisationToPost.ToJsonString(), "", "", true);
             }
@@ -1105,7 +1105,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonTable = Mapper.Map<JsonTable>(table);
                 return
-                    MakeHttpRequestWithForResponseData<Table, JsonTable>(
+                    MakeHttpRequestWithForResponseData<Table, JsonTable>(60000,
                             WebRequestMethods.Http.Post, EndPointPurposes.Tables,
                             "post table", jsonTable.ToJsonString());
             }
@@ -1121,7 +1121,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonTable = Mapper.Map<JsonTable>(table);
                 return
-                    MakeHttpRequestWithForResponseData<Table, JsonTable>(
+                    MakeHttpRequestWithForResponseData<Table, JsonTable>(60000,
                             WebRequestMethods.Http.Put, EndPointPurposes.Tables,
                             "put table", jsonTable.ToJsonString(), oldTableName);
             }
@@ -1141,7 +1141,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     jsonTableList.Add(Mapper.Map<JsonTable>(t));
                 }
                 return
-                    MakeHttpRequestWithForResponseData<List<Table>, List<JsonTable>>(
+                    MakeHttpRequestWithForResponseData<List<Table>, List<JsonTable>>(60000,
                             WebRequestMethods.Http.Put, EndPointPurposes.Tables,
                             "put tables", JsonConvert.SerializeObject(jsonTableList));
             }
@@ -1156,7 +1156,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(60000,
                             DeleteMethod, EndPointPurposes.Tables,
                             "delete table", "", tableName);
             }
@@ -1171,7 +1171,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Table, JsonTable>(
+                    MakeHttpRequestWithForResponseData<Table, JsonTable>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.Tables,
                             "get table", "", tableName);
             }
@@ -1186,7 +1186,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Table>, List<JsonTable>>(
+                    MakeHttpRequestWithForResponseData<List<Table>, List<JsonTable>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.Tables,
                             "get tables");
             }
@@ -1206,7 +1206,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonBooking = Mapper.Map<JsonBooking>(booking);
                 return
-                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(60000,
                             WebRequestMethods.Http.Put, EndPointPurposes.Booking,
                             "put booking", jsonBooking.ToJsonString(), booking.Id);
             }
@@ -1222,7 +1222,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonBooking = Mapper.Map<JsonBooking>(booking);
                 return
-                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(60000,
                             WebRequestMethods.Http.Post, EndPointPurposes.Booking,
                             "post booking", jsonBooking.ToJsonString());
             }
@@ -1237,7 +1237,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(60000,
                             DeleteMethod, EndPointPurposes.Booking,
                             "delete booking", "", bookingId);
             }
@@ -1253,7 +1253,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
                 return
-                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
                             WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
                             "seat booking", jsonCheckin.ToJsonString(), bookingId);
             }
@@ -1268,7 +1268,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
                             WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
                             "seat booking without checkin", "", bookingId);
             }
@@ -1283,7 +1283,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(
+                    MakeHttpRequestWithForResponseData<Booking, JsonBooking>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.Booking,
                             "get booking", "", bookingId);
             }
@@ -1298,7 +1298,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(
+                    MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.BookingsWithDateFilter,
                             "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString());
             }
@@ -1316,7 +1316,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<RejectionCode>, List<JsonRejectionCode>>(
+                    MakeHttpRequestWithForResponseData<List<RejectionCode>, List<JsonRejectionCode>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.RejectionCodes,
                             "get rejectionCodes");
             }
@@ -1331,7 +1331,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<RejectionCode, JsonRejectionCode>(
+                    MakeHttpRequestWithForResponseData<RejectionCode, JsonRejectionCode>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.RejectionCodes,
                             "get rejectionCode", "", code);
             }
@@ -1353,7 +1353,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<List<Employee>, List<JsonEmployee>>(
+                    MakeHttpRequestWithForResponseData<List<Employee>, List<JsonEmployee>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.Employee,
                             "get employees");
             }
@@ -1368,7 +1368,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
+                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.Employee,
                             "get employee", "", doshiiId);
             }
@@ -1384,7 +1384,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var employeeToPost = Mapper.Map<JsonEmployee>(employee);
                 return
-                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
+                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(60000,
                             WebRequestMethods.Http.Post, EndPointPurposes.Employee,
                             "post employee", employeeToPost.ToJsonString());
             }
@@ -1400,7 +1400,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var employeeToPut = Mapper.Map<JsonEmployee>(employee);
                 return
-                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(
+                    MakeHttpRequestWithForResponseData<Employee, JsonEmployee>(60000,
                             WebRequestMethods.Http.Put, EndPointPurposes.Employee,
                             "put employee", employeeToPut.ToJsonString(), employee.Id);
             }
@@ -1415,7 +1415,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(
+                    MakeHttpRequest(60000,
                             DeleteMethod, EndPointPurposes.Employee,
                             "delete employee", "", employeeId);
             }
@@ -1644,7 +1644,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        internal virtual ActionResultBasic MakeHttpRequest(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "")
+        internal virtual ActionResultBasic MakeHttpRequest(int timeoutMilliseconds, string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "")
         {
             var actionResult = new ActionResultBasic();
             DoshiHttpResponseMessage responseMessage;
@@ -1652,7 +1652,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier);
             try
             {
-                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData);
+                responseMessage = MakeRequest(urlForRequest, requestMethod, timeoutMilliseconds, requestData);
             }
             catch (Exception ex)
             {
@@ -1685,7 +1685,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return actionResult;
         }
 
-        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool useSecretKeyAsBearerAuth = false)
+        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(int timeoutMilliseconds, string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool useSecretKeyAsBearerAuth = false)
             where TReturnType : class, new()
         {
             var actionResult = new ObjectActionResult<TReturnType>();
@@ -1695,7 +1695,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             try
             {
-                responseMessage = MakeRequest(urlForRequest, requestMethod, requestData, useSecretKeyAsBearerAuth);
+                responseMessage = MakeRequest(urlForRequest, requestMethod, timeoutMilliseconds, requestData, useSecretKeyAsBearerAuth);
             }
             catch (Exception ex)
             {
@@ -1758,7 +1758,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <item> HttpStatusCode.Conflict </item>
         /// This must be handled where a conflict needs special treatment - this is especially important when orders are being updated by both the pos and the partner. 
         /// </exception>
-        private DoshiHttpResponseMessage MakeRequest(string url, string method, string data = "", bool createOrginisation = false)
+        private DoshiHttpResponseMessage MakeRequest(string url, string method, int timeoutMilliseconds, string data = "", bool createOrginisation = false)
         {
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -1775,6 +1775,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
+            request.Timeout = timeoutMilliseconds;
             if (createOrginisation)
             {
                 request.Headers.Add("authorization", AuthHelper.CreateTokenForOrginisationCreate(_controllersCollection.ConfigurationManager.GetSecretKeyFromPos()));
@@ -1850,7 +1851,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         responceMessage.StatusDescription = httpResponse.StatusDescription;
                         if ((int)httpResponse.StatusCode >= 500 && (int)httpResponse.StatusCode < 600)
                         {
-                            throw wex;
+                            throw new WebException(wex.Message, wex.Status);
                         }
                         var theErrorMessage = DoshiiHttpErrorMessage.deseralizeFromJson(errorResponce);
                         responceMessage.ErrorMessage = theErrorMessage.Message;
@@ -1863,7 +1864,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     responceMessage.StatusDescription =
                         "There was no response in the web exception while making a request.";
-                    responceMessage.ErrorMessage = wex.ToString();
+                    responceMessage.ErrorMessage = wex.Message;
 
                     _controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning,
                             DoshiiStrings.GetNullHttpResponseMessage(method,

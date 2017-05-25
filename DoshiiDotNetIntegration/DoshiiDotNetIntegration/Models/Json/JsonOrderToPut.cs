@@ -23,7 +23,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string MemberId { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "CheckinId")]
+        [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
 
         /// <summary>
