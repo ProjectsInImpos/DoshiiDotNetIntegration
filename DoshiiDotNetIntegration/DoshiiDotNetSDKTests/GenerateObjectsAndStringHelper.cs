@@ -317,17 +317,17 @@ namespace DoshiiDotNetSDKTests
             return product;
         }
 
-        internal static List<DoshiiDotNetIntegration.Models.Variants> GenerateProductVarientList()
+        internal static List<DoshiiDotNetIntegration.Models.Variant> GenerateProductVarientList()
         {
-            var list = new List<DoshiiDotNetIntegration.Models.Variants>();
+            var list = new List<DoshiiDotNetIntegration.Models.Variant>();
             list.Add(GenerateProductVarient1());
             list.Add(GenerateProductVarient2());
             return list;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient1()
+        internal static DoshiiDotNetIntegration.Models.Variant GenerateProductVarient1()
         {
-            var variant = new DoshiiDotNetIntegration.Models.Variants()
+            var variant = new DoshiiDotNetIntegration.Models.Variant()
             {
                 Name = "variant1",
                 Price = 0.1M,
@@ -336,9 +336,9 @@ namespace DoshiiDotNetSDKTests
             return variant;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient2()
+        internal static DoshiiDotNetIntegration.Models.Variant GenerateProductVarient2()
         {
-            var variant = new DoshiiDotNetIntegration.Models.Variants()
+            var variant = new DoshiiDotNetIntegration.Models.Variant()
             {
                 Name = "variant2",
                 Price = 0.1M,

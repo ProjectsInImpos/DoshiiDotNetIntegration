@@ -102,6 +102,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return (!string.IsNullOrEmpty(Notes));
         }
+
+        public bool ShouldSerializeEmail()
+        {
+            return (!string.IsNullOrEmpty(Email));
+        }
         
 
         
