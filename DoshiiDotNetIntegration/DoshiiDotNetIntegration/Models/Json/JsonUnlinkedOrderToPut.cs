@@ -111,6 +111,16 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(MemberId));
         }
 
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
+        }
         #endregion
 
         

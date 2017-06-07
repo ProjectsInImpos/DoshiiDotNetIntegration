@@ -172,6 +172,7 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(RejectionReason));
         }
 
+
         #endregion
     }
 }
