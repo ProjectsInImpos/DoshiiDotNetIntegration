@@ -57,7 +57,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "address")]
-        public Address Address { get; set; }
+        public JsonAddress Address { get; set; }
 
         /// <summary>
         /// Notes specific to this Order, 

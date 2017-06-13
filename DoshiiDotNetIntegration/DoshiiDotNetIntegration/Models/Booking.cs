@@ -57,7 +57,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// the <see cref="App"/> associated with the booking. 
         /// </summary>
-		public String App { get; set; }
+		public App App { get; set; }
 
         protected void Clear()
         {
@@ -67,7 +67,7 @@ namespace DoshiiDotNetIntegration.Models
             this.Covers = 0;
             this.Consumer = new Consumer();
             this.CheckinId = string.Empty;
-            this.App = string.Empty;
+            this.App = new App();
             this.Status = string.Empty;
         }
         

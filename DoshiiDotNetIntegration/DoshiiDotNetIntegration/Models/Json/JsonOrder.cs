@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// <summary>
     /// A Doshii Order
     /// </summary>
-    [DataContract(Name = "Order")]
+    [DataContract(Name = "order")]
     [Serializable]
     internal class JsonOrder : JsonBaseStatus<JsonOrder>
     {
@@ -60,7 +60,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// The CheckinId the Order is associated with
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "CheckinId")]
+        [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
 
 		/// <summary>
