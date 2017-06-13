@@ -209,7 +209,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Booking Seated."));
 
-            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject.Id);
+            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject);
 
             if (order != null)
             {
@@ -286,7 +286,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Booking Seated."));
 
-            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject.Id);
+            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject);
 
             if (order != null)
             {
