@@ -34,12 +34,12 @@ namespace DoshiiDotNetIntegration.Models.Json
         public JsonConsumer Consumer { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "CheckinId")]
+        [JsonProperty(PropertyName = "checkinId")]
         public String CheckinId { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "app")]
-        public String App { get; set; }
+        public JsonApp App { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "status")]
