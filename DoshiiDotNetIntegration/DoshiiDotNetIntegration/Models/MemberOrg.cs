@@ -44,7 +44,57 @@ namespace DoshiiDotNetIntegration.Models
 
         protected bool Equals(MemberOrg other)
         {
-            return Equals(_Apps, other._Apps) && string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) && string.Equals(Email, other.Email) && string.Equals(Phone, other.Phone) && Equals(Address, other.Address) && string.Equals(Ref, other.Ref);
+            if (other == null)
+            {
+                // If it is null then it is not equal to this instance.
+                return false;
+            }
+
+
+            if (this.Id != other.Id)
+            {
+                return false;
+            }
+
+            if (this.Name != other.Name)
+            {
+                return false;
+            }
+
+            if (this.Email != other.Email)
+            {
+                return false;
+            }
+
+            if (this.Phone != other.Phone)
+            {
+                return false;
+            }
+
+            if (this.Address != null && other.Address != null)
+            {
+                if (!this.Address.Equals(other.Address))
+                {
+                    return false;
+                }
+            }
+            else if ((this.Address == null && other.Address != null) ||
+                     (this.Address != null && other.Address == null))
+            {
+                return false;
+            }
+
+            if (this.Uri != other.Uri)
+            {
+                return false;
+            }
+
+            if (this.Ref != other.Ref)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public override bool Equals(object obj)

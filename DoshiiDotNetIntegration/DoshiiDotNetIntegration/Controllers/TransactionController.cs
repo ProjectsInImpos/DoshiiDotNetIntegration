@@ -99,14 +99,34 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         internal virtual ObjectActionResult<Transaction> RecordPosTransactionOnDoshii(Transaction transaction)
         {
+            ObjectActionResult<Transaction> returnedTransaction = null;
             try
             {
-                return _httpComs.PostTransaction(transaction);
+                var theTransactionsOrder = _controllersCollection.OrderingManager.RetrieveOrder(transaction.OrderId);
+                ObjectActionResult<Order> returnedOrder = null;
+                try
+                {
+                    returnedOrder = _controllersCollection.OrderingController.GetOrder(transaction.OrderId);
+                }
+                catch (Exception ex)
+                {
+                    returnedOrder = null;
+                }
+                if (returnedOrder == null || returnedOrder.ReturnObject == null || string.IsNullOrEmpty(returnedOrder.ReturnObject.Id) || returnedOrder.ReturnObject.Id == "0")
+                {
+                    returnedOrder = _controllersCollection.OrderingController.UpdateOrder(theTransactionsOrder);
+                }
+
+                if (returnedOrder != null)
+                {
+                    returnedTransaction = _httpComs.PostTransaction(transaction);
+                }
             }
             catch (Exception ex)
             {
                 return null;
             }
+            return returnedTransaction;
         }
 
         /// <summary>
