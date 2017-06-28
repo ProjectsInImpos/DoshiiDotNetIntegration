@@ -1669,6 +1669,16 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
+
+	    public virtual Checkin CreateAnomyousCheckin()
+	    {
+	        if (!m_IsInitalized)
+	        {
+	            ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "CreateAnomyousCheckin"));
+	        }
+	        return _controllers.CheckinController.CreateAnomyousCheckin();
+	    }
         /// <summary>
         /// This method is used to get the location information from doshii,
         /// <para/>This should be used to get the DoshiiId for the location - this is the string that can be given to partners to allow them to communicate with this venue through Doshii

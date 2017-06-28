@@ -1528,6 +1528,48 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedCheckin;
         }
 
+        internal virtual Checkin CreateCheckin()
+        {
+            var retreivedCheckin = new Checkin();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Checkins), WebRequestMethods.Http.Post);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
+                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
+                    }
+                    else
+                    {
+                        _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Checkins)));
+                    }
+
+                }
+                else
+                {
+                    _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Checkins)));
+                }
+            }
+            else
+            {
+                _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Checkins)));
+            }
+
+            return retreivedCheckin;
+        }
+
         internal virtual Checkin GetCheckin(string checkinId)
         {
             var retreivedCheckin = new Checkin();

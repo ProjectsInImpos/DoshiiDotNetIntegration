@@ -81,5 +81,27 @@ namespace DoshiiDotNetIntegration.Controllers
             }
             return true;
         }
+
+        internal virtual Checkin CreateAnomyousCheckin()
+        {
+            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos creating checkin "));
+
+            Checkin checkinCreateResult = null;
+            try
+            {
+                checkinCreateResult = _httpComs.CreateCheckin();
+                if (checkinCreateResult == null)
+                {
+                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error attempting to create a checkin."));
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to create a checkin - {0}", ex));
+                throw new CheckinUpdateException(string.Format("Doshii: an exception was thrown while attempting to create a checkin "), ex);
+            }
+            return checkinCreateResult;
+        }
     }
 }
