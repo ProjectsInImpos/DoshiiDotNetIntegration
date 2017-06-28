@@ -1606,10 +1606,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     newUrlbuilder.Append("/organisations");
                     break;
                 case EndPointPurposes.OrderLog:
-                    newUrlbuilder.AppendFormat("/orders/{0}/log", identification);
+                    newUrlbuilder.AppendFormat("/orders/{0}/logs", identification);
                     break;
                 case EndPointPurposes.UnlinkedOrderLog:
-                    newUrlbuilder.AppendFormat("/unlinkedOrders/{0}/log", identification);
+                    newUrlbuilder.AppendFormat("/unlinked_orders/{0}/logs", identification);
                     break;
                 case EndPointPurposes.Locations:
                     newUrlbuilder.Append("/locations");
