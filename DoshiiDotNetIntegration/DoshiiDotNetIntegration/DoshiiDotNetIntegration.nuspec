@@ -2,7 +2,11 @@
 <package >
   <metadata>
     <id>DoshiiPosDotNetSDKv3</id>
+<<<<<<< HEAD
     <version>7.0.11-pre</version>
+=======
+    <version>7.0.9-pre</version>
+>>>>>>> 0c53d71875b774a1cc12230d3a046babd38ae834
     <title>DoshiiPosDotNetSDKv3</title>
     <authors>DoshiiCorp</authors>
     <owners>DoshiiCorp</owners>

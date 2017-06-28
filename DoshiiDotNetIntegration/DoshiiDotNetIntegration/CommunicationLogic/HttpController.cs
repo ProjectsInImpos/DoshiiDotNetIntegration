@@ -1455,15 +1455,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 secondIdentification = System.Uri.EscapeDataString(secondIdentification);
             }
-            if (!string.IsNullOrEmpty(identification))
-            {
-                identification = System.Uri.EscapeDataString(identification);
-            }
-            if (!string.IsNullOrEmpty(secondIdentification))
-            {
-                secondIdentification = System.Uri.EscapeDataString(secondIdentification);
-            }
-
             if (string.IsNullOrWhiteSpace(_doshiiUrlBase))
             {
 				_controllersCollection.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Error, " The HttpController class was not initialized correctly, the base URl is null or white space");
@@ -1625,7 +1616,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     throw new NotSupportedException(purpose.ToString());
             }
 
-            return    newUrlbuilder.ToString();
+            return newUrlbuilder.ToString();
         }
 
         private string GetHttpMethodFromMethodString(string methodString)

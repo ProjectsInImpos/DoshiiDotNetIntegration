@@ -285,9 +285,6 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// The <see cref="DoshiiController"/> calls this method on the pos so the pos can process that an Order has a status of venue_cancelled. The venue_cancelled status will be sent to the pos if the Order was canceled by a partner device controlled by the venue to accept, reject, and cancel orders in venue - This is different from a partner cancelling an Order, this will be handled by the other methods. 
         /// The pos must check the status of the Order.
-        /// if the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the Order and call <see cref="DoshiiController.AcceptOrderAheadCreation"/> with the Order, and the 
-        /// Order should be made on the pos if the response from <see cref="DoshiiController.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the Order has been canceled or changed on doshii and the pos will receive another create notification if necessary.. 
-        /// If the <see cref="Order"/> is rejected the pos should call <see cref="DoshiiController.RejectOrderAheadCreation"/> with the Order.
         /// </summary>
         /// <param name="order">
         /// the <see cref="Order"/> to be approved
