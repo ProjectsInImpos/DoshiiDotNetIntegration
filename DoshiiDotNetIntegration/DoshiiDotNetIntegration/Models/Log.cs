@@ -11,6 +11,7 @@ namespace DoshiiDotNetIntegration.Models
         public string EmployeeId { get; set; }
         public string EmployeeFirstName { get; set; }
         public string EmployeeLastName { get; set; }
+        public string EmployeeName { get; set; }
 	    public string EmployeePosRef { get; set; }
 	    public string DeviceRef { get; set; }
 	    public string DeviceName { get; set; }
@@ -19,7 +20,7 @@ namespace DoshiiDotNetIntegration.Models
         public string LogId { get; set; }
 	    public string AppId { get; set; }
 	    public string AppName { get; set; }
-	    public string Action { get; set; }
+	    public dynamic Action { get; set; }
         public string PerformedAt { get; set; }
 
         protected bool Equals(Log other)

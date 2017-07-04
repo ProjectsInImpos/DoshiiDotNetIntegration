@@ -24,6 +24,7 @@ using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models.ActionResults;
 using DoshiiDotNetIntegration.Models.Base;
 using DoshiiDotNetIntegration.Models.Json.JsonBase;
+using Newtonsoft.Json.Linq;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
@@ -90,13 +91,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual ObjectActionResult<List<Log>> GetUnlinkedOrderLog(string doshiiOrderId)
         {
 
-            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(60000, WebRequestMethods.Http.Get,
+            return MakeHttpRequestWithForResponseData(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.UnlinkedOrderLog, "get unliked order log", "", doshiiOrderId);
         }
 
         internal virtual ObjectActionResult<List<Log>> GetOrderLog(string orderId)
         {
-            return MakeHttpRequestWithForResponseData<List<Log>, List<JsonLog>>(60000, WebRequestMethods.Http.Get,
+            return MakeHttpRequestWithForResponseData(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.OrderLog, "get order log", "", orderId);
         }
 
@@ -1736,6 +1737,64 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         var jsonList = JsonConvert.DeserializeObject<TJsonReturnType>(responseMessage.Data);
                         actionResult.ReturnObject =
                             AutoMapperGenericsHelper<TJsonReturnType, TReturnType>.ConvertToDBEntity(jsonList);
+                        
+                    }
+                    actionResult.Success = true;
+                }
+                else
+                {
+                    actionResult.Success = false;
+                    actionResult.FailReason = responseMessage.ErrorMessage;
+                }
+            }
+            else
+            {
+                actionResult.Success = false;
+                actionResult.FailReason = DoshiiStrings.GetUnknownErrorString(string.Format(processName));
+            }
+
+            return actionResult;
+        }
+
+        internal virtual ObjectActionResult<List<Log>> MakeHttpRequestWithForResponseData(int timeoutMilliseconds, string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool useSecretKeyAsBearerAuth = false, object query = null)
+        {
+            var actionResult = new ObjectActionResult<List<Log>>();
+            DoshiHttpResponseMessage responseMessage;
+            string requestMethod = GetHttpMethodFromMethodString(httpVerb);
+            string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier, query);
+
+            try
+            {
+                responseMessage = MakeRequest(urlForRequest, requestMethod, timeoutMilliseconds, requestData, useSecretKeyAsBearerAuth);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            if (responseMessage != null)
+            {
+                actionResult.responseStatusCode = responseMessage.Status;
+                if (responseMessage.Status == HttpStatusCode.OK || responseMessage.Status == HttpStatusCode.Created)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        string contentCorrected = responseMessage.Data.Replace(".", "_");
+                        var json = JsonConvert.DeserializeObject<dynamic>(contentCorrected);
+                        var jo = json.Children<JObject>();
+                        var logList = new List<Log>();
+                        foreach (var data in jo)
+                        {
+                            if (data.action.Type == JTokenType.String)
+                            {
+                                var newLog = new Log();
+                                newLog.Action = (string)data.action.Value;
+                                newLog.AppId = (string) data.appId.Value;
+                                newLog.AppName = (string) data.appName.Value;
+                                logList.Add(newLog);
+                            }
+                        }
+                        actionResult.ReturnObject = logList;
                     }
                     actionResult.Success = true;
                 }

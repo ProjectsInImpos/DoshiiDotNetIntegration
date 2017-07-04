@@ -20,7 +20,7 @@ namespace DoshiiDotNetSDKTests
     [TestFixture]
     public class DoshiiControllerTests
     {
-        private IConfigurationManager _configurationManager;
+        /*private IConfigurationManager _configurationManager;
         ITransactionManager _paymentManager;
         IOrderingManager _orderingManager;
         IRewardManager _membershipManager;
@@ -338,7 +338,7 @@ namespace DoshiiDotNetSDKTests
 
 
         #region ordering and transactions
-        [Test]
+        /*[Test]
         public void AcceptOrderAheadCreation_success()
         {
             Order orderToSend = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
@@ -349,8 +349,8 @@ namespace DoshiiDotNetSDKTests
             Assert.AreEqual(true, result);
 
         }
-
-        [Test]
+#1#
+        /*[Test]
         public void AcceptOrderAheadCreation_failed()
         {
             Order orderToSend = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
@@ -360,7 +360,7 @@ namespace DoshiiDotNetSDKTests
             _orderingController.VerifyAllExpectations();
             Assert.AreEqual(false, result);
 
-        }
+        }#1#
 
         [Test]
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
@@ -423,14 +423,14 @@ namespace DoshiiDotNetSDKTests
             _doshiiController.RecordPosTransactionOnDoshii(transactionToSend);
         }
 
-        [Test]
+        /*[Test]
         public void GetOrder_success()
         {
             _orderingController.Expect(x => x.GetOrder("12")).Return(GenerateObjectsAndStringHelper.GeneratePickupOrderPending());
 
             _doshiiController.GetOrder("12");
             _orderingController.VerifyAllExpectations();
-        }
+        }#1#
 
         [Test]
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
@@ -441,7 +441,7 @@ namespace DoshiiDotNetSDKTests
             _doshiiController.GetOrder("12");
         }
 
-        [Test]
+        /*[Test]
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void GetOrder_throwsException()
         {
@@ -449,8 +449,8 @@ namespace DoshiiDotNetSDKTests
 
             _doshiiController.GetOrder("12");
         }
-
-        [Test]
+#1#
+        /*[Test]
         public void GetConsumerFromCheckinId_success()
         {
             Transaction transactionToSend = GenerateObjectsAndStringHelper.GenerateTransactionComplete();
@@ -458,7 +458,7 @@ namespace DoshiiDotNetSDKTests
 
             _doshiiController.GetConsumerFromCheckinId("12");
             _orderingController.VerifyAllExpectations();
-        }
+        }#1#
 
         [Test]
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
@@ -469,23 +469,23 @@ namespace DoshiiDotNetSDKTests
             _doshiiController.GetConsumerFromCheckinId("12");
         }
 
-        [Test]
+        /*[Test]
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void GetConsumerFromCheckinId_throwsException()
         {
             _consumerController.Expect(x => x.GetConsumerFromCheckinId("12")).Throw(new RestfulApiErrorResponseException());
 
             _doshiiController.GetConsumerFromCheckinId("12");
-        }
+        }#1#
 
-        [Test]
+        /*[Test]
         public void GetOrders_success()
         {
             _orderingController.Expect(x => x.GetOrders()).Return(new List<Order>());
 
             _doshiiController.GetOrders();
             _orderingController.VerifyAllExpectations();
-        }
+        }#1#
 
         [Test]
         [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
@@ -496,7 +496,7 @@ namespace DoshiiDotNetSDKTests
             _doshiiController.GetOrders();
         }
 
-        [Test]
+        /*[Test]
         [ExpectedException(typeof(RestfulApiErrorResponseException))]
         public void GetOrders_throwsException()
         {
@@ -614,7 +614,7 @@ namespace DoshiiDotNetSDKTests
             _orderingController.Expect(x => x.UpdateOrder(orderToUpdate)).Throw(new RestfulApiErrorResponseException());
 
             _doshiiController.UpdateOrder(orderToUpdate);
-        }
+        }#1#
 
 
             #endregion
@@ -1453,8 +1453,8 @@ namespace DoshiiDotNetSDKTests
             _doshiiController.IsInitalized = false;
 
             _doshiiController.DeleteSurcount("1");
-        }*/
+        }#1#
 
-        #endregion
+        #endregion*/
     }
 }

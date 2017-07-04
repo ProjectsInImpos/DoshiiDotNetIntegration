@@ -553,15 +553,10 @@ namespace DoshiiDotNetIntegration.Controllers
 
             if (logActionResult.Success && logActionResult.ReturnObject != null && logActionResult.ReturnObject.Any())
             {
-                var orderLogForCreated = logActionResult.ReturnObject.FirstOrDefault(l => l.Action == "order_created");
-                if (orderLogForCreated != null)
-                {
-                    order.OrderCreatedByAppId = orderLogForCreated.AppId;
-                }
-                var orderLogForUpdated = logActionResult.ReturnObject.LastOrDefault(l => l.Action == "order_updated");
+                var orderLogForUpdated = logActionResult.ReturnObject.LastOrDefault(l => l.Action.Contains("order_status"));
                 if (orderLogForUpdated != null)
                 {
-                    order.OrderLastUpdateByAppId = orderLogForUpdated.AppId;
+                    order.LastUpdateByApp = orderLogForUpdated.AppId;
                 }
             }
             else

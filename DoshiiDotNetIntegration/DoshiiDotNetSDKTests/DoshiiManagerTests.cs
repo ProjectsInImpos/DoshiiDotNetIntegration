@@ -2049,7 +2049,7 @@ namespace DoshiiDotNetSDKTests
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
             var pr = new PointsRedeem()
             {
-                OrderCreatedByAppId = app.Id,
+                CreatedByApp = app.Id,
                 OrderId = Order.Id,
                 Points = points
             };
@@ -2073,7 +2073,7 @@ namespace DoshiiDotNetSDKTests
             var points = GenerateObjectsAndStringHelper.TestMemberPoints;
             var pr = new PointsRedeem()
             {
-                OrderCreatedByAppId = app.Id,
+                CreatedByApp = app.Id,
                 OrderId = Order.Id,
                 Points = points
             };

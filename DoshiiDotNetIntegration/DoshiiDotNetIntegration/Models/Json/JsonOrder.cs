@@ -63,6 +63,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
 
+        /// <summary>
+        /// The CheckinId the Order is associated with
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "createdByApp")]
+        public string CreatedByApp { get; set; }
+
 		/// <summary>
 		/// The Id of the location that the Order was created in.
 		/// </summary>
@@ -108,8 +115,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         public DateTime? RequiredAt { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "manuallyAccepted")]
-        public bool ManuallyAccepted { get; set; }
+        [JsonProperty(PropertyName = "manuallyProcessed")]
+        public bool ManuallyProcessed { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "transactionsUri")]
@@ -170,6 +177,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeRejectionReason()
         {
             return (!string.IsNullOrEmpty(RejectionReason));
+        }
+
+        public bool ShouldSerializeCreatedByApp()
+        {
+            return false;
         }
 
 

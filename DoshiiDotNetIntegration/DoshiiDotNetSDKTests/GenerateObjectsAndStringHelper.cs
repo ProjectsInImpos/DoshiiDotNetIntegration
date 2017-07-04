@@ -58,7 +58,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMembersList()
+        /*internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMembersList()
         {
             var membersList = GenerateMemberList();
             string json = JsonConvert.SerializeObject(membersList);
@@ -71,7 +71,7 @@ namespace DoshiiDotNetSDKTests
                 ErrorMessage = "",
                 Message = ""
             };
-        }
+        }*/
 
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageRewardsList()
         {
@@ -88,7 +88,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMember()
+        /*internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMember()
         {
             var member = GenerateMember1();
             var jsonMember = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonMember>(member);
@@ -102,7 +102,7 @@ namespace DoshiiDotNetSDKTests
                 ErrorMessage = "",
                 Message = ""
             };
-        }
+        }*/
 
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionPending()
         {
@@ -562,15 +562,15 @@ namespace DoshiiDotNetSDKTests
             return reward;
         }
         
-        internal static List<MemberOrg> GenerateMemberList()
+        /*internal static List<MemberOrg> GenerateMemberList()
         {
             var memberList = new List<MemberOrg>();
             memberList.Add(GenerateMember1());
             memberList.Add(GenerateMember2());
             return memberList;
-        }
+        }*/
 
-        internal static MemberOrg GenerateMember1()
+        /*internal static MemberOrg GenerateMember1()
         {
             var member = new MemberOrg()
             {
@@ -586,9 +586,9 @@ namespace DoshiiDotNetSDKTests
                 Uri = new Uri("http://www.test.com")
             };
             return member;
-        }
+        }*/
 
-        internal static MemberOrg GenerateMember2()
+        /*internal static MemberOrg GenerateMember2()
         {
             var member = new MemberOrg()
             {
@@ -604,7 +604,7 @@ namespace DoshiiDotNetSDKTests
                 Uri = new Uri("http://www.test.com")
             };
             return member;
-        }
+        }*/
 
 
         internal static List<App> GenerateAppList()

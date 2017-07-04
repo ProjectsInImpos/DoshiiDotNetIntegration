@@ -517,12 +517,16 @@ namespace DoshiiDotNetIntegration.Helpers
 		    	
 			// src = JsonOrder, dest = Order
 		    Mapper.CreateMap<JsonOrder, Models.Order>()
-                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
-                .ForMember(dest => dest.AvailableEta, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.AvailableEta)))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)))
-                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
-                .ForMember(dest => dest.OrderLastUpdateByAppId, opt => opt.Ignore())
-                .ForMember(dest => dest.OrderCreatedByAppId, opt => opt.Ignore());
+		        .ForMember(dest => dest.RequiredAt,
+		            opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+		        .ForMember(dest => dest.AvailableEta,
+		            opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.AvailableEta)))
+		        .ForMember(dest => dest.CreatedAt,
+		            opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)))
+		        .ForMember(dest => dest.UpdatedAt,
+		            opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+		        .ForMember(dest => dest.LastUpdateByApp, opt => opt.Ignore());
+                
             
                 
             // src = Order, dest = JsonOrder
@@ -535,19 +539,18 @@ namespace DoshiiDotNetIntegration.Helpers
 
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonOrderToPut, Models.Order>()
-             .ForMember(dest => dest.Id, opt => opt.Ignore())
-             .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
-             .ForMember(dest => dest.Type, opt => opt.Ignore())
-             .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
-             .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
-             .ForMember(dest => dest.LocationId, opt => opt.Ignore())
-             .ForMember(dest => dest.Uri, opt => opt.Ignore())
-             .ForMember(dest => dest.RequiredAt, opt => opt.Ignore())
-             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-             .ForMember(dest => dest.OrderLastUpdateByAppId, opt => opt.Ignore())
-             .ForMember(dest => dest.OrderCreatedByAppId, opt => opt.Ignore());
+		    Mapper.CreateMap<JsonOrderToPut, Models.Order>()
+		        .ForMember(dest => dest.Id, opt => opt.Ignore())
+		        .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
+		        .ForMember(dest => dest.Type, opt => opt.Ignore())
+		        .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
+		        .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
+		        .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+		        .ForMember(dest => dest.Uri, opt => opt.Ignore())
+		        .ForMember(dest => dest.RequiredAt, opt => opt.Ignore())
+		        .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+		        .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+		        .ForMember(dest => dest.LastUpdateByApp, opt => opt.Ignore());
 
             // src = Order, dest = JsonOrder
             Mapper.CreateMap<Models.Order, JsonUnlinkedOrderToPut>()
@@ -558,19 +561,18 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonUnlinkedOrderToPut, Models.Order>()
-             .ForMember(dest => dest.Id, opt => opt.Ignore())
-             .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
-             .ForMember(dest => dest.Type, opt => opt.Ignore())
-             .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
-             .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
-             .ForMember(dest => dest.LocationId, opt => opt.Ignore())
-             .ForMember(dest => dest.Uri, opt => opt.Ignore())
-             .ForMember(dest => dest.RequiredAt, opt => opt.Ignore())
-             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-             .ForMember(dest => dest.OrderLastUpdateByAppId, opt => opt.Ignore())
-             .ForMember(dest => dest.OrderCreatedByAppId, opt => opt.Ignore());
+		    Mapper.CreateMap<JsonUnlinkedOrderToPut, Models.Order>()
+		        .ForMember(dest => dest.Id, opt => opt.Ignore())
+		        .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
+		        .ForMember(dest => dest.Type, opt => opt.Ignore())
+		        .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
+		        .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
+		        .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+		        .ForMember(dest => dest.Uri, opt => opt.Ignore())
+		        .ForMember(dest => dest.RequiredAt, opt => opt.Ignore())
+		        .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+		        .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+		        .ForMember(dest => dest.LastUpdateByApp, opt => opt.Ignore());
 				
 			// src = TableOrder, dest = JsonTableOrder
 			Mapper.CreateMap<TableOrder, JsonTableOrder>();
