@@ -20,7 +20,7 @@ namespace DoshiiDotNetIntegration.Models
         public string LogId { get; set; }
 	    public string AppId { get; set; }
 	    public string AppName { get; set; }
-	    public string Action { get; set; }
+	    public dynamic Action { get; set; }
         public string PerformedAt { get; set; }
 
         protected bool Equals(Log other)
