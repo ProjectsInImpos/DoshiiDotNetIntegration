@@ -65,7 +65,10 @@ namespace DoshiiDotNetIntegration.Models
 
         protected bool Equals(Address other)
         {
-            return string.Equals(Line1, other.Line1) && string.Equals(Line2, other.Line2) && string.Equals(City, other.City) && string.Equals(State, other.State) && string.Equals(PostalCode, other.PostalCode) && string.Equals(Country, other.Country);
+            return string.Equals(Line1, other.Line1) && string.Equals(Line2, other.Line2) &&
+                   string.Equals(City, other.City) && string.Equals(State, other.State) &&
+                   string.Equals(PostalCode, other.PostalCode) && string.Equals(Country, other.Country);
+
         }
 
         public override int GetHashCode()
