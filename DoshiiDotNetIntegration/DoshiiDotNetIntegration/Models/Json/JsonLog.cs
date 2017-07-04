@@ -26,6 +26,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string EmployeePosRef { get; set; }
 
         [DataMember]
+        [JsonProperty(PropertyName = "employeeFirstName")]
+        public string EmployeeFirstName { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "employeeLastName")]
+        public string EmployeeLastName { get; set; }
+
+        [DataMember]
         [JsonProperty(PropertyName = "deviceRef")]
         public string DeviceRef { get; set; }
 

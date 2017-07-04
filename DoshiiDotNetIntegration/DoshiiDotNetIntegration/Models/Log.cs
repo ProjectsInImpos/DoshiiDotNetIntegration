@@ -11,6 +11,7 @@ namespace DoshiiDotNetIntegration.Models
         public string EmployeeId { get; set; }
         public string EmployeeFirstName { get; set; }
         public string EmployeeLastName { get; set; }
+        public string EmployeeName { get; set; }
 	    public string EmployeePosRef { get; set; }
 	    public string DeviceRef { get; set; }
 	    public string DeviceName { get; set; }

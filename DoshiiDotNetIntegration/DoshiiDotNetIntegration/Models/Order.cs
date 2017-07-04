@@ -42,12 +42,12 @@ namespace DoshiiDotNetIntegration.Models
 			_items.Clear();
 		    RequiredAt = null;
 		    AvailableEta = null;
-		    ManuallyAccepted = false;
+		    ManuallyProcessed = false;
             _log.Clear();
 		    RejectionCode = string.Empty;
 		    RejectionReason = string.Empty;
-		    OrderCreatedByAppId = string.Empty;
-		    OrderLastUpdateByAppId = string.Empty;
+		    CreatedByApp = string.Empty;
+		    LastUpdateByApp = string.Empty;
 		    Consumer = null;
 		}
 
@@ -163,7 +163,7 @@ namespace DoshiiDotNetIntegration.Models
         }
 
 
-        public bool ManuallyAccepted { get; set; }
+        public bool ManuallyProcessed { get; set; }
 
         public string TransactionsUri { get; set; }
 
@@ -172,11 +172,11 @@ namespace DoshiiDotNetIntegration.Models
         public string RejectionReason { get; set; }
 
         /// <summary>
-        /// The OrderCreatedByAppId will be populated by the sdk when orders are created or updated with the appId of the app that created or updated the Order for Order creted events or Order updated events. 
+        /// The CreatedByApp will be populated by the sdk when orders are created or updated with the appId of the app that created or updated the Order for Order creted events or Order updated events. 
         /// </summary>
-        public string OrderCreatedByAppId { get; set; }
+        public string CreatedByApp { get; set; }
 
-        public string OrderLastUpdateByAppId { get; set; }
+        public string LastUpdateByApp { get; set; }
 
 		#region ICloneable Members
 
@@ -201,7 +201,7 @@ namespace DoshiiDotNetIntegration.Models
 
         protected bool Equals(Order other)
         {
-            return Equals(_surcounts, other._surcounts) && Equals(_items, other._items) && Equals(_log, other._log) && Equals(Consumer, other.Consumer) && string.Equals(Id, other.Id) && string.Equals(DoshiiId, other.DoshiiId) && string.Equals(Type, other.Type) && string.Equals(InvoiceId, other.InvoiceId) && string.Equals(MemberId, other.MemberId) && string.Equals(Phase, other.Phase) && string.Equals(CheckinId, other.CheckinId) && string.Equals(LocationId, other.LocationId) && string.Equals(Version, other.Version) && RequiredAt.Equals(other.RequiredAt) && AvailableEta.Equals(other.AvailableEta) && ManuallyAccepted == other.ManuallyAccepted && Equals(TransactionsUri, other.TransactionsUri) && string.Equals(RejectionCode, other.RejectionCode) && string.Equals(RejectionReason, other.RejectionReason);
+            return Equals(_surcounts, other._surcounts) && Equals(_items, other._items) && Equals(_log, other._log) && Equals(Consumer, other.Consumer) && string.Equals(Id, other.Id) && string.Equals(DoshiiId, other.DoshiiId) && string.Equals(Type, other.Type) && string.Equals(InvoiceId, other.InvoiceId) && string.Equals(MemberId, other.MemberId) && string.Equals(Phase, other.Phase) && string.Equals(CheckinId, other.CheckinId) && string.Equals(LocationId, other.LocationId) && string.Equals(Version, other.Version) && RequiredAt.Equals(other.RequiredAt) && AvailableEta.Equals(other.AvailableEta) && ManuallyProcessed == other.ManuallyProcessed && Equals(TransactionsUri, other.TransactionsUri) && string.Equals(RejectionCode, other.RejectionCode) && string.Equals(RejectionReason, other.RejectionReason);
         }
 
         public override bool Equals(object obj)
@@ -231,7 +231,7 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ RequiredAt.GetHashCode();
                 hashCode = (hashCode*397) ^ AvailableEta.GetHashCode();
-                hashCode = (hashCode*397) ^ ManuallyAccepted.GetHashCode();
+                hashCode = (hashCode*397) ^ ManuallyProcessed.GetHashCode();
                 hashCode = (hashCode*397) ^ (TransactionsUri != null ? TransactionsUri.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (RejectionCode != null ? RejectionCode.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (RejectionReason != null ? RejectionReason.GetHashCode() : 0);

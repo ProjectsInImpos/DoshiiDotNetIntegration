@@ -1733,7 +1733,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonList = JsonConvert.DeserializeObject<TJsonReturnType>(responseMessage.Data);
+                        TJsonReturnType jsonList;
+                        if (typeof(TJsonReturnType) == typeof(List<JsonLog>))
+                        {
+                            string contentCorrected = responseMessage.Data.Replace(".", "_");
+                            jsonList = JsonConvert.DeserializeObject<TJsonReturnType>(contentCorrected);
+                        }
+                        else
+                        {
+                            jsonList = JsonConvert.DeserializeObject<TJsonReturnType>(responseMessage.Data);
+                        }
                         actionResult.ReturnObject =
                             AutoMapperGenericsHelper<TJsonReturnType, TReturnType>.ConvertToDBEntity(jsonList);
                     }
