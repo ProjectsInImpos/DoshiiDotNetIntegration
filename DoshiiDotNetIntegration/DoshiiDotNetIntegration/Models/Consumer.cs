@@ -81,7 +81,11 @@ namespace DoshiiDotNetIntegration.Models
 
         protected bool Equals(Consumer other)
         {
-            return string.Equals(PhotoUrl, other.PhotoUrl) && Anonymous == other.Anonymous && string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) && string.Equals(Name, other.Name) && string.Equals(Phone, other.Phone) && string.Equals(Email, other.Email) && Equals(Address, other.Address) && string.Equals(Notes, other.Notes);
+            return 
+                string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) &&
+                string.Equals(Name, other.Name) && string.Equals(Phone, other.Phone) &&
+                string.Equals(Email, other.Email) && Address.Equals(other.Address);
+
         }
 
         public override bool Equals(object obj)

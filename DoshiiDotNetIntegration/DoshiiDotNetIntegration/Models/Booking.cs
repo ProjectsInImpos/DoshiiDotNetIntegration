@@ -70,10 +70,13 @@ namespace DoshiiDotNetIntegration.Models
             this.App = new App();
             this.Status = string.Empty;
         }
-        
-        protected bool Equals(Booking other)
+
+	    protected bool Equals(Booking other)
 	    {
-	        return string.Equals(Id, other.Id) && Equals(TableNames, other.TableNames) && Date.Equals(other.Date) && Covers == other.Covers && Equals(Consumer, other.Consumer) && string.Equals(CheckinId, other.CheckinId) && string.Equals(App, other.App);
+
+	        return string.Equals(Id, other.Id) && (TableNames.SequenceEqual(other.TableNames)) &&
+	               Date.Equals(other.Date) && Covers == other.Covers && (Consumer.Equals(other.Consumer)) &&
+	               string.Equals(CheckinId, other.CheckinId) && string.Equals(App, other.App);
 	    }
 
 	    public override bool Equals(object obj)

@@ -104,7 +104,40 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw rex;
             }
         }
-        
+
+        /// <summary>
+        /// get all the bookings from Doshii for a venue within the dateTime range from 1 hr ago to 1 month ahead. 
+        /// </summary>
+        /// <returns></returns>
+        internal virtual IEnumerable<Booking> GetBookingsFrom1hrAgoTo1MonthAhead()
+        {
+            var returnResult = new List<Booking>();
+            var offset = 0;
+            var limit = 50;
+            try
+            {
+                
+                var from = DateTime.Now.AddHours(-1); 
+                var to = DateTime.Now.AddMonths(1);
+
+                
+
+                var result= _httpComs.GetBookings(from, to, query: new {offset, limit});
+                while (result.ReturnObject.Count > 0)
+                {
+                    offset += limit;
+                    returnResult.AddRange(result.ReturnObject);
+                    result = _httpComs.GetBookings(from, to, query: new {offset, limit});
+                }
+
+            }
+            catch (Exception rex)
+            {
+                throw rex;
+            }
+            return returnResult;
+        }
+
         /// <summary>
         /// get all the bookings from Doshii for a venue within the provided dateTime range. 
         /// </summary>
@@ -315,8 +348,8 @@ namespace DoshiiDotNetIntegration.Controllers
         {
             try
             {
-                StringBuilder failedReasonBuilder = new StringBuilder(); 
-                List<Booking> DoshiiBookingList = GetBookingsFrom1hrAgoToMaxDate().ReturnObject;
+                StringBuilder failedReasonBuilder = new StringBuilder();
+                List<Booking> DoshiiBookingList = GetBookingsFrom1hrAgoTo1MonthAhead().ToList();
                 List<Booking> PosBookingList = _controllersCollection.ReservationManager.GetBookingsFromPos().ToList();
 
                 var doshiiBookingHashSet = new HashSet<string>(DoshiiBookingList.Select(p => p.Id));

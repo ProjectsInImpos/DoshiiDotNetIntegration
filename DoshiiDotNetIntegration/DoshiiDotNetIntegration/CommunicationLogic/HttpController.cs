@@ -8,7 +8,11 @@ using DoshiiDotNetIntegration.Models.Json;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -1293,14 +1297,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        internal virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to)
+        internal virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to, object query = null)
         {
             try
             {
                 return
                     MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.BookingsWithDateFilter,
-                            "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString());
+                            "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString(),query:query);
             }
             catch (Exception rex)
             {
@@ -1444,7 +1448,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The Url required to make the desiered request. 
         /// </returns>
-        internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
+        internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "", object query=null)
         {
             StringBuilder newUrlbuilder = new StringBuilder();
             if (!string.IsNullOrEmpty(identification))
@@ -1461,6 +1465,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return newUrlbuilder.ToString();
             }
             newUrlbuilder.AppendFormat("{0}", _doshiiUrlBase);
+
+            var queryString = new StringBuilder();
+            if (query != null)
+            {
+                ExtractData(query)
+                    .Where(kvp => kvp.Value != null)
+                    .ToList()
+                    .ForEach(kvp => queryString.AppendFormat("{0}={1}&", kvp.Key,
+                        Uri.EscapeDataString(kvp.Value.ToString())));
+
+                if (queryString.Length > 1)
+                {
+                    queryString.Remove(queryString.Length - 1, 1);
+                }
+            }
 
             switch (purpose)
             {
@@ -1570,7 +1589,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     newUrlbuilder.Append("/bookings");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("?from={0}&to={1}", identification, secondIdentification);
+                        newUrlbuilder.AppendFormat("?from={0}&to={1}&{2}", identification, secondIdentification, queryString);
                     }
                     break;
                 case EndPointPurposes.BookingsCheckin:
@@ -1617,6 +1636,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
 
             return newUrlbuilder.ToString();
+        }
+
+        private static IDictionary<string, object> ExtractData(object dataAsAnonymousType)
+        {
+            var data = new Dictionary<string, object>();
+
+            var properties = TypeDescriptor.GetProperties(dataAsAnonymousType);
+
+            foreach (PropertyDescriptor property in properties)
+            {
+                data.Add(property.Name, property.GetValue(dataAsAnonymousType));
+            }
+
+            return data;
         }
 
         private string GetHttpMethodFromMethodString(string methodString)
@@ -1676,13 +1709,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return actionResult;
         }
 
-        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(int timeoutMilliseconds, string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool useSecretKeyAsBearerAuth = false)
+        internal virtual ObjectActionResult<TReturnType> MakeHttpRequestWithForResponseData<TReturnType, TJsonReturnType>(int timeoutMilliseconds, string httpVerb, EndPointPurposes endPointPurpose, string processName, string requestData = "", string firstIdentifier = "", string secondIdentifier = "", bool useSecretKeyAsBearerAuth = false, object query = null)
             where TReturnType : class, new()
         {
             var actionResult = new ObjectActionResult<TReturnType>();
             DoshiHttpResponseMessage responseMessage;
             string requestMethod = GetHttpMethodFromMethodString(httpVerb);
-            string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier);
+            string urlForRequest = GenerateUrl(endPointPurpose, firstIdentifier, secondIdentifier, query);
 
             try
             {
