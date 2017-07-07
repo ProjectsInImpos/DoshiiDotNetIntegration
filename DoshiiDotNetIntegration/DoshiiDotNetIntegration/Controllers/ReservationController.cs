@@ -74,12 +74,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// gets a booking for the venue from Doshii based on the provided bookingId. 
         /// </summary>
         /// <param name="bookingId"></param>
+        /// <param name="fast">Default value is true . This parameter fill the detial checkinobject if checkin is available </param>
         /// <returns></returns>
-        internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
+        internal virtual ObjectActionResult<Booking> GetBooking(String bookingId, bool fast=true)
         {
             try
             {
-                return _httpComs.GetBooking(bookingId);
+                return _httpComs.GetBooking(bookingId,fast);
             }
             catch (Exception rex)
             {
