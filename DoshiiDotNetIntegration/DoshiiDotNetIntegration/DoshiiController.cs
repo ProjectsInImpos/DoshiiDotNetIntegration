@@ -1664,6 +1664,29 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.ReservationController.GetBooking(bookingId);
         }
 
+
+	    /// <summary>
+	    /// This method is used to get a checkin for a specific id.
+	    /// </summary>
+	    /// <param name="checkinId"></param>
+	    /// <returns>
+	    /// The requested checkin from Doshii if it exists. 
+	    /// Null if the checkin does not exist. 
+	    /// </returns>
+	    public virtual ObjectActionResult<Checkin> GetCheckin(string  checkinId)
+	    {
+	        if (!m_IsInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        if (_controllersCollection.ReservationManager == null)
+	        {
+	            this.ThrowDoshiiReservationNotInitializedException();
+	        }
+	        return _controllersCollection.ReservationController.GetCheckin(checkinId);
+	    }
+
+
         /// <summary>
         /// This method is used to get all bookings within a specified date range.
         /// </summary>

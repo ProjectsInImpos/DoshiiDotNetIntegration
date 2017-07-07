@@ -87,6 +87,19 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+
+        internal virtual ObjectActionResult<Checkin> GetCheckin(string checkinId)
+        {
+            try
+            {
+                return _httpComs.GetCheckin(checkinId);
+            }
+            catch (Exception rex)
+            {
+                throw rex;
+            }
+        }
+
         /// <summary>
         /// get all the bookings from Doshii for a venue within the provided dateTime range. 
         /// </summary>
