@@ -1274,7 +1274,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
-                            WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
+                            WebRequestMethods.Http.Post, EndPointPurposes.BookingsCheckin,
                             "seat booking without checkin", "", bookingId);
             }
             catch (Exception rex)
