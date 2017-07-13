@@ -74,12 +74,26 @@ namespace DoshiiDotNetIntegration.Controllers
         /// gets a booking for the venue from Doshii based on the provided bookingId. 
         /// </summary>
         /// <param name="bookingId"></param>
+        /// <param name="fast">Default value is true . This parameter fill the detial checkinobject if checkin is available </param>
         /// <returns></returns>
         internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             try
             {
                 return _httpComs.GetBooking(bookingId);
+            }
+            catch (Exception rex)
+            {
+                throw rex;
+            }
+        }
+
+
+        internal virtual ObjectActionResult<Checkin> GetCheckin(string checkinId)
+        {
+            try
+            {
+                return _httpComs.GetCheckin(checkinId);
             }
             catch (Exception rex)
             {
@@ -242,7 +256,10 @@ namespace DoshiiDotNetIntegration.Controllers
 
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Booking Seated."));
 
-            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject);
+            var checkinResult = _httpComs.GetCheckin(bookingCheckinResult.ReturnObject.Id);
+            var bookingResult = _httpComs.GetBooking(bookingId);
+
+            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingResult.ReturnObject, checkinResult.ReturnObject);
 
             if (order != null)
             {
@@ -319,7 +336,11 @@ namespace DoshiiDotNetIntegration.Controllers
 
             _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Booking Seated."));
 
-            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingId, bookingCheckinResult.ReturnObject);
+
+            var checkinResult = _httpComs.GetCheckin(bookingCheckinResult.ReturnObject.Id);
+            var bookingResult = _httpComs.GetBooking(bookingId);
+
+            _controllersCollection.ReservationManager.RecordCheckinForBooking(bookingResult.ReturnObject, checkinResult.ReturnObject);
 
             if (order != null)
             {

@@ -1274,7 +1274,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
-                            WebRequestMethods.Http.Put, EndPointPurposes.BookingsCheckin,
+                            WebRequestMethods.Http.Post, EndPointPurposes.BookingsCheckin,
                             "seat booking without checkin", "", bookingId);
             }
             catch (Exception rex)
@@ -1282,15 +1282,34 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw rex;
             }
         }
-        
+
         internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             try
             {
-                return
+                var booking =
                     MakeHttpRequestWithForResponseData<Booking, JsonBooking>(60000,
-                            WebRequestMethods.Http.Get, EndPointPurposes.Booking,
-                            "get booking", "", bookingId);
+                        WebRequestMethods.Http.Get, EndPointPurposes.Booking,
+                        "get booking", "", bookingId);
+                if (booking.Success && booking.ReturnObject != null)
+                {
+
+                    var b = booking.ReturnObject;
+                    if (b.Checkin != null && !string.IsNullOrWhiteSpace(b.Checkin.Id))
+                    {
+                        b.CheckinId = b.Checkin.Id;
+
+                        var checkinResult = GetCheckin(b.CheckinId);
+                        if (checkinResult != null && checkinResult.ReturnObject != null && checkinResult.Success)
+                        {
+                            b.Checkin = checkinResult.ReturnObject;
+                        }
+
+                    }
+
+
+                }
+                return booking;
             }
             catch (Exception ex)
             {
@@ -1302,10 +1321,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                return
+                var bookings=
                     MakeHttpRequestWithForResponseData<List<Booking>, List<JsonBooking>>(60000,
                             WebRequestMethods.Http.Get, EndPointPurposes.BookingsWithDateFilter,
                             "get bookings", "", from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString(),query:query);
+
+                if (bookings.ReturnObject != null)
+                {
+                    bookings.ReturnObject.ForEach(b =>
+                    {
+                        if (b.Checkin != null )
+                        {
+                            b.CheckinId = b.Checkin.Id;
+
+                            var checkinResult = GetCheckin(b.CheckinId);
+                            if (checkinResult != null && checkinResult.ReturnObject != null && checkinResult.Success)
+                            {
+                                b.Checkin = checkinResult.ReturnObject;
+                            }
+                        }
+                    } );
+                }
+                return bookings;
             }
             catch (Exception rex)
             {

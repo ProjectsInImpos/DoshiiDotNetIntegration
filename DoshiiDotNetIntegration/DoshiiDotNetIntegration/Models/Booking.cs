@@ -54,6 +54,12 @@ namespace DoshiiDotNetIntegration.Models
         
         public String Status { get; set; }
 
+
+        /// <summary>
+        /// Only Id, tablenames and covers are fetched 
+        /// </summary>
+        public Checkin Checkin { get; set; }
+
         /// <summary>
         /// the <see cref="App"/> associated with the booking. 
         /// </summary>

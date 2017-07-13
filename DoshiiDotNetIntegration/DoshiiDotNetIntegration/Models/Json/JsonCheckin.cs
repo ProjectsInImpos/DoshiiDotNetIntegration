@@ -49,6 +49,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "uri")]
         public string Uri { get; set; }
 
+
+        [DataMember]
+        [JsonProperty(PropertyName = "bookingId")]
+        public string BookingId { get; set; }
+
         [DataMember]
         [JsonProperty(PropertyName = "booking")]
         public JsonBooking Booking { get; set; }

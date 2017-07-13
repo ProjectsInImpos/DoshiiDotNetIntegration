@@ -63,5 +63,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         #endregion serializeMembers
+
+
+        [DataMember]
+        [JsonProperty(PropertyName = "checkin")]
+        public JsonCheckin Checkin { get; set; }
+
     }
 }

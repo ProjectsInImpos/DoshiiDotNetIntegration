@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 using DoshiiDotNetIntegration.Models.Base;
-using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetIntegration.Models
 {
@@ -44,11 +39,17 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public DateTime? CompletedAt { get; set; }
 
-        public Booking Booking { get; set; }
+        /// <summary>
+        /// Associated booking
+        /// </summary>
+        public string BookingId { get; set; }
+
 
         protected bool Equals(Checkin other)
         {
-            return string.Equals(Id, other.Id) && string.Equals(Ref, other.Ref) && Equals(TableNames, other.TableNames) && Covers == other.Covers && Equals(Consumer, other.Consumer) && CompletedAt.Equals(other.CompletedAt) && Equals(Booking, other.Booking);
+            return string.Equals(Id, other.Id) && string.Equals(Ref, other.Ref) &&
+                   Equals(TableNames, other.TableNames) && Covers == other.Covers && Equals(Consumer, other.Consumer) &&
+                   CompletedAt.Equals(other.CompletedAt) && Equals(BookingId, other.BookingId);
         }
 
         public override bool Equals(object obj)
@@ -69,7 +70,7 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ Covers;
                 hashCode = (hashCode*397) ^ (Consumer != null ? Consumer.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ CompletedAt.GetHashCode();
-                hashCode = (hashCode*397) ^ (Booking != null ? Booking.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (BookingId != null ? BookingId.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -95,7 +96,7 @@ namespace DoshiiDotNetIntegration.Models
             this.Covers = 0;
             this.Consumer = new Consumer();
             this.CompletedAt = null;
-            this.Booking = new Booking();
+            this.BookingId = string.Empty;
         }
     }
 }
