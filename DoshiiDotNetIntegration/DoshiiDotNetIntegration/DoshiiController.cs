@@ -1651,7 +1651,7 @@ namespace DoshiiDotNetIntegration
         /// The requested booking from Doshii if it exists. 
         /// Null if the booking does not exist. 
         /// </returns>
-        public virtual ObjectActionResult<Booking> GetBooking(String bookingId, bool fast)
+        public virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             if (!m_IsInitalized)
             {
@@ -1661,7 +1661,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiReservationNotInitializedException();
             }
-            return _controllersCollection.ReservationController.GetBooking(bookingId, fast);
+            return _controllersCollection.ReservationController.GetBooking(bookingId);
         }
 
 

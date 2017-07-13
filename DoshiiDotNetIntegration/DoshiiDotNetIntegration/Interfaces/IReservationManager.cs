@@ -52,7 +52,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.BookingDoesNotExistOnPosException">This exception 
         /// should be thrown when there is no booking in the POS with the corresponding 
         /// <paramref name="bookingId"/>.</exception>
-        void RecordCheckinForBooking(string bookingId, Checkin checkin);
+        void RecordCheckinForBooking(Booking booking, Checkin checkin);
 
         /// <summary>
         /// This method should retreive all the BookingsWithDateFilter from the pos. 

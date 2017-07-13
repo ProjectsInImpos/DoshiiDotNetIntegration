@@ -1283,7 +1283,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        internal virtual ObjectActionResult<Booking> GetBooking(String bookingId, bool fast)
+        internal virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
             try
             {
@@ -1298,14 +1298,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (b.Checkin != null && !string.IsNullOrWhiteSpace(b.Checkin.Id))
                     {
                         b.CheckinId = b.Checkin.Id;
-                        if (!fast)
+
+                        var checkinResult = GetCheckin(b.CheckinId);
+                        if (checkinResult != null && checkinResult.ReturnObject != null && checkinResult.Success)
                         {
-                            var checkinResult = GetCheckin(b.CheckinId);
-                            if (checkinResult != null && checkinResult.ReturnObject != null && checkinResult.Success)
-                            {
-                                b.Checkin = checkinResult.ReturnObject;
-                            }
+                            b.Checkin = checkinResult.ReturnObject;
                         }
+
                     }
 
 
@@ -1331,9 +1330,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     bookings.ReturnObject.ForEach(b =>
                     {
-                        if (b.Checkin != null && !string.IsNullOrWhiteSpace(b.Checkin.Id))
+                        if (b.Checkin != null )
                         {
                             b.CheckinId = b.Checkin.Id;
+
+                            var checkinResult = GetCheckin(b.CheckinId);
+                            if (checkinResult != null && checkinResult.ReturnObject != null && checkinResult.Success)
+                            {
+                                b.Checkin = checkinResult.ReturnObject;
+                            }
                         }
                     } );
                 }
