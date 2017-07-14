@@ -1769,6 +1769,19 @@ namespace DoshiiDotNetIntegration
             return _controllersCollection.ReservationController.DeleteBooking(bookingId);
         }
 
+	    public void SyncReservations()
+	    {
+	        if (!m_IsInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        if (_controllersCollection.ReservationManager == null)
+	        {
+	            this.ThrowDoshiiReservationNotInitializedException();
+	        }
+	        _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
+	        
+	    }
         #endregion
 
         #region partner Apps
