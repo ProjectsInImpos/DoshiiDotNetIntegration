@@ -84,5 +84,19 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw new CheckinUpdateException(string.Format(" a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
         }
+
+        internal virtual ObjectActionResult<Checkin> GetNewCheckin()
+        {
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" getting new checkin "));
+            try
+            {
+                return _httpComs.GetNewCheckin();
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown while attempting to get a new checkin - {0}", ex));
+                throw new CheckinUpdateException(string.Format(" a exception was thrown while attempting to close a checkin"), ex);
+            }
+        }
     }
 }

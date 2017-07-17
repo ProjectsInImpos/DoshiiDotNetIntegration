@@ -486,7 +486,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequestWithForResponseData<Transaction, JsonTransaction>(60000,
-                        WebRequestMethods.Http.Get, Enums.EndPointPurposes.TransactionFromPosOrderId,
+                        WebRequestMethods.Http.Get, Enums.EndPointPurposes.Transaction,
                         "get transaction", "", transactionId);
             }
             catch (Exception rex)
@@ -844,6 +844,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
                         WebRequestMethods.Http.Get, EndPointPurposes.Checkins,
                         "Get checkin", "", checkinId);
+            }
+            catch (Exception rex)
+            {
+                throw rex;
+            }
+        }
+
+        internal virtual ObjectActionResult<Checkin> GetNewCheckin()
+        {
+            try
+            {
+                return
+                    MakeHttpRequestWithForResponseData<Checkin, JsonCheckin>(60000,
+                        WebRequestMethods.Http.Post, EndPointPurposes.Checkins,
+                        "Get checkin");
             }
             catch (Exception rex)
             {

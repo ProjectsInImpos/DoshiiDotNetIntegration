@@ -1686,7 +1686,14 @@ namespace DoshiiDotNetIntegration
 	        return _controllersCollection.ReservationController.GetCheckin(checkinId);
 	    }
 
-
+        public virtual ObjectActionResult<Checkin> GetNewCheckin()
+	    {
+	        if (!m_IsInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        return _controllersCollection.CheckinController.GetNewCheckin();
+	    }
         /// <summary>
         /// This method is used to get all bookings within a specified date range.
         /// </summary>

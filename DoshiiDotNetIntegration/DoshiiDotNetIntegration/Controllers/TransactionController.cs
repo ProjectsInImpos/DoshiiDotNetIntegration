@@ -217,7 +217,15 @@ namespace DoshiiDotNetIntegration.Controllers
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
                 //returnedTransaction.OrderId = transaction.OrderId;
-                _controllersCollection.TransactionManager.RecordSuccessfulPayment(result.ReturnObject);
+                if (result.ReturnObject.PaymentAmount < 0)
+                {
+                    _controllersCollection.TransactionManager.RecordSuccessfulRefund(result.ReturnObject);
+                }
+                else
+                {
+                    _controllersCollection.TransactionManager.RecordSuccessfulPayment(result.ReturnObject);
+                }
+                
                 _controllersCollection.TransactionManager.RecordTransactionVersion(result.ReturnObject.Id, result.ReturnObject.Version);
                 return new ActionResultBasic()
                 {
@@ -364,7 +372,15 @@ namespace DoshiiDotNetIntegration.Controllers
             Transaction transactionFromPos = null;
             try
             {
-                transactionFromPos = _controllersCollection.TransactionManager.ReadyToPay(receivedTransaction);
+                if (receivedTransaction.PaymentAmount < 0)
+                {
+                    transactionFromPos = _controllersCollection.TransactionManager.ReadyToRefund(receivedTransaction);
+                }
+                else
+                {
+                    transactionFromPos = _controllersCollection.TransactionManager.ReadyToPay(receivedTransaction);
+                }
+                
             }
             catch (OrderDoesNotExistOnPosException)
             {
