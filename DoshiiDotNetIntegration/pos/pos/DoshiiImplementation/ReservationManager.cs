@@ -46,8 +46,9 @@ namespace pos.DoshiiImplementation
             return LiveData.BookingList;
         }
 
-        public void RecordCheckinForBooking(string bookingId, Checkin checkin)
+        public void RecordCheckinForBooking(Booking booking, Checkin checkin)
         {
+            var bookingId = booking.Id;
             foreach (var book in LiveData.BookingList.Where(b => b.Id == bookingId))
             {
                 book.CheckinId = checkin.Id;
@@ -59,7 +60,7 @@ namespace pos.DoshiiImplementation
             {
                 foreach (var check in LiveData.ChecinList.Where(x => x.Id == checkin.Id))
                 {
-                    check.Booking = checkin.Booking;
+                    check.BookingId = checkin.BookingId;
                     check.CompletedAt = checkin.CompletedAt;
                     check.Consumer = checkin.Consumer;
                     check.Covers = checkin.Covers;
