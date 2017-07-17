@@ -60,6 +60,11 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         #region serializeMembers
 
+        public bool ShouldSerializeBookingId()
+        {
+            return (!string.IsNullOrEmpty(BookingId));
+        }
+
         public bool ShouldSerializeBooking()
         {
             return false;

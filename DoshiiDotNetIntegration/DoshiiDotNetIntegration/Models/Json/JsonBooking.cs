@@ -45,6 +45,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "status")]
         public String Status { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "checkin")]
+        public JsonCheckin Checkin { get; set; }
+
         #region serializeMembers
 
         public bool ShouldSerializeApp()
@@ -63,11 +67,5 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         #endregion serializeMembers
-
-
-        [DataMember]
-        [JsonProperty(PropertyName = "checkin")]
-        public JsonCheckin Checkin { get; set; }
-
     }
 }

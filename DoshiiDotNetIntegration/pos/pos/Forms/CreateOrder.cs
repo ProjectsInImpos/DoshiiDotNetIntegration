@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 using pos.DoshiiImplementation;
 using pos.Helpers;
 using pos.Models;
@@ -74,6 +75,9 @@ namespace pos.Forms
             comboBox1.DataSource = LocalLists.OrderStatus;
 
             comboBox6.DataSource = LocalLists.OrderTypes;
+
+            comboBox7.DataSource = LiveData.TablesList;
+            comboBox7.DisplayMember = "Name";
 
             if (!LiveData.ChecinList.Exists(x => x.Id == "none"))
             {
@@ -230,11 +234,37 @@ namespace pos.Forms
             OrderTotalHelper.CalculateOrderTotal(TheOrder);
         }
 
-        private bool UpdateOrderOnDoshii()
+        private ObjectActionResult<Order> UpdateOrderOnDoshii()
         {
             var result = DoshiiController.Doshii.UpdateOrder(TheOrder);
             if (result.Success)
             {
+                if (checkBox1.Checked)
+                {
+                    if (!string.IsNullOrEmpty(result.ReturnObject.CheckinId))
+                    {
+                        var table = comboBox7.SelectedItem as Table;
+                        if (table != null)
+                        {
+                            DoshiiController.Doshii.ModifyTableAllocation(result.ReturnObject.CheckinId,
+                                new List<string>() { table.Name }, 2);
+                        }
+                    }
+                    else
+                    {
+                        var checkinResult = DoshiiController.Doshii.GetNewCheckin();
+                        result.ReturnObject.CheckinId = checkinResult.ReturnObject.Id;
+                        var table = comboBox7.SelectedItem as Table;
+                        if (table != null)
+                        {
+                            DoshiiController.Doshii.ModifyTableAllocation(result.ReturnObject.CheckinId,
+                                new List<string>() { table.Name }, 2);
+                        }
+                        
+                        result = DoshiiController.Doshii.UpdateOrder(TheOrder);
+                        
+                    }
+                }
                 if (isEditingProduct)
                 {
                     DoshiiController.UpdateOrder(result.ReturnObject);
@@ -243,12 +273,12 @@ namespace pos.Forms
                 {
                     LiveData.OrdersList.Add(result.ReturnObject);
                 }
-                return true;
+                return result;
             }
             else
             {
                 MessageBox.Show(this, "there was an error creating / updating the product", "error");
-                return false;
+                return result;
             }
         }
         
@@ -267,7 +297,7 @@ namespace pos.Forms
                 return false;
             }
             ConvertOrderFromFormData();
-            if (!UpdateOrderOnDoshii())
+            if (!UpdateOrderOnDoshii().Success)
             {
                 return false;
             }

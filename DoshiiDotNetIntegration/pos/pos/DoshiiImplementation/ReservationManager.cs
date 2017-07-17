@@ -59,7 +59,7 @@ namespace pos.DoshiiImplementation
             {
                 foreach (var check in LiveData.ChecinList.Where(x => x.Id == checkin.Id))
                 {
-                    check.Booking = checkin.Booking;
+                    check.BookingId = checkin.BookingId;
                     check.CompletedAt = checkin.CompletedAt;
                     check.Consumer = checkin.Consumer;
                     check.Covers = checkin.Covers;
@@ -69,6 +69,11 @@ namespace pos.DoshiiImplementation
                 }
             }
             
+        }
+
+        public void RecordCheckinForBooking(Booking booking, Checkin checkin)
+        {
+            throw new NotImplementedException();
         }
     }
 }
