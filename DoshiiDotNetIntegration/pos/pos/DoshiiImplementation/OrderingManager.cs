@@ -149,9 +149,11 @@ namespace pos.DoshiiImplementation
                     if (LiveData.PosSettings.ConfirmAllOrders)
                     {
                         order.Status = "accepted";
+                        addPosIdToOpenItems(order);
                         order.Id = LiveData.PosSettings.OrderNumber.ToString();
                         LiveData.OrdersList.Add(order);
                         DoshiiController.Doshii.AcceptOrderAheadCreation(order);
+
                     }
                     else
                     {
@@ -167,6 +169,7 @@ namespace pos.DoshiiImplementation
                 {
                     order.Status = "accepted";
                     order.Id = LiveData.PosSettings.OrderNumber.ToString();
+                    addPosIdToOpenItems(order);
                     LiveData.OrdersList.Add(order);
                     DoshiiController.Doshii.AcceptOrderAheadCreation(order);
                 }
@@ -178,6 +181,30 @@ namespace pos.DoshiiImplementation
                 }
             }
             
+        }
+
+        private void addPosIdToOpenItems(Order order)
+        {
+            foreach (var item in order.Items)
+            {
+                if (item.PosId == null || string.IsNullOrEmpty(item.PosId))
+                {
+                    //get openItem
+                    var openItem = LiveData.ProductList.FirstOrDefault(x => x.PosId == "DoshiiOI");
+                    if (openItem == null)
+                    {
+                        var newItem = new Product()
+                        {
+                            Description = "DoshiiOpenItem",
+                            Name = "DoshiiOpenItem",
+                            PosId = "DoshiiOI"
+                        };
+                        LiveData.ProductList.Add(newItem);
+                        openItem = newItem;
+                    }
+                    item.PosId = "DoshiiOI";
+                }
+            }
         }
     }
 }

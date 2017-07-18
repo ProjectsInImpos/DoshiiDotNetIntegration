@@ -104,6 +104,10 @@
             this.button48 = new System.Windows.Forms.Button();
             this.button49 = new System.Windows.Forms.Button();
             this.dataGridView10 = new System.Windows.Forms.DataGridView();
+            this.tabPage12 = new System.Windows.Forms.TabPage();
+            this.button50 = new System.Windows.Forms.Button();
+            this.button51 = new System.Windows.Forms.Button();
+            this.dataGridView11 = new System.Windows.Forms.DataGridView();
             this.Locaiton.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -126,6 +130,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView9)).BeginInit();
             this.tabPage11.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView10)).BeginInit();
+            this.tabPage12.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView11)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -201,6 +207,7 @@
             this.Locaiton.Controls.Add(this.tabPage9);
             this.Locaiton.Controls.Add(this.tabPage10);
             this.Locaiton.Controls.Add(this.tabPage11);
+            this.Locaiton.Controls.Add(this.tabPage12);
             this.Locaiton.Location = new System.Drawing.Point(13, 37);
             this.Locaiton.Name = "Locaiton";
             this.Locaiton.SelectedIndex = 0;
@@ -962,6 +969,50 @@
             this.dataGridView10.Size = new System.Drawing.Size(539, 265);
             this.dataGridView10.TabIndex = 11;
             // 
+            // tabPage12
+            // 
+            this.tabPage12.Controls.Add(this.button50);
+            this.tabPage12.Controls.Add(this.button51);
+            this.tabPage12.Controls.Add(this.dataGridView11);
+            this.tabPage12.Location = new System.Drawing.Point(4, 22);
+            this.tabPage12.Name = "tabPage12";
+            this.tabPage12.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage12.Size = new System.Drawing.Size(921, 302);
+            this.tabPage12.TabIndex = 11;
+            this.tabPage12.Text = "Transactions";
+            this.tabPage12.UseVisualStyleBackColor = true;
+            // 
+            // button50
+            // 
+            this.button50.Location = new System.Drawing.Point(551, 31);
+            this.button50.Name = "button50";
+            this.button50.Size = new System.Drawing.Size(75, 69);
+            this.button50.TabIndex = 7;
+            this.button50.Text = "Request Refund";
+            this.button50.UseVisualStyleBackColor = true;
+            this.button50.Click += new System.EventHandler(this.button50_Click);
+            // 
+            // button51
+            // 
+            this.button51.Location = new System.Drawing.Point(6, 6);
+            this.button51.Name = "button51";
+            this.button51.Size = new System.Drawing.Size(75, 23);
+            this.button51.TabIndex = 6;
+            this.button51.Text = "Refresh";
+            this.button51.UseVisualStyleBackColor = true;
+            this.button51.Click += new System.EventHandler(this.button51_Click);
+            // 
+            // dataGridView11
+            // 
+            this.dataGridView11.AllowUserToAddRows = false;
+            this.dataGridView11.AllowUserToDeleteRows = false;
+            this.dataGridView11.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView11.Location = new System.Drawing.Point(6, 31);
+            this.dataGridView11.Name = "dataGridView11";
+            this.dataGridView11.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridView11.Size = new System.Drawing.Size(539, 265);
+            this.dataGridView11.TabIndex = 5;
+            // 
             // PosFunctions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -999,6 +1050,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView9)).EndInit();
             this.tabPage11.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView10)).EndInit();
+            this.tabPage12.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView11)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1082,5 +1135,9 @@
         private System.Windows.Forms.Button button48;
         private System.Windows.Forms.Button button49;
         private System.Windows.Forms.DataGridView dataGridView10;
+        private System.Windows.Forms.TabPage tabPage12;
+        private System.Windows.Forms.Button button50;
+        private System.Windows.Forms.Button button51;
+        private System.Windows.Forms.DataGridView dataGridView11;
     }
 }

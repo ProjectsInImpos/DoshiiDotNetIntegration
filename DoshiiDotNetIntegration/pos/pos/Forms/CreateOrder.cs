@@ -210,7 +210,7 @@ namespace pos.Forms
                 TheOrder.MemberId = (string)comboBox5.SelectedItem;
             }
             TheOrder.Type = (string)comboBox6.SelectedItem;
-            foreach (var item in OrderItemList)
+            /*foreach (var item in OrderItemList)
             {
                 var newItem = LiveData.ProductList.FirstOrDefault(x => x.PosId == item.PosId);
                 if (newItem.Quantity == 0)
@@ -221,7 +221,7 @@ namespace pos.Forms
                 newItem.TotalBeforeSurcounts = newItem.Quantity * newItem.UnitPrice;
                 newItem.TotalAfterSurcounts = newItem.TotalBeforeSurcounts;
                 TheOrder.Items.Add(item);
-            }
+            }*/
             TheOrder.Items = OrderItemList.ToList();
             foreach (var item in TheOrder.Items)
             {
@@ -236,6 +236,30 @@ namespace pos.Forms
 
         private ObjectActionResult<Order> UpdateOrderOnDoshii()
         {
+            if (!string.IsNullOrEmpty(TheOrder.Id))
+            {
+                var theOrderOnDoshii = DoshiiController.Doshii.GetOrder(TheOrder.Id);
+                if (theOrderOnDoshii != null && theOrderOnDoshii.ReturnObject != null &&
+                    !string.IsNullOrEmpty(theOrderOnDoshii.ReturnObject.Version))
+                {
+                    TheOrder.Version = theOrderOnDoshii.ReturnObject.Version;
+                    var orderData = LiveData.OrderDataList.FirstOrDefault(x => x.OrderId == TheOrder.Id);
+                    if (orderData != null)
+                    {
+                        orderData.Version = TheOrder.Version;
+                    }
+                    else
+                    {
+                        orderData = new OrderDataInfo()
+                        {
+                            OrderId = TheOrder.Id,
+                            Version = TheOrder.Version
+                        };
+                        LiveData.OrderDataList.Add(orderData);
+                    }
+                    
+                }
+            }
             var result = DoshiiController.Doshii.UpdateOrder(TheOrder);
             if (result.Success)
             {

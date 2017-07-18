@@ -31,6 +31,7 @@ namespace pos
         private BindingList<Surcount> SurcountList;
         private BindingList<Location> LocationList;
         private BindingList<Employee> EmployeeList;
+        private BindingList<Transaction> TransactionList;
 
         public PosFunctions()
         {
@@ -50,6 +51,7 @@ namespace pos
             dataGridView8.DataSource = null;
             dataGridView9.DataSource = null;
             dataGridView10.DataSource = null;
+            dataGridView11.DataSource = null;
             AppsList = new BindingList<App>(LiveData.AppsList);
             BookingList = new BindingList<Booking>(LiveData.BookingList);
             ConsumerList = new BindingList<Consumer>(LiveData.ConsumerList);
@@ -61,6 +63,7 @@ namespace pos
             SurcountList = new BindingList<Surcount>(LiveData.SurcountList);
             LocationList = new BindingList<Location>(LiveData.LocationList);
             EmployeeList = new BindingList<Employee>(LiveData.EmployeeList);
+            TransactionList = new BindingList<Transaction>(LiveData.TransactionList);
             dataGridView1.DataSource = new BindingSource(AppsList, null);
             dataGridView2.DataSource = new BindingSource(OrdersList, null);
             dataGridView3.DataSource = new BindingSource(ItemList, null);
@@ -71,6 +74,7 @@ namespace pos
             dataGridView8.DataSource = new BindingSource(SurcountList, null);
             dataGridView9.DataSource = new BindingSource(LocationList, null);
             dataGridView10.DataSource = new BindingSource(EmployeeList, null);
+            dataGridView11.DataSource = new BindingSource(TransactionList, null);
         }
 
         public void WriteToLog(string message, Color? textColour, Color? backColour, FontStyle style)
@@ -450,6 +454,34 @@ namespace pos
             Employee currentObject = (Employee)dataGridView10.CurrentRow.DataBoundItem;
             CreateEmployee spForm = new CreateEmployee(DoshiiController, currentObject);
             spForm.ShowDialog();
+            RefreshData();
+        }
+
+        private void button51_Click(object sender, EventArgs e)
+        {
+            RefreshData();
+        }
+
+        private void button50_Click(object sender, EventArgs e)
+        {
+            Transaction currentTransaction = (Transaction)dataGridView11.CurrentRow.DataBoundItem;
+            if (currentTransaction != null && !string.IsNullOrEmpty(currentTransaction.OrderId))
+            {
+                var currentOrderResult = DoshiiController.Doshii.GetOrder(currentTransaction.OrderId);
+                if (currentOrderResult != null && currentOrderResult.ReturnObject != null)
+                {
+                    var result = DoshiiController.Doshii.RequestRefundFromPartner(currentOrderResult.ReturnObject,
+                        currentTransaction.PaymentAmount * -1, currentTransaction.LinkedTrxIds);
+                    if (result != null && result.Success)
+                    {
+                        MessageBox.Show(this, "request refund failed");
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, "request refund success");
+                    }
+                } 
+            }
             RefreshData();
         }
     }

@@ -517,7 +517,6 @@ namespace DoshiiDotNetIntegration.Controllers
 
         internal virtual ObjectActionResult<Order> PopupateAppIdPropsInOrder(ObjectActionResult<Order> order)
         {
-            ;
             return PopupateAppIdPropsInOrder(order.ReturnObject);
         }
 

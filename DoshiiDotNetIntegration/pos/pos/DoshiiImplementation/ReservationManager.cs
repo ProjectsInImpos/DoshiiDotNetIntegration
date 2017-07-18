@@ -72,9 +72,6 @@ namespace pos.DoshiiImplementation
             
         }
 
-        public void RecordCheckinForBooking(Booking booking, Checkin checkin)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

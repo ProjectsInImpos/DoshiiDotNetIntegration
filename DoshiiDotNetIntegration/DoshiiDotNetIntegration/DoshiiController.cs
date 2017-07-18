@@ -810,7 +810,7 @@ namespace DoshiiDotNetIntegration
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
-            return _controllersCollection.TransactionController.RequestRefundForOrder(orderReleatedToRefund, (int)(amountToRefund * 100), transacitonIdsToRefund);
+            return _controllersCollection.TransactionController.RequestRefundForOrderPosInitiated(orderReleatedToRefund, (int)(amountToRefund * 100), transacitonIdsToRefund);
         }
 
         public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)

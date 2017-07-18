@@ -243,6 +243,35 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        internal virtual ActionResultBasic RequestRefundFromPartnerPosInitiated(Transaction transaction)
+        {
+            transaction.Status = "waiting";
+            var result = RequestRefundFromPartherTransactionProcessing(transaction);
+
+            if (result.ReturnObject != null)
+            {
+                var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for refund - '{0}'", jsonTransaction.ToJsonString()));
+                //returnedTransaction.OrderId = transaction.OrderId;
+                _controllersCollection.TransactionManager.RecordSuccessfulRefund(result.ReturnObject);
+                _controllersCollection.TransactionManager.RecordTransactionVersion(result.ReturnObject.Id, result.ReturnObject.Version);
+                return new ActionResultBasic()
+                {
+                    Success = true
+                };
+            }
+            else
+            {
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = string.Format("The transaciton was not returned successfully from Doshii.")
+                };
+            }
+        }
+        
+
         internal virtual ActionResultBasic RequestPaymentForRefund(Transaction transaction)
         {
             transaction.Status = "waiting";
@@ -267,6 +296,35 @@ namespace DoshiiDotNetIntegration.Controllers
                 {
                     Success = false,
                     FailReason = string.Format("The transaciton was not returned successfully from Doshii.")
+                };
+            }
+        }
+
+        internal virtual ObjectActionResult<Transaction> RequestRefundFromPartherTransactionProcessing(Transaction transaction)
+        {
+            transaction.Status = "waiting";
+            try
+            {
+                return _httpComs.PostTransaction(transaction);
+            }
+            catch (NullResponseDataReturnedException ndr)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a Null response was returned during a postTransaction for Order.Id{0}", transaction.OrderId));
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
+                return new ObjectActionResult<Transaction>()
+                {
+                    Success = false,
+                    FailReason = string.Format(DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("put transaction"))
+                };
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a exception was thrown during a postTransaction for Order.Id {0} : {1}", transaction.OrderId, ex));
+                _controllersCollection.TransactionManager.CancelPayment(transaction);
+                return new ObjectActionResult<Transaction>()
+                {
+                    Success = false,
+                    FailReason = string.Format(DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("put transaction"))
                 };
             }
         }
@@ -402,7 +460,7 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        internal virtual ActionResultBasic RequestRefundForOrder(Order order, int amountToRefundCents, List<string> transacitonIdsToRefund)
+        internal virtual ActionResultBasic RequestRefundForOrderPosInitiated(Order order, int amountToRefundCents, List<string> transacitonIdsToRefund)
         {
             ObjectActionResult<Transaction> returnedTransaction = null;
             Transaction refundTransaction = new Transaction()
@@ -420,7 +478,7 @@ namespace DoshiiDotNetIntegration.Controllers
             };
             try
             {
-                return RequestPaymentForRefund(refundTransaction); 
+                return RequestRefundFromPartnerPosInitiated(refundTransaction); 
             }
             catch (NullResponseDataReturnedException)
             {
