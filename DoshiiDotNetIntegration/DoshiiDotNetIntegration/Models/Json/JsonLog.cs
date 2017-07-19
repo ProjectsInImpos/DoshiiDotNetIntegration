@@ -60,11 +60,11 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "action")]
-        public string Action { get; set; }
+        public List<string> Action { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "performedAt")]
-        public string PerformedAt { get; set; }
+        public DateTime PerformedAt { get; set; }
 
         #region serializeMembers
 

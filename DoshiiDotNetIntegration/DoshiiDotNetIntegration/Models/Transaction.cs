@@ -34,7 +34,7 @@ namespace DoshiiDotNetIntegration.Models
 		    PaymentAmount = 0;
 		    AcceptLess = false;
 		    PartnerInitiated = false; 
-            Partner = String.Empty;
+            CreatedByApp = String.Empty;
 		    Status = "pending";
             Version = String.Empty;
 		    Uri = string.Empty;
@@ -84,7 +84,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// identifier for the partner that completed the transaction
         /// </summary>
-        public string Partner { get; set; }
+        public string CreatedByApp { get; set; }
 
         /// <summary>
         /// An obfuscated string representation of the version for the Order in Doshii.
@@ -136,7 +136,7 @@ namespace DoshiiDotNetIntegration.Models
 
         protected bool Equals(Transaction other)
         {
-            return Equals(_linkedTrxIds, other._linkedTrxIds) && Tip == other.Tip && string.Equals(Id, other.Id) && string.Equals(OrderId, other.OrderId) && string.Equals(Reference, other.Reference) && string.Equals(Invoice, other.Invoice) && PaymentAmount == other.PaymentAmount && AcceptLess == other.AcceptLess && PartnerInitiated == other.PartnerInitiated && string.Equals(Partner, other.Partner) && string.Equals(Version, other.Version);
+            return Equals(_linkedTrxIds, other._linkedTrxIds) && Tip == other.Tip && string.Equals(Id, other.Id) && string.Equals(OrderId, other.OrderId) && string.Equals(Reference, other.Reference) && string.Equals(Invoice, other.Invoice) && PaymentAmount == other.PaymentAmount && AcceptLess == other.AcceptLess && PartnerInitiated == other.PartnerInitiated && string.Equals(CreatedByApp, other.CreatedByApp) && string.Equals(Version, other.Version);
         }
 
         public override bool Equals(object obj)
@@ -160,7 +160,7 @@ namespace DoshiiDotNetIntegration.Models
                 hashCode = (hashCode*397) ^ PaymentAmount.GetHashCode();
                 hashCode = (hashCode*397) ^ AcceptLess.GetHashCode();
                 hashCode = (hashCode*397) ^ PartnerInitiated.GetHashCode();
-                hashCode = (hashCode*397) ^ (Partner != null ? Partner.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (CreatedByApp != null ? CreatedByApp.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
                 return hashCode;
             }

@@ -662,7 +662,7 @@ namespace DoshiiDotNetSDKTests
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
                 PartnerInitiated = false,
-                Partner = "1",
+                CreatedByApp = "1",
                 Status = "pending"
             };
             return transaction;
@@ -679,7 +679,7 @@ namespace DoshiiDotNetSDKTests
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
                 PartnerInitiated = false,
-                Partner = "1",
+                CreatedByApp = "1",
                 Status = "waiting"
             };
             return transaction;
@@ -696,7 +696,7 @@ namespace DoshiiDotNetSDKTests
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
                 PartnerInitiated = false,
-                Partner = "1",
+                CreatedByApp = "1",
                 Status = "complete"
             };
             return transaction;

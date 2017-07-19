@@ -397,7 +397,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         
         #endregion
 
-        #region Partner App Methods
+        #region CreatedByApp App Methods
 
         internal virtual ObjectActionResult<List<App>> GetApps()
         {
@@ -415,6 +415,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #endregion
 
         #region transaction methods
+
+        internal virtual ObjectActionResult<List<Log>> GetTransactionLog(string transactionId)
+        {
+            return MakeHttpRequestWithForResponseData(60000, WebRequestMethods.Http.Get,
+                EndPointPurposes.TransactionLog, "get transaction log", "", transactionId);
+        }
 
         /// <summary>
         /// This method is used to retrieve a list of transaction related to an Order with the doshiiOrderId
@@ -1684,6 +1690,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newUrlbuilder.AppendFormat("/{0}/rewards", identification);
                     }
                     break;
+                case EndPointPurposes.TransactionLog:
+                    newUrlbuilder.AppendFormat("/transactions/{0}/logs", identification);
+                    break;
                 default:
                     throw new NotSupportedException(purpose.ToString());
             }
@@ -1831,7 +1840,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        string contentCorrected = responseMessage.Data.Replace(".", "_");
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonLog>>(responseMessage.Data);
+                        actionResult.ReturnObject = Mapper.Map<List<Log>>(jsonList);
+                            //AutoMapperGenericsHelper<JsonLog, Log>.ConvertToDBEntity(jsonList);
+                        
+                        /*string contentCorrected = responseMessage.Data.Replace(".", "_");
                         var json = JsonConvert.DeserializeObject<dynamic>(contentCorrected);
                         var jo = json.Children<JObject>();
                         var logList = new List<Log>();
@@ -1846,7 +1859,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                                 logList.Add(newLog);
                             }
                         }
-                        actionResult.ReturnObject = logList;
+                        actionResult.ReturnObject = logList;*/
                     }
                     actionResult.Success = true;
                 }

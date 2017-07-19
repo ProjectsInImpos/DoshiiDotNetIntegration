@@ -552,7 +552,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
             if (logActionResult.Success && logActionResult.ReturnObject != null && logActionResult.ReturnObject.Any())
             {
-                var orderLogForUpdated = logActionResult.ReturnObject.LastOrDefault(l => l.Action.Contains("order_status"));
+                var orderLogForUpdated = logActionResult.ReturnObject.OrderBy(x => x.PerformedAt).LastOrDefault(l => l.Action.Exists(a => a.Contains("order_updated")));
                 if (orderLogForUpdated != null)
                 {
                     order.LastUpdateByApp = orderLogForUpdated.AppId;

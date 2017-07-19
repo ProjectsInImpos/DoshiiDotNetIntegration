@@ -69,8 +69,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// identifier for the partner that completed the transaction
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "partner")]
-        public string Partner { get; set; }
+        [JsonProperty(PropertyName = "createdByApp")]
+        public string CreatedByApp { get; set; }
 
         /// <summary>
         /// An obfuscated string representation of the version of the Order in Doshii.
@@ -111,7 +111,7 @@ namespace DoshiiDotNetIntegration.Models.Json
             return LinkedTrxIds.Count > 0;
         }
         
-        public bool ShouldSerializePartner()
+        public bool ShouldSerializeCreatedByApp()
         {
             return false;
         }

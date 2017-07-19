@@ -152,7 +152,9 @@ namespace DoshiiDotNetIntegration.Enums
 
         Locations = 32,
 
-        MemberGetRewards = 33
+        MemberGetRewards = 33,
+
+        TransactionLog = 34
 
     }
 }

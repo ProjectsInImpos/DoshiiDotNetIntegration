@@ -146,6 +146,18 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        internal virtual ObjectActionResult<List<Log>> GetTransactionLog(Transaction transaction)
+        {
+            try
+            {
+                return _httpComs.GetTransactionLog(transaction.Id);
+            }
+            catch (Exception rex)
+            {
+                throw rex;
+            }
+        }
+        
         /// <summary>
         /// get a list of transactions from Doshii related to the DoshiiOrderId provided, 
         /// This method is primarily used to get the transactions for unlinked orders before the pos is alerted to the creation of the Order. 
@@ -196,6 +208,72 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw rex;
             }
         }
+
+        /*internal virtual ObjectActionResult<Transaction> PopupateAppIdPropsInTransaction(ObjectActionResult<Transaction> transaction)
+        {
+            return PopupateAppIdPropsInTransaction(transaction.ReturnObject);
+        }
+
+        internal virtual ObjectActionResult<Transaction> PopupateAppIdPropsInTransaction(Transaction transaction)
+        {
+            var actionResult = new ObjectActionResult<Transaction>()
+            {
+                ReturnObject = transaction
+            };
+
+            var logActionResult = new ObjectActionResult<List<Log>>();
+            if (transaction == null)
+            {
+                return null;
+            }
+            try
+            {
+                logActionResult = GetTransactionLog(transaction);
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("There was an exception getting the logs for a transaction with Id = {0}. The partner Id will not be populated on this transaction.", transaction.Id));
+                return actionResult;
+            }
+
+            if (logActionResult.Success && logActionResult.ReturnObject != null && logActionResult.ReturnObject.Any())
+            {
+                var orderLogForCreated = logActionResult.ReturnObject.LastOrDefault(l => l.Action.Contains("transaction_created"));
+                if (orderLogForCreated != null)
+                {
+                    transaction.CreatedByApp = orderLogForCreated.AppId;
+                }
+            }
+            else
+            {
+                _controllersCollection.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Warning, string.Format("No logs were returned by doshii for Transaction with Id = {0}. The partner Id will not be populated on this Transaction.", transaction.Id));
+            }
+
+
+            return actionResult;
+        }
+
+        internal ObjectActionResult<List<Transaction>> PopupateAppIdPropsInTransactionList(
+            ObjectActionResult<List<Transaction>> transactionListResult)
+        {
+            return PopupateAppIdPropsInTransactionList(transactionListResult.ReturnObject);
+        }
+        
+        internal ObjectActionResult<List<Transaction>> PopupateAppIdPropsInTransactionList(
+            List<Transaction> transactionList)
+        {
+            var transactionResult = new ObjectActionResult<List<Transaction>>()
+            {
+                Success = true
+            };
+            List<Transaction> returnList = new List<Transaction>();
+            foreach (var tran in transactionList)
+            {
+                returnList.Add(PopupateAppIdPropsInTransaction(tran).ReturnObject);
+            }
+            transactionResult.ReturnObject = returnList;
+            return transactionResult;
+        }*/
 
         /// <summary>
         /// This method requests a payment from Doshii
@@ -469,7 +547,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 CreatedAt = null,
                 Id = string.Empty,
                 OrderId = order.Id,
-                Partner = string.Empty,
+                CreatedByApp = string.Empty,
                 PartnerInitiated = false,
                 Invoice = string.Empty,
                 PaymentAmount = amountToRefundCents,

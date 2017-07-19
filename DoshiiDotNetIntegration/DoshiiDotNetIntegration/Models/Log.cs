@@ -20,8 +20,8 @@ namespace DoshiiDotNetIntegration.Models
         public string LogId { get; set; }
 	    public string AppId { get; set; }
 	    public string AppName { get; set; }
-	    public dynamic Action { get; set; }
-        public string PerformedAt { get; set; }
+	    public List<string> Action { get; set; }
+        public DateTime PerformedAt { get; set; }
 
         protected bool Equals(Log other)
         {
@@ -68,8 +68,8 @@ namespace DoshiiDotNetIntegration.Models
             LogId = string.Empty;
 	        AppId = string.Empty;
 	        AppName = string.Empty;
-	        Action = string.Empty;
-            PerformedAt = string.Empty;
+	        Action = new List<string>();
+            PerformedAt = DateTime.MinValue;
         }
 
         public object Clone()
