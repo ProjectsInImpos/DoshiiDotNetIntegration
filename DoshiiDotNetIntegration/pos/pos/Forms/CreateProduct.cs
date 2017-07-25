@@ -145,8 +145,8 @@ namespace pos.Forms
             {
                 productIncludedItemList = new BindingList<Product>();
             }
-            dataGridView2.DataSource = productIncludedItemList;
-            dataGridView2.DataMember = "Name";
+            dataGridView3.DataSource = productIncludedItemList;
+            dataGridView3.DataMember = "Name";
         }
         
         
@@ -157,7 +157,7 @@ namespace pos.Forms
 
         private void button3_Click(object sender, EventArgs e)
         {
-            var productToAdd = LiveData.ProductList.FirstOrDefault(x => x.PosId == comboBox4.SelectedValue);
+            var productToAdd = LiveData.ProductList.FirstOrDefault(x => x.PosId == comboBox2.SelectedValue);
             if (productToAdd != null)
             {
                 var varientToAdd = new Variant();
@@ -166,6 +166,8 @@ namespace pos.Forms
                 varientToAdd.Price = productToAdd.UnitPrice;
                 productOptionList.Add(varientToAdd);
             }
+            dataGridView1.DataSource = null;
+            dataGridView1.DataSource = productOptionList;
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -173,9 +175,11 @@ namespace pos.Forms
             var productToAdd = LiveData.ProductList.FirstOrDefault(x => x.PosId == comboBox4.SelectedValue);
             if (productToAdd != null)
             {
+                productToAdd.Quantity = 1;
                 productIncludedItemList.Add(productToAdd);
             }
-            
+            dataGridView3.DataSource = null;
+            dataGridView3.DataSource = productIncludedItemList;
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -185,7 +189,8 @@ namespace pos.Forms
             {
                 productSurcountList.Add(surcountToAdd);
             }
-            
+            dataGridView2.DataSource = null;
+            dataGridView2.DataSource = productSurcountList;
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -272,10 +277,18 @@ namespace pos.Forms
                 }
             }
 
-            if (productIncludedItemList.Any())
+            if (TheProduct.Type == "bundle")
             {
-                TheProduct.IncludedItems = productIncludedItemList.ToList();
+                if (productIncludedItemList.Any())
+                {
+                    TheProduct.IncludedItems = productIncludedItemList.ToList();
+                }
             }
+            else
+            {
+                TheProduct.IncludedItems = new List<Product>();
+            }
+            
 
             if (productSurcountList.Any())
             {

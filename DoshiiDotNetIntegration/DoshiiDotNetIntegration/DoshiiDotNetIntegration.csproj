@@ -189,6 +189,7 @@
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
+    <Compile Include="Models\Json\JsonMenuProductIncludedItem.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
     <Compile Include="Models\Json\JsonOrganisation.cs" />

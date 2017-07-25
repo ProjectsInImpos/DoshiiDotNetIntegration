@@ -131,20 +131,20 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
         }
 
-        private List<JsonMenuProduct> _includedItems;
+        private List<JsonMenuProductIncludedItem> _includedItems;
 
         /// <summary>
         /// A list of surcounts that can / are applied to the product.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "includedItems")]
-        public List<JsonMenuProduct> IncludedItems
+        public List<JsonMenuProductIncludedItem> IncludedItems
         {
             get
             {
                 if (_includedItems == null)
                 {
-                    _includedItems = new List<JsonMenuProduct>();
+                    _includedItems = new List<JsonMenuProductIncludedItem>();
                 }
                 return _includedItems;
             }
@@ -177,31 +177,46 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         #region Serialize methods
 
-        public bool ShouldSerializeDescription()
+        public virtual bool ShouldSerializeDescription()
         {
             return !string.IsNullOrEmpty(Description);
         }
-        
-        public bool ShouldSerializeMenuDir()
+
+        public virtual bool ShouldSerializeMenuDir()
         {
             return MenuDir.Any();
         }
 
-        public bool ShouldSerializeIncludedItems()
+        public virtual bool ShouldSerializeIncludedItems()
         {
             return IncludedItems.Any();
         }
 
-        public bool ShouldSerializeUuid()
+        public virtual bool ShouldSerializeUuid()
         {
             return false;
         }
 
-        public bool ShouldSerializeType()
+        public virtual bool ShouldSerializeType()
         {
             return !string.IsNullOrEmpty(Type);
         }
 
+        public virtual bool ShouldSerializeProductSurcounts()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTags()
+        {
+            return true;
+        }
+        
+        
+        
+        
+        
+            
         
         #endregion
 

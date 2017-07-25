@@ -355,6 +355,19 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.Ignore())
                 .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.Ignore());
+
+		    // src = Product, dest = JsonOrderProduct
+		    Mapper.CreateMap<Product, JsonMenuProductIncludedItem>()
+		        .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.UnitPrice)))
+		        .ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
+		        .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
+
+		    // src = JsonOrderProduct, dest = Product
+		    Mapper.CreateMap<JsonMenuProductIncludedItem, Product>()
+		        .ForMember(dest => dest.UnitPrice,
+		            opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
+		        .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.Ignore())
+		        .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.Ignore());
 		}
 
         /// <summary>
