@@ -90,7 +90,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "linkedTrxIds ")]
+        [JsonProperty(PropertyName = "linkedTrxIds")]
         public List<string> LinkedTrxIds 
         {
             get

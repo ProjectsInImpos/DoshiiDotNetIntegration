@@ -192,6 +192,7 @@
     <Compile Include="Models\Json\JsonMenuProductIncludedItem.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
+    <Compile Include="Models\Json\JsonOrderProductIncludedItems.cs" />
     <Compile Include="Models\Json\JsonOrganisation.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonCheckin.cs" />

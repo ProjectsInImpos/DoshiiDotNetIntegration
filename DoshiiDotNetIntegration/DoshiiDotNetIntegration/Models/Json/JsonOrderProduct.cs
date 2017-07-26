@@ -137,20 +137,20 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Type { get; set; }
 
 
-        private List<JsonMenuProduct> _includedItems;
+        private List<JsonOrderProductIncludedItems> _includedItems;
 
         /// <summary>
         /// A list of surcounts that can / are applied to the product.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "includedItems")]
-        public List<JsonMenuProduct> IncludedItems
+        public List<JsonOrderProductIncludedItems> IncludedItems
         {
             get
             {
                 if (_includedItems == null)
                 {
-                    _includedItems = new List<JsonMenuProduct>();
+                    _includedItems = new List<JsonOrderProductIncludedItems>();
                 }
                 return _includedItems;
             }
@@ -173,24 +173,26 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "posId")]
 		public string PosId { get; set; }
 
-        public bool ShouldSerializePosId()
+        #region Serialize methods
+
+        public virtual bool ShouldSerializePosId()
         {
             return (!string.IsNullOrEmpty(PosId));
         }
 
-        public bool ShouldSerializeDescription()
+        public virtual bool ShouldSerializeDescription()
         {
             return (!string.IsNullOrEmpty(Description));
         }
 
-        #region Serialize methods
+        
 
-        public bool ShouldSerializeIncludedItems()
+        public virtual bool ShouldSerializeIncludedItems()
         {
             return IncludedItems.Any();
         }
 
-        public bool ShouldSerializeUuid()
+        public virtual bool ShouldSerializeUuid()
         {
             return false;
         }
