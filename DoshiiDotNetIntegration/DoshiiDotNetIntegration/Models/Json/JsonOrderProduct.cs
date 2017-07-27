@@ -185,8 +185,6 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(Description));
         }
 
-        
-
         public virtual bool ShouldSerializeIncludedItems()
         {
             return IncludedItems.Any();
@@ -196,7 +194,31 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return false;
         }
+        ////////
+        public virtual bool ShouldSerializeType()
+        {
+            return (!string.IsNullOrEmpty(Type));
+        }
 
+        public virtual bool ShouldSerializeProductSurcounts()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTags()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTotalAfterSurcounts()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTotalBeforeSurcounts()
+        {
+            return true;
+        }
         #endregion
 
    }

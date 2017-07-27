@@ -7,11 +7,6 @@
             return false;
         }
 
-        public bool ShouldSerializeMenuDir()
-        {
-            return false;
-        }
-
         public override bool ShouldSerializeIncludedItems()
         {
             return false;
@@ -22,17 +17,27 @@
             return false;
         }
 
-        public bool ShouldSerializeType()
+        public override bool ShouldSerializeType()
         {
             return false;
         }
 
-        public bool ShouldSerializeProductSurcounts()
+        public override bool ShouldSerializeProductSurcounts()
         {
             return false;
         }
 
-        public bool ShouldSerializeTags()
+        public override bool ShouldSerializeTags()
+        {
+            return false;
+        }
+
+        public override bool ShouldSerializeTotalAfterSurcounts()
+        {
+            return false;
+        }
+
+        public override bool ShouldSerializeTotalBeforeSurcounts()
         {
             return false;
         }
