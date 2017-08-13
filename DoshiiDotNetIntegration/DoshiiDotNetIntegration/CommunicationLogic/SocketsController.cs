@@ -3,6 +3,7 @@ using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
 using Microsoft.CSharp.RuntimeBinder;
@@ -408,9 +409,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 
             }
 			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" De-serialized WebScoket message - '{0}'", theMessage.ToString()));
-            ProcessSocketMessage(theMessage);
+            ProcessSocketMessageAsync(theMessage);
 
         }
+
+
+        internal virtual void ProcessSocketMessageAsync(SocketMessage theMessage)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    ProcessSocketMessage(theMessage);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("exception while creating socket message"), ex);
+                }
+            });
+        }
+
 
         /// <summary>
         /// Processes the socket message received from Doshii and raises the appropriate events to alert subscribers. 
