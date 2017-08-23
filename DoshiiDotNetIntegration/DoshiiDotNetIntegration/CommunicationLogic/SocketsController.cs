@@ -6,6 +6,7 @@ using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
 using Microsoft.CSharp.RuntimeBinder;
 using WebSocketSharp;
+using System.Threading.Tasks;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
@@ -400,8 +401,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 
             }
 			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: De-serialized WebScoket message - '{0}'", theMessage.ToString()));
-            ProcessSocketMessage(theMessage);
+            ProcessSocketMessageAsync(theMessage);
 
+        }
+
+
+        internal virtual void ProcessSocketMessageAsync(SocketMessage theMessage)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    ProcessSocketMessage(theMessage);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("exception while creating socket message"), ex);
+                }
+            });
         }
 
         /// <summary>

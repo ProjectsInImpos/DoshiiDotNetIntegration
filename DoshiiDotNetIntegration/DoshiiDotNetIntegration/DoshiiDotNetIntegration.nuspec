@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>DoshiiPosDotNetSDKv3</id>
-    <version>3.6.3</version>
+    <version>3.6.4</version>
     <title>DoshiiPosDotNetSDKv3</title>
     <authors>DoshiiCorp</authors>
     <owners>DoshiiCorp</owners>
     <projectUrl>http://docs.doshii.co/change-log/v3.0.0/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An SDK for pos solutions written in .NET to integration with the Doshii API</description>
-    <releaseNotes>Socket controller now handles member_deleted messages</releaseNotes>
+    <releaseNotes>Socket controller is no longewr blocked while processing socket messages</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>DoshiiSDK Doshii</tags>
   </metadata>
