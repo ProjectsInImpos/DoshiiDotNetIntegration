@@ -30,7 +30,16 @@ namespace pos.DoshiiImplementation
             var orderList = Doshii.GetOrders();
             if (orderList.Success)
             {
-                LiveData.OrdersList = orderList.ReturnObject.Where(x => x.Status == "accepted").ToList();
+                LiveData.OrdersList = orderList.ReturnObject.ToList();
+            }
+        }
+
+        public void GetAcceptedOrdersFromDoshii()
+        {
+            var orderList = Doshii.GetOrdersByStatus("accepted");
+            if(orderList.Success)
+            {
+                LiveData.OrdersList = orderList.ReturnObject.ToList();
             }
         }
 

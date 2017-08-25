@@ -121,37 +121,37 @@ namespace DoshiiDotNetIntegration
 		#region properties, constructors, Initialize, versionCheck
 
         
-        private bool m_IsInitalized = false;
+        private bool _isInitalized = false;
 
         /// <summary>
         /// A property indicating if initialize has been called on the doshii manager. 
         /// </summary>
         internal virtual bool IsInitalized
         {
-            get { return m_IsInitalized; }
-            set { m_IsInitalized = value; }
+            get { return _isInitalized; }
+            set { _isInitalized = value; }
         }
 
 		
-        private SocketsController m_SocketComs = null;
+        private SocketsController _socketComs = null;
 
         /// <summary>
         /// Holds an instance of CommunicationLogic.SocketsController class for interacting with the Doshii webSocket connection
         /// </summary>
         internal virtual SocketsController SocketComs
         {
-            get { return m_SocketComs; }
+            get { return _socketComs; }
             set
             {
-                if (m_SocketComs != null)
+                if (_socketComs != null)
                 {
                     UnsubscribeFromSocketEvents();
                 }
-                m_SocketComs = value;
-                if (m_SocketComs != null)
+                _socketComs = value;
+                if (_socketComs != null)
                 {
                     SubscribeToSocketEvents();
-                    m_SocketComs.Initialize();
+                    _socketComs.Initialize();
                 }
             }
         }
@@ -283,7 +283,7 @@ namespace DoshiiDotNetIntegration
 			}
 
             string socketUrl = BuildSocketUrl(FormatBaseUrl(_controllersCollection.ConfigurationManager.GetSocketUrlFromPos()), _controllersCollection.ConfigurationManager.GetLocationTokenFromPos());
-            m_IsInitalized = InitializeProcess(socketUrl, FormatBaseUrl(_controllersCollection.ConfigurationManager.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
+            _isInitalized = InitializeProcess(socketUrl, FormatBaseUrl(_controllersCollection.ConfigurationManager.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
                 try
@@ -292,13 +292,13 @@ namespace DoshiiDotNetIntegration
                 }
                 catch (Exception ex)
                 {
-                    m_IsInitalized = false;
+                    _isInitalized = false;
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed");
                 }
                 
             }
-            return m_IsInitalized;
+            return _isInitalized;
         }
 
         /// <summary>
@@ -357,13 +357,13 @@ namespace DoshiiDotNetIntegration
                 try
                 {
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
-                    m_SocketComs = new SocketsController(socketUrl, timeOutValueSecs, _controllersCollection);
+                    _socketComs = new SocketsController(socketUrl, timeOutValueSecs, _controllersCollection);
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
 
                     SubscribeToSocketEvents();
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket events are subscribed to")));
 
-                    m_SocketComs.Initialize();
+                    _socketComs.Initialize();
                 }
                 catch (Exception ex)
                 {
@@ -409,7 +409,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         internal virtual void SubscribeToSocketEvents()
         {
-            if (m_SocketComs == null)
+            if (_socketComs == null)
             {
 				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " The socketComs has not been initialized");
                 throw new NotSupportedException("m_SocketComms is null");
@@ -418,18 +418,18 @@ namespace DoshiiDotNetIntegration
             {
                 UnsubscribeFromSocketEvents();
 				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, " Subscribing to socket events");
-                m_SocketComs.OrderCreatedEvent += new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
-                m_SocketComs.OrderUpdatedEvent += new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
-                m_SocketComs.TransactionCreatedEvent += new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
-                m_SocketComs.TransactionUpdatedEvent += new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
-				m_SocketComs.SocketCommunicationEstablishedEvent += new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
-                m_SocketComs.SocketCommunicationTimeoutReached += new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
-                m_SocketComs.MemberCreatedEvent += new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
-                m_SocketComs.MemberUpdatedEvent += new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
-                m_SocketComs.MemberDeletedEvent += new SocketsController.MemberDeletedEventHandler(SocketComsMemberDeletedEventHandler);
-                m_SocketComs.BookingCreatedEvent += new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
-                m_SocketComs.BookingUpdatedEvent += new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
-                m_SocketComs.BookingDeletedEvent += new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
+                _socketComs.OrderCreatedEvent += new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+                _socketComs.OrderUpdatedEvent += new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
+                _socketComs.TransactionCreatedEvent += new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
+                _socketComs.TransactionUpdatedEvent += new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
+				_socketComs.SocketCommunicationEstablishedEvent += new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+                _socketComs.SocketCommunicationTimeoutReached += new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+                _socketComs.MemberCreatedEvent += new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+                _socketComs.MemberUpdatedEvent += new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+                _socketComs.MemberDeletedEvent += new SocketsController.MemberDeletedEventHandler(SocketComsMemberDeletedEventHandler);
+                _socketComs.BookingCreatedEvent += new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+                _socketComs.BookingUpdatedEvent += new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+                _socketComs.BookingDeletedEvent += new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
             }
         }
 
@@ -439,18 +439,18 @@ namespace DoshiiDotNetIntegration
         internal virtual void UnsubscribeFromSocketEvents()
         {
 			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, " Unsubscribing from socket events");
-            m_SocketComs.OrderCreatedEvent -= new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
-            m_SocketComs.OrderUpdatedEvent -= new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
-            m_SocketComs.TransactionCreatedEvent -= new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
-            m_SocketComs.TransactionUpdatedEvent -= new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
-            m_SocketComs.SocketCommunicationEstablishedEvent -= new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
-            m_SocketComs.SocketCommunicationTimeoutReached -= new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
-            m_SocketComs.MemberCreatedEvent -= new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
-            m_SocketComs.MemberUpdatedEvent -= new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
-            m_SocketComs.MemberDeletedEvent -= new SocketsController.MemberDeletedEventHandler(SocketComsMemberDeletedEventHandler);
-            m_SocketComs.BookingCreatedEvent -= new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
-            m_SocketComs.BookingUpdatedEvent -= new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
-            m_SocketComs.BookingDeletedEvent -= new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
+            _socketComs.OrderCreatedEvent -= new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+            _socketComs.OrderUpdatedEvent -= new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
+            _socketComs.TransactionCreatedEvent -= new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
+            _socketComs.TransactionUpdatedEvent -= new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
+            _socketComs.SocketCommunicationEstablishedEvent -= new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+            _socketComs.SocketCommunicationTimeoutReached -= new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+            _socketComs.MemberCreatedEvent -= new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+            _socketComs.MemberUpdatedEvent -= new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+            _socketComs.MemberDeletedEvent -= new SocketsController.MemberDeletedEventHandler(SocketComsMemberDeletedEventHandler);
+            _socketComs.BookingCreatedEvent -= new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+            _socketComs.BookingUpdatedEvent -= new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+            _socketComs.BookingDeletedEvent -= new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
         }
         #endregion
 
@@ -779,7 +779,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ActionResultBasic AcceptOrderAheadCreation(Order orderToAccept)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -796,7 +796,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ActionResultBasic RejectOrderAheadCreation(Order orderToReject)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -806,7 +806,7 @@ namespace DoshiiDotNetIntegration
         
         public virtual ActionResultBasic RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
 	    {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -815,7 +815,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -836,7 +836,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ObjectActionResult<Transaction> RecordPosTransactionOnDoshii(Transaction transaction)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -857,7 +857,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
 		public virtual ObjectActionResult<Order> GetOrder(string orderId)
 		{
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -886,7 +886,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
         public virtual ObjectActionResult<Consumer> GetConsumerFromCheckinId(string checkinId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -906,11 +906,31 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
 		public virtual ObjectActionResult<List<Order>> GetOrders()
 		{
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
 		    return _controllersCollection.OrderingController.GetOrders();
+        }
+
+	    /// <summary>
+	    /// Retrieves the current Order list from Doshii.
+	    /// <para/>This method will only return orders that are linked to pos ordered in Doshii
+	    /// <para/>To get a list of unlinked orders call<see cref="GetUnlinkedOrders"/>
+	    /// </summary>
+	    /// <returns>
+	    /// The current list of linked orders available in Doshii.
+	    /// If there are no linked orders a blank IEnumerable is returned. 
+	    /// </returns>
+	    /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+	    /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
+	    public virtual ObjectActionResult<List<Order>> GetOrdersByStatus(string status)
+	    {
+	        if(!_isInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+            return _controllersCollection.OrderingController.GetOrdersByStatus(status);
         }
 
         /// <summary>
@@ -927,7 +947,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
         public virtual ObjectActionResult<Transaction> GetTransaction(string transactionId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -948,7 +968,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
         public virtual ObjectActionResult<List<Transaction>> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -969,7 +989,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
         public virtual ObjectActionResult<List<Transaction>> GetTransactionFromOrderId(string posOrderId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -985,7 +1005,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
         public virtual ObjectActionResult<List<Transaction>> GetTransactions()
 		{
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1012,7 +1032,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ObjectActionResult<Order> UpdateOrder(Order order)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1033,7 +1053,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         public virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1055,7 +1075,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         public virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1079,7 +1099,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         public virtual ActionResultBasic DeleteMember(string memberId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1105,7 +1125,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="MemberIncompleteException">Thrown when the member provided for updating is not complete.</exception>
         public virtual ObjectActionResult<MemberOrg> UpdateMember(MemberOrg member)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1129,7 +1149,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic SyncDoshiiMembersWithPosMembers()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1158,7 +1178,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="RestfulApiErrorResponseException">Throw if these was an issue communicating with Doshii.</exception>
         public virtual ObjectActionResult<List<Reward>> GetRewardsForMember(string memberId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1188,7 +1208,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic RedeemRewardForMember(MemberOrg member, Reward reward, Order order)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1214,7 +1234,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1245,7 +1265,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1278,7 +1298,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic RedeemPointsForMember(MemberOrg member, App app, Order order, int points)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1306,7 +1326,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic RedeemPointsForMemberConfirm(string memberId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1328,7 +1348,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual ActionResultBasic RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1355,7 +1375,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
         public virtual ActionResultBasic SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1377,7 +1397,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
         public virtual ActionResultBasic ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1399,7 +1419,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
         public virtual ActionResultBasic CloseCheckin(string checkinId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1413,7 +1433,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Menu> GetMenu()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1439,7 +1459,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ObjectActionResult<Menu> UpdateMenu(Menu menu)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1459,7 +1479,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ObjectActionResult<Surcount> UpdateSurcount(Surcount surcount)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1479,7 +1499,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ObjectActionResult<Product> UpdateProduct(Product product)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1499,7 +1519,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ActionResultBasic DeleteSurcount(string posId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1519,7 +1539,7 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         public virtual ActionResultBasic DeleteProduct(string posId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1542,7 +1562,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<Table> GetTable(string tableName)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1557,7 +1577,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<List<Table>> GetTables()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1575,7 +1595,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<Table> CreateTable(Table table)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1596,7 +1616,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<Table> UpdateTable(Table table, string oldTableName)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1614,7 +1634,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ActionResultBasic DeleteTable(string tableName)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1630,7 +1650,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<List<Table>> ReplaceTableListOnDoshii(List<Table> tableList)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1653,7 +1673,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1675,7 +1695,7 @@ namespace DoshiiDotNetIntegration
 	    /// </returns>
 	    public virtual ObjectActionResult<Checkin> GetCheckin(string  checkinId)
 	    {
-	        if (!m_IsInitalized)
+	        if (!_isInitalized)
 	        {
 	            this.ThrowDoshiiManagerNotInitializedException();
 	        }
@@ -1688,7 +1708,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Checkin> GetNewCheckin()
 	    {
-	        if (!m_IsInitalized)
+	        if (!_isInitalized)
 	        {
 	            this.ThrowDoshiiManagerNotInitializedException();
 	        }
@@ -1706,7 +1726,7 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1726,7 +1746,7 @@ namespace DoshiiDotNetIntegration
           /// <returns>True if the booking was seated.</returns>
         public ActionResultBasic SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1739,7 +1759,7 @@ namespace DoshiiDotNetIntegration
 
         public ObjectActionResult<Checkin> SeatBookingWithoutCheckin(String bookingId, String posOrderId = null)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1752,7 +1772,7 @@ namespace DoshiiDotNetIntegration
 
         public ObjectActionResult<Booking> UpdateBooking(Booking booking)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1765,7 +1785,7 @@ namespace DoshiiDotNetIntegration
 
         public ActionResultBasic DeleteBooking(string bookingId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1778,7 +1798,7 @@ namespace DoshiiDotNetIntegration
 
 	    public void SyncReservations()
 	    {
-	        if (!m_IsInitalized)
+	        if (!_isInitalized)
 	        {
 	            this.ThrowDoshiiManagerNotInitializedException();
 	        }
@@ -1795,7 +1815,7 @@ namespace DoshiiDotNetIntegration
 
 	    public virtual ObjectActionResult<List<App>> GetApps()
 	    {
-	        if (!m_IsInitalized)
+	        if (!_isInitalized)
 	        {
 	            this.ThrowDoshiiManagerNotInitializedException();
 	        }
@@ -1812,7 +1832,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<List<Employee>> GetEmployees()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1821,7 +1841,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Employee> GetEmployee(string doshiiId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1830,7 +1850,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Employee> UpdateEmployee(Employee employee)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1839,7 +1859,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ActionResultBasic DeleteEmployee(string employeeId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1860,7 +1880,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public virtual ObjectActionResult<Location> GetLocation()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1869,7 +1889,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1878,7 +1898,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<List<Location>> GetLocations()
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1887,7 +1907,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Location> CreateLocation(Location location)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1896,7 +1916,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<Organisation> CreateOrginisation(Organisation organisation)
 	    {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }
@@ -1909,7 +1929,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<List<RejectionCode>> GetRejectionCodes()
 	    {
-	        if (!m_IsInitalized)
+	        if (!_isInitalized)
 	        {
                 this.ThrowDoshiiManagerNotInitializedException();
 	        }
@@ -1918,7 +1938,7 @@ namespace DoshiiDotNetIntegration
 
         public virtual ObjectActionResult<RejectionCode> GetRejectionCode(string code)
         {
-            if (!m_IsInitalized)
+            if (!_isInitalized)
             {
                 this.ThrowDoshiiManagerNotInitializedException();
             }

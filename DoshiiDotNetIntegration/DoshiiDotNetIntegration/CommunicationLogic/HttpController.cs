@@ -37,7 +37,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// <summary>
 		/// The HTTP request method for a DELETE endpoint action.
 		/// </summary>
-		private const string DeleteMethod = "DELETE";
+		private const string DELETE_METHOD = "DELETE";
 
         /// <summary>
         /// The base URL for HTTP communication with Doshii,
@@ -114,8 +114,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </returns>
         internal virtual ObjectActionResult<Order> GetOrder(string orderId)
         {
-            return MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, WebRequestMethods.Http.Get,
+            var orderGetResult = MakeHttpRequestWithForResponseData<Order, JsonOrder>(60000, WebRequestMethods.Http.Get,
                 EndPointPurposes.Order, "get order", "", orderId);
+
+            UpdateOrderVersion<Order>(orderGetResult.ReturnObject);
+            UpdateOrderCheckin<Order>(orderGetResult.ReturnObject);
+
+            return orderGetResult;
         }
 
         /// <summary>
@@ -154,6 +159,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 var newOrderResponse = GetOrder(partOrder.Id);
                 if (newOrderResponse.ReturnObject != null)
+                {
+                    fullOrderList.Add(newOrderResponse.ReturnObject);
+                }
+            }
+            actionResult.ReturnObject = fullOrderList;
+            return actionResult;
+        }
+
+        internal virtual ObjectActionResult<List<Order>> GetOrdersByStatus(object query)
+        {
+            var actionResult = MakeHttpRequestWithForResponseData<List<Order>, List<JsonOrder>>(60000, WebRequestMethods.Http.Get,
+                EndPointPurposes.AcceptedOrders, "get accepted orders", "","","",false, query);
+
+            var fullOrderList = new List<Models.Order>();
+            foreach(var partOrder in actionResult.ReturnObject)
+            {
+                var newOrderResponse = GetOrder(partOrder.Id);
+                if(newOrderResponse.ReturnObject != null)
                 {
                     fullOrderList.Add(newOrderResponse.ReturnObject);
                 }
@@ -335,12 +358,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 Models.Order order = null;
                 if (orderDetails is Models.Order)
+                {
                     order = orderDetails as Models.Order;
+                }
                 else if (orderDetails is TableOrder)
+                {
                     order = (orderDetails as TableOrder).Order;
+                }
 
                 if (order != null && !String.IsNullOrEmpty(order.Id))
+                {
                     _controllersCollection.OrderingController.RecordOrderVersion(order.Id, order.Version);
+                }
             }
         }
 
@@ -350,12 +379,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 Models.Order order = null;
                 if (orderDetails is Models.Order)
+                {
                     order = orderDetails as Models.Order;
+                }
                 else if (orderDetails is TableOrder)
+                {
                     order = (orderDetails as TableOrder).Order;
+                }
 
-                if (order != null && !String.IsNullOrEmpty(order.CheckinId))
+                if (order != null && !string.IsNullOrEmpty(order.CheckinId))
+                {
                     _controllersCollection.OrderingController.RecordOrderCheckinId(order.Id, order.CheckinId);
+                }
             }
         }
 
@@ -386,7 +421,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                return MakeHttpRequest(60000, DeleteMethod, EndPointPurposes.DeleteAllocationFromCheckin,
+                return MakeHttpRequest(60000, DELETE_METHOD, EndPointPurposes.DeleteAllocationFromCheckin,
                     "delete table allocation", "", checkinId);
             }
             catch (Exception rex)
@@ -647,7 +682,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequestWithForResponseData<MemberOrg, JsonMember>(60000,
-                        HttpController.DeleteMethod, EndPointPurposes.Members,
+                        HttpController.DELETE_METHOD, EndPointPurposes.Members,
                         "delete Member", "", memberId);
             }
             catch (Exception rex)
@@ -833,7 +868,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 return
-                    MakeHttpRequest(60000, DeleteMethod, EndPointPurposes.Checkins,
+                    MakeHttpRequest(60000, DELETE_METHOD, EndPointPurposes.Checkins,
                         "delete checkin", "", checkinId);
             }
             catch (Exception rex)
@@ -973,7 +1008,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequest(60000,
-                        DeleteMethod, EndPointPurposes.Surcounts,
+                        DELETE_METHOD, EndPointPurposes.Surcounts,
                         "delete surcount", "", posId);
             }
             catch (Exception rex)
@@ -1025,7 +1060,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequest(60000,
-                        DeleteMethod, EndPointPurposes.Products,
+                        DELETE_METHOD, EndPointPurposes.Products,
                         "delete product", "", posId);
             }
             catch (Exception rex)
@@ -1183,7 +1218,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequest(60000,
-                            DeleteMethod, EndPointPurposes.Tables,
+                            DELETE_METHOD, EndPointPurposes.Tables,
                             "delete table", "", tableName);
             }
             catch (Exception rex)
@@ -1264,7 +1299,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequest(60000,
-                            DeleteMethod, EndPointPurposes.Booking,
+                            DELETE_METHOD, EndPointPurposes.Booking,
                             "delete booking", "", bookingId);
             }
             catch (Exception rex)
@@ -1479,7 +1514,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 return
                     MakeHttpRequest(60000,
-                            DeleteMethod, EndPointPurposes.Employee,
+                            DELETE_METHOD, EndPointPurposes.Employee,
                             "delete employee", "", employeeId);
             }
             catch (Exception rex)
@@ -1693,6 +1728,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case EndPointPurposes.TransactionLog:
                     newUrlbuilder.AppendFormat("/transactions/{0}/logs", identification);
                     break;
+                case EndPointPurposes.AcceptedOrders:
+                    newUrlbuilder.Append("/orders");
+                    if(!string.IsNullOrWhiteSpace(queryString.ToString()))
+                    {
+                        newUrlbuilder.AppendFormat("?{0}", queryString.ToString());
+                    }
+                    break;
                 default:
                     throw new NotSupportedException(purpose.ToString());
             }
@@ -1719,7 +1761,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             if (methodString.Equals(WebRequestMethods.Http.Get) ||
                 methodString.Equals(WebRequestMethods.Http.Put) ||
                 methodString.Equals(WebRequestMethods.Http.Post) ||
-                methodString.Equals(HttpController.DeleteMethod))
+                methodString.Equals(HttpController.DELETE_METHOD))
             {
                 return methodString;
             }

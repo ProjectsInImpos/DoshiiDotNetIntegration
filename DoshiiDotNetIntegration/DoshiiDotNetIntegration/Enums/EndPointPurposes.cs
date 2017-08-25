@@ -154,7 +154,9 @@ namespace DoshiiDotNetIntegration.Enums
 
         MemberGetRewards = 33,
 
-        TransactionLog = 34
+        TransactionLog = 34,
+
+        AcceptedOrders = 35
 
     }
 }

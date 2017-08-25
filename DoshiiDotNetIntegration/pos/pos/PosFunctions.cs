@@ -80,9 +80,13 @@ namespace pos
         public void WriteToLog(string message, Color? textColour, Color? backColour, FontStyle style)
         {
             if (InvokeRequired)
+            {
                 BeginInvoke(new LogDelegate(UpdateLog), new object[] { message, textColour, backColour, style });
+            }
             else
+            {
                 UpdateLog(message, textColour, backColour, style);
+            }
         }
 
         private delegate void LogDelegate(string message, Color? textColour, Color? backColour, FontStyle style);
@@ -345,6 +349,12 @@ namespace pos
             RefreshData();
         }
 
+        private void button52_Click(object sender, EventArgs e)
+        {
+            DoshiiController.GetAcceptedOrdersFromDoshii();
+            RefreshData();
+        }
+
         private void button31_Click(object sender, EventArgs e)
         {
             var reservationsList = DoshiiController.Doshii.GetBookings(DateTime.Now.AddDays(-100), DateTime.Now.AddDays(100));
@@ -484,5 +494,7 @@ namespace pos
             }
             RefreshData();
         }
+
+        
     }
 }

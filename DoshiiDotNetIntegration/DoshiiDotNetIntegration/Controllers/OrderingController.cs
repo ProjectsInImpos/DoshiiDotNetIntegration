@@ -177,6 +177,20 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        internal virtual ObjectActionResult<List<Order>> GetOrdersByStatus(string queryStatus)
+        {
+            var status = queryStatus;
+            
+            try
+            {
+                return _httpComs.GetOrdersByStatus(query: new { status });
+            }
+            catch(Exception rex)
+            {
+                throw rex;
+            }
+        }
+
         /// <summary>
         /// Retrieves the current unlinked Order list from Doshii.
         /// </summary>

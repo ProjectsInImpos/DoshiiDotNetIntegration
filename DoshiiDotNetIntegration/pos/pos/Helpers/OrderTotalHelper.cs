@@ -40,14 +40,24 @@ namespace pos.Helpers
             foreach (var item in order.Items)
             {
                 var newItem = LiveData.ProductList.FirstOrDefault(x => x.PosId == item.PosId);
-                if (newItem.Quantity == 0)
+                if (newItem != null)
                 {
-                    newItem.Quantity = 1;
+                    if (newItem.Quantity == 0)
+                    {
+                        newItem.Quantity = 1;
 
+                    }
+                    newItem.TotalBeforeSurcounts = newItem.Quantity * newItem.UnitPrice;
+                    newItem.TotalAfterSurcounts = newItem.TotalBeforeSurcounts;
+                    newProductList.Add(newItem);
                 }
-                newItem.TotalBeforeSurcounts = newItem.Quantity * newItem.UnitPrice;
-                newItem.TotalAfterSurcounts = newItem.TotalBeforeSurcounts;
-                newProductList.Add(item);
+                else
+                {
+                    item.TotalBeforeSurcounts = item.Quantity * item.UnitPrice;
+                    item.TotalAfterSurcounts = item.TotalBeforeSurcounts;
+                    newProductList.Add(item);
+                }
+                
             }
             order.Items = newProductList;
             decimal orderTotal = 0M;

@@ -60,12 +60,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// <summary>
 		/// string to add to the Ping message to send during heartbeat checks.
 		/// </summary>
-		private const string PingMessage = "primus::ping::";
+		private const string PING_MESSAGE = "primus::ping::";
         
         /// <summary>
         /// string to identify the Pong message received from Doshii during the heartBeat process. 
         /// </summary>
-        private const string PongMessage = "primus::pong::";
+        private const string PONG_MESSAGE = "primus::pong::";
 
         #endregion
 
@@ -335,9 +335,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
                     double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
-                    string message = string.Format("\"{0}<{1}>\"", SocketsController.PingMessage, doubleForHeartbeat.ToString());
+                    string message = string.Format("\"{0}<{1}>\"", SocketsController.PING_MESSAGE, doubleForHeartbeat.ToString());
 					if (SendMessage(message))
-						SetLastSuccessfullSocketCommunicationTime();
+                    {
+                        SetLastSuccessfullSocketCommunicationTime();
+                    }
                 }
                 else
                 {
@@ -381,7 +383,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 string messageString = e.Data.ToString();
                 // drop heart beat response
-                if (messageString.Contains(String.Format("{0}", SocketsController.PongMessage)))
+                if (messageString.Contains(String.Format("{0}", SocketsController.PONG_MESSAGE)))
                 {
 					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
                     return;
@@ -397,7 +399,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 string messageString = e.RawData.ToString();
                 // drop heartbeat message
-                if (messageString.Contains(String.Format("{0}", SocketsController.PongMessage)))
+                if (messageString.Contains(String.Format("{0}", SocketsController.PONG_MESSAGE)))
                 {
                     _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
                     return;

@@ -108,6 +108,7 @@
             this.button50 = new System.Windows.Forms.Button();
             this.button51 = new System.Windows.Forms.Button();
             this.dataGridView11 = new System.Windows.Forms.DataGridView();
+            this.button52 = new System.Windows.Forms.Button();
             this.Locaiton.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -216,6 +217,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.button52);
             this.tabPage1.Controls.Add(this.button37);
             this.tabPage1.Controls.Add(this.button28);
             this.tabPage1.Controls.Add(this.button27);
@@ -236,7 +238,7 @@
             this.button37.Name = "button37";
             this.button37.Size = new System.Drawing.Size(75, 69);
             this.button37.TabIndex = 10;
-            this.button37.Text = "Get Unpaid Doshii Orders";
+            this.button37.Text = "Get All Doshii Orders";
             this.button37.UseVisualStyleBackColor = true;
             this.button37.Click += new System.EventHandler(this.button37_Click);
             // 
@@ -1013,6 +1015,16 @@
             this.dataGridView11.Size = new System.Drawing.Size(539, 265);
             this.dataGridView11.TabIndex = 5;
             // 
+            // button52
+            // 
+            this.button52.Location = new System.Drawing.Point(840, 126);
+            this.button52.Name = "button52";
+            this.button52.Size = new System.Drawing.Size(75, 69);
+            this.button52.TabIndex = 11;
+            this.button52.Text = "Get Accepted Doshii Orders";
+            this.button52.UseVisualStyleBackColor = true;
+            this.button52.Click += new System.EventHandler(this.button52_Click);
+            // 
             // PosFunctions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1139,5 +1151,6 @@
         private System.Windows.Forms.Button button50;
         private System.Windows.Forms.Button button51;
         private System.Windows.Forms.DataGridView dataGridView11;
+        private System.Windows.Forms.Button button52;
     }
 }
