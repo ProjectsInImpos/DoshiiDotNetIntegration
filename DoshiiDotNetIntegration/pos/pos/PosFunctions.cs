@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DoshiiDotNetIntegration.Models;
@@ -116,12 +117,27 @@ namespace pos
                 rtbLog.Refresh();
             }
         }
+        private bool _saved=false;
 
         private void button2_Click(object sender, EventArgs e)
         {
-            this.WriteToLog("Saving pos data to file, before close", Color.Aqua, Color.White, FontStyle.Bold);
-            DataPersistanceHelper.SaveDataToStore();
+
+            Save();
             this.Close();
+        }
+
+        private void Save()
+        {
+            try
+            {
+                this.WriteToLog("Saving pos data to file, before close", Color.Aqua, Color.White, FontStyle.Bold);
+                DataPersistanceHelper.SaveDataToStore();
+                
+            }
+            finally
+            {
+                _saved = true;
+            }
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -139,12 +155,25 @@ namespace pos
             LiveData.PosSettings.ConfirmAllRefunds = checkBox3.Checked;
         }
 
+        private CancellationTokenSource _cancellationTokenSource;
         private void PosFunctions_Load(object sender, EventArgs e)
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+            var cancellationManager=new CancellationManager(_cancellationTokenSource.Token);
             WriteToLog("Loading Doshii", null, null, FontStyle.Bold);
             DoshiiController = new PosDoshiiController();
-            DoshiiController.Initialize(new ConfigurationManager(new DisplayHelper(this), DoshiiController));
+            DoshiiController.Initialize(new ConfigurationManager(new DisplayHelper(this), DoshiiController, cancellationManager));
         }
+
+        private void PosFunctions_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _cancellationTokenSource.Cancel();//stop all sync opeations
+            if (!_saved)
+            {
+                Save();
+            }
+        }
+
 
         private void Refresh_Click(object sender, EventArgs e)
         {
@@ -495,6 +524,6 @@ namespace pos
             RefreshData();
         }
 
-        
+       
     }
 }
