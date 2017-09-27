@@ -23,6 +23,8 @@ using Order = DoshiiDotNetIntegration.Models.Order;
 
 namespace DoshiiDotNetIntegration
 {
+
+
     /// <summary>
     /// This class controls requests to Doshii from the Point of sale (POS) software.
     /// This class supports ordering operations, product operations, table operations, Member operations, and reservation operations including the following;
@@ -108,7 +110,7 @@ namespace DoshiiDotNetIntegration
     /// update orders, creating products e.t.c.)
     /// </remarks>
     public class DoshiiController : IDisposable
-	{
+    {
 		#region Constants
 
 		/// <summary>
@@ -2349,8 +2351,19 @@ namespace DoshiiDotNetIntegration
 			_controllersCollection.LoggingController = null;
 		}
 
-		#endregion
+        #endregion
 
+        /// <summary>
+        /// Determines whether [is cancellation requested].It is recommended to use IsCancellationRequested around any Doshii functions exposed by this class DoshiiController
+        /// <par>All the methods will throw  DoshiiCancellationRequestedException </par>
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if [is cancellation requested]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsCancellationRequested()
+	    {
+	        return _controllersCollection.CancellationProvider.IsCancellationRequested;
+	    }
 		
 	}
 }
