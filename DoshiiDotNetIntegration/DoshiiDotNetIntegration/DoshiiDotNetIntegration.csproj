@@ -157,6 +157,7 @@
     <Compile Include="Helpers\DoshiiStrings.cs" />
     <Compile Include="Helpers\ExceptionExtentions.cs" />
     <Compile Include="Interfaces\IAppManager.cs" />
+    <Compile Include="Interfaces\ICancellationProvider.cs" />
     <Compile Include="Interfaces\IConfigurationManager.cs" />
     <Compile Include="Interfaces\ILoggingManager.cs" />
     <Compile Include="Interfaces\IRewardManager.cs" />

@@ -194,6 +194,9 @@ namespace DoshiiDotNetIntegration
                 throw new ArgumentNullException("configurationManager", "IConfigurationManager needs to be instantiated as it is a core module");
             }
             _controllersCollection.ConfigurationManager = configurationManager;
+
+            var cancellationprovider = configurationManager.GetCancellationProviderFromPos() ?? new GenericCancellationProvider();
+            _controllersCollection.CancellationProvider = cancellationprovider;
             _controllersCollection.TransactionManager = configurationManager.GetTransactionManagerFromPos();
             _controllersCollection.OrderingManager = configurationManager.GetOrderingManagerFromPos();
             _controllersCollection.RewardManager = configurationManager.GetRewardManagerFromPos();
@@ -454,7 +457,9 @@ namespace DoshiiDotNetIntegration
         }
         #endregion
 
-        #region socket communication event handlers
+	   
+
+	    #region socket communication event handlers
 
         /// <summary>
         /// Handles a socket communication established event and calls <see cref="RefreshAllOrders()"/>. 
@@ -464,8 +469,16 @@ namespace DoshiiDotNetIntegration
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
 			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, " received Socket connection event");
+
+           
+
             try
             {
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return;
+                }
+
                 _controllersCollection.OrderingController.RefreshAllOrders();
             }
             catch (Exception ex)
@@ -474,6 +487,11 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return;
+                }
+
                 if (_controllersCollection.ReservationManager != null)
                 {
                     _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
@@ -485,6 +503,11 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return;
+                }
+
                 if (_controllersCollection.RewardManager != null)
                 {
                     _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
@@ -497,6 +520,11 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return;
+                }
+
                 if (_controllersCollection.AppManager != null)
                 {
                     _controllersCollection.AppController.SyncDoshiiAppsWithPosApps();
