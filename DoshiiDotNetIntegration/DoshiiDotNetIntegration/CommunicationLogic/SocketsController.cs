@@ -678,10 +678,40 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" WebSockets connection successfully open to {0}", _webSocketsConnection.Url.ToString()));
+            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug,
+                string.Format(" WebSockets connection successfully open to {0}", _webSocketsConnection.Url.ToString()));
             StartHeartbeatThread();
-            SocketCommunicationEstablishedEvent(this, e);
+
+            //Fire and forget 
+            Task.Run(() =>
+                {
+                    if (_webSocketConnectionEvent.WaitOne())
+                    {
+                        var logger = _logger;
+                        try
+                        {
+                            SocketCommunicationEstablishedEvent(this, e);
+                        }
+
+                        catch (Exception ex)
+                        {
+
+                            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error,
+                                string.Format(" Error while performing SocketCommunicationEstablishedEvent {0}", ex));
+                        }
+                        finally
+                        {
+                            _webSocketConnectionEvent.Set();
+                        }
+                    }
+
+                })
+                .ConfigureAwait(
+                    false); //This thread do not expect to run on the creator on completion . Avoid context switching while task completes its action
+
         }
+
+        private readonly  AutoResetEvent _webSocketConnectionEvent =new AutoResetEvent(true);
 
         #endregion
 
