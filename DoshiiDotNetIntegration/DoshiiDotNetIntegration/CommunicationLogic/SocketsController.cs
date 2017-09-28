@@ -685,7 +685,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             //Fire and forget 
             Task.Run(() =>
                 {
-                    if (_webSocketConnectionEvent.WaitOne())
+                    if (_webSocketConnectionEvent.WaitOne(100))
                     {
                         var logger = _logger;
                         try
@@ -696,7 +696,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         catch (Exception ex)
                         {
 
-                            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error,
+                            logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error,
                                 string.Format(" Error while performing SocketCommunicationEstablishedEvent {0}", ex));
                         }
                         finally
