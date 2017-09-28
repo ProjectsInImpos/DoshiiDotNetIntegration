@@ -291,6 +291,7 @@ namespace DoshiiDotNetIntegration
                 catch (Exception ex)
                 {
                     _isInitalized = false;
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " Error OrderingController.RefreshAllOrders()", ex);
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
                     _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed");
                 }
