@@ -179,11 +179,22 @@ namespace DoshiiDotNetIntegration.Controllers
 
         internal virtual ObjectActionResult<List<Order>> GetOrdersByStatus(string queryStatus)
         {
+            var returnResult = new List<Order>();
             var status = queryStatus;
-            
+            var offset = 0;
+            var limit = 50;
             try
             {
-                return _httpComs.GetOrdersByStatus(query: new { status });
+                var result = _httpComs.GetOrdersByStatus(query: new { status, offset, limit });
+                while(result.ReturnObject.Count > 0)
+                {
+                    offset += limit;
+                    returnResult.AddRange(result.ReturnObject);
+                    result = _httpComs.GetOrdersByStatus(query: new { status, offset, limit });
+                }
+                result.ReturnObject = returnResult;
+                return result;
+
             }
             catch(Exception rex)
             {
