@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration;
 using DoshiiDotNetIntegration.Interfaces;
@@ -14,10 +15,13 @@ namespace pos
     {
         public DisplayHelper DHelper;
         public PosDoshiiController DControler;
-        public ConfigurationManager(DisplayHelper dHelper, PosDoshiiController doshiiController)
+        private readonly ICancellationProvider _cancellationProvider;
+
+        public ConfigurationManager(DisplayHelper dHelper, PosDoshiiController doshiiController, ICancellationProvider cancellationProvider )
         {
             DHelper = dHelper;
             DControler = doshiiController;
+            _cancellationProvider = cancellationProvider;
         }
 
         public string GetSocketUrlFromPos()
@@ -99,6 +103,11 @@ namespace pos
             {
                 return null;
             }
+        }
+
+        public ICancellationProvider GetCancellationProviderFromPos()
+        {
+            return _cancellationProvider;
         }
     }
 }

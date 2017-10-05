@@ -367,6 +367,11 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns></returns>
         internal virtual ActionResultBasic SyncDoshiiBookingsWithPosBookings()
         {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiBookingsWithPosBookings aborted due to cancellation request" };
+            }
+
             try
             {
                 StringBuilder failedReasonBuilder = new StringBuilder();
@@ -379,6 +384,11 @@ namespace DoshiiDotNetIntegration.Controllers
                 var bookingsNotInDoshii = PosBookingList.Where(p => !doshiiBookingHashSet.Contains(p.Id) || string.IsNullOrEmpty(p.Id) || p.Id == null);
                 foreach (var book in bookingsNotInDoshii)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic(){Success = false, FailReason = "SyncDoshiiBookingsWithPosBookings aborted due to cancellation request" };
+                    }
+
                     try
                     {
                         if (string.IsNullOrEmpty(book.Id) || book.Id == null)
@@ -403,9 +413,19 @@ namespace DoshiiDotNetIntegration.Controllers
 
                 }
 
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiBookingsWithPosBookings aborted due to cancellation request" };
+                }
+
                 var bookingsInPos = DoshiiBookingList.Where(p => posBookingHashSet.Contains(p.Id));
                 foreach (var book in bookingsInPos)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiBookingsWithPosBookings aborted due to cancellation request" };
+                    }
+
                     Booking posBooking = PosBookingList.FirstOrDefault(p => p.Id == book.Id);
                     if (!book.Equals(posBooking))
                     {
@@ -426,6 +446,11 @@ namespace DoshiiDotNetIntegration.Controllers
                 var bookingsNotInPos = DoshiiBookingList.Where(p => !posBookingHashSet.Contains(p.Id));
                 foreach (var book in bookingsNotInPos)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiBookingsWithPosBookings aborted due to cancellation request" };
+                    }
+
                     try
                     {
                         _controllersCollection.ReservationManager.CreateBookingOnPos(book);

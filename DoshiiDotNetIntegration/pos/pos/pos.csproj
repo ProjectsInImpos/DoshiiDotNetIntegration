@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DoshiiImplementation\AppManager.cs" />
+    <Compile Include="DoshiiImplementation\CancellationManager.cs" />
     <Compile Include="DoshiiImplementation\ConfigurationManager.cs" />
     <Compile Include="DoshiiImplementation\LoggingManager.cs" />
     <Compile Include="DoshiiImplementation\OrderingManager.cs" />

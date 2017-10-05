@@ -116,6 +116,7 @@
     <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\CheckinController.cs" />
     <Compile Include="Controllers\ConsumerController.cs" />
+    <Compile Include="Controllers\ControllerExtensions.cs" />
     <Compile Include="Controllers\EmployeeController.cs" />
     <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="Exceptions\BookingExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingUpdateException.cs" />
     <Compile Include="Exceptions\DoshiiAppManagerNotInitializedException.cs" />
+    <Compile Include="Exceptions\DoshiiCancellationRequestedException.cs" />
     <Compile Include="Exceptions\DoshiiReservationManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiMembershipManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
@@ -156,7 +158,9 @@
     <Compile Include="Helpers\DateTimeExtension.cs" />
     <Compile Include="Helpers\DoshiiStrings.cs" />
     <Compile Include="Helpers\ExceptionExtentions.cs" />
+    <Compile Include="Helpers\GenericCancellationProvider.cs" />
     <Compile Include="Interfaces\IAppManager.cs" />
+    <Compile Include="Interfaces\ICancellationProvider.cs" />
     <Compile Include="Interfaces\IConfigurationManager.cs" />
     <Compile Include="Interfaces\ILoggingManager.cs" />
     <Compile Include="Interfaces\IRewardManager.cs" />

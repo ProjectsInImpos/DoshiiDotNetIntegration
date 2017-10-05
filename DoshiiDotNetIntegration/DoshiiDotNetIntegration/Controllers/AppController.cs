@@ -67,6 +67,11 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns></returns>
         internal virtual ActionResultBasic SyncDoshiiAppsWithPosApps()
         {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return new ActionResultBasic(){ Success = false, FailReason = "SyncDoshiiAppsWithPosApps aborted due to cancellation request" };
+            }
+
             try
             {
                 StringBuilder failedReasonBuilder = new StringBuilder();
@@ -79,6 +84,11 @@ namespace DoshiiDotNetIntegration.Controllers
                 var appsNotInDoshii = PosMembersList.Where(p => !doshiiAppsHashSet.Contains(p.Id));
                 foreach (var mem in appsNotInDoshii)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiAppsWithPosApps aborted due to cancellation request" };
+                    }
+
                     try
                     {
                         _controllersCollection.AppManager.DeleteAppOnPos(mem);
@@ -92,9 +102,19 @@ namespace DoshiiDotNetIntegration.Controllers
 
                 }
 
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiAppsWithPosApps aborted due to cancellation request" };
+                }
+
                 var membersInPos = DoshiiMembersList.Where(p => posAppsHashSet.Contains(p.Id));
                 foreach (var mem in membersInPos)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiAppsWithPosApps aborted due to cancellation request" };
+                    }
+
                     App posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
                     if (!mem.Equals(posMember))
                     {
@@ -112,9 +132,19 @@ namespace DoshiiDotNetIntegration.Controllers
                     }
                 }
 
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiAppsWithPosApps aborted due to cancellation request" };
+                }
+
                 var membersNotInPos = DoshiiMembersList.Where(p => !posAppsHashSet.Contains(p.Id));
                 foreach (var mem in membersNotInPos)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiAppsWithPosApps aborted due to cancellation request" };
+                    }
+
                     try
                     {
                         _controllersCollection.AppManager.CreateAppOnPos(mem);
