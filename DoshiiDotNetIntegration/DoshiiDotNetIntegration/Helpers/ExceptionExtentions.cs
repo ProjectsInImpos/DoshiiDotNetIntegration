@@ -41,5 +41,12 @@ namespace DoshiiDotNetIntegration.Helpers
             throw new DoshiiMembershipManagerNotInitializedException(
                 string.Format("You must initialize the DoshiiApp module before calling {0}.{1}", typeof(T), methodName));
         }
+
+        internal static void ThrowDoshiiCancellationRequestedException<T>(this T t, [CallerMemberName]string methodName = "")
+        {
+            throw new DoshiiCancellationRequestedException(
+                string.Format("Cancellation requested before executing method {0}.{1}", typeof(T), methodName));
+        }
+
     }
 }

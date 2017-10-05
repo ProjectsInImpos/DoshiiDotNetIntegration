@@ -19,8 +19,10 @@ namespace pos
             DataPersistanceHelper.RetreiveDataFromStore();
         }
 
+        private bool _saved = false;
         private void button2_Click(object sender, EventArgs e)
         {
+            _saved = true;
             DataPersistanceHelper.SaveDataToStore();
             Application.Exit();
         }
@@ -65,6 +67,23 @@ namespace pos
             chk_reservations.Checked = LiveData.PosSettings.UseReservations;
             chk_socketConnection.Checked = LiveData.PosSettings.UseSocketConnection;
             textBox1.Text = LiveData.PosSettings.OrganisationId;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (_saved)
+            {
+                return;
+            }
+
+            try
+            {
+                DataPersistanceHelper.SaveDataToStore();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
     }
 }

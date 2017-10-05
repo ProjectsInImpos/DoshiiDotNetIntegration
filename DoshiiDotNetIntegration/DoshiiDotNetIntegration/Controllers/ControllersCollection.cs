@@ -19,7 +19,14 @@ namespace DoshiiDotNetIntegration.Models
         internal IReservationManager ReservationManager;
         internal IConfigurationManager ConfigurationManager;
         internal IAppManager AppManager;
+
+        /// <summary>
+        /// The cancellation provider (Guarantees to be not null all the time)
+        /// </summary>
+        internal ICancellationProvider CancellationProvider;
         
+
+
         internal OrderingController OrderingController;
         internal TransactionController TransactionController;
         internal ReservationController ReservationController;

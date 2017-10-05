@@ -36,6 +36,7 @@
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.Locaiton = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button52 = new System.Windows.Forms.Button();
             this.button37 = new System.Windows.Forms.Button();
             this.button28 = new System.Windows.Forms.Button();
             this.button27 = new System.Windows.Forms.Button();
@@ -108,7 +109,6 @@
             this.button50 = new System.Windows.Forms.Button();
             this.button51 = new System.Windows.Forms.Button();
             this.dataGridView11 = new System.Windows.Forms.DataGridView();
-            this.button52 = new System.Windows.Forms.Button();
             this.Locaiton.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -231,6 +231,16 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Orders";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button52
+            // 
+            this.button52.Location = new System.Drawing.Point(840, 126);
+            this.button52.Name = "button52";
+            this.button52.Size = new System.Drawing.Size(75, 69);
+            this.button52.TabIndex = 11;
+            this.button52.Text = "Get Accepted Doshii Orders";
+            this.button52.UseVisualStyleBackColor = true;
+            this.button52.Click += new System.EventHandler(this.button52_Click);
             // 
             // button37
             // 
@@ -1015,16 +1025,6 @@
             this.dataGridView11.Size = new System.Drawing.Size(539, 265);
             this.dataGridView11.TabIndex = 5;
             // 
-            // button52
-            // 
-            this.button52.Location = new System.Drawing.Point(840, 126);
-            this.button52.Name = "button52";
-            this.button52.Size = new System.Drawing.Size(75, 69);
-            this.button52.TabIndex = 11;
-            this.button52.Text = "Get Accepted Doshii Orders";
-            this.button52.UseVisualStyleBackColor = true;
-            this.button52.Click += new System.EventHandler(this.button52_Click);
-            // 
             // PosFunctions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1039,6 +1039,7 @@
             this.Controls.Add(this.label1);
             this.Name = "PosFunctions";
             this.Text = "PosFunctions";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PosFunctions_FormClosing);
             this.Load += new System.EventHandler(this.PosFunctions_Load);
             this.Locaiton.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);

@@ -291,6 +291,10 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <exception cref="RestfulApiErrorResponseException">Is thrown if there is an issue getting the orders from Doshii.</exception>
         internal virtual void RefreshAllOrders()
         {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
 
             try
             {
@@ -299,6 +303,11 @@ namespace DoshiiDotNetIntegration.Controllers
                 var unassignedOrderList = GetUnlinkedOrders();
                 foreach (Models.Order order in unassignedOrderList.ReturnObject)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return;
+                    }
+
                     if (order.Status == "pending")
                     {
                         var transactionListForOrder = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(order.DoshiiId);
