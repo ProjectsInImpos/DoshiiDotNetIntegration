@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Text;
-using System.Threading.Tasks;
 using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
@@ -21,7 +18,7 @@ namespace DoshiiDotNetIntegration.Models
             Address = new Address();
         }
         
-        private List<App> _Apps;
+        private List<App> _apps;
 
         /// <summary>
         /// a list of <see cref="App"/> associated with the member
@@ -30,15 +27,15 @@ namespace DoshiiDotNetIntegration.Models
         {
             get
             {
-                if (_Apps == null)
+                if (_apps == null)
                 {
-                    _Apps = new List<App>();
+                    _apps = new List<App>();
                 }
-                return _Apps;
+                return _apps;
             }
             set
             {
-                _Apps = value.ToList<App>();
+                _apps = value.ToList<App>();
             }
         }
 
@@ -84,11 +81,7 @@ namespace DoshiiDotNetIntegration.Models
                 return false;
             }
 
-            if (this.Uri != other.Uri)
-            {
-                return false;
-            }
-
+           
             if (this.Ref != other.Ref)
             {
                 return false;
@@ -109,7 +102,7 @@ namespace DoshiiDotNetIntegration.Models
         {
             unchecked
             {
-                var hashCode = (_Apps != null ? _Apps.GetHashCode() : 0);
+                var hashCode = (_apps != null ? _apps.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ (FirstName != null ? FirstName.GetHashCode() : 0);
@@ -125,16 +118,16 @@ namespace DoshiiDotNetIntegration.Models
 
         protected void Clear()
         {
-            this._Apps.Clear();
-            this.Id = string.Empty;
-            this.Name = string.Empty;
-            this.FirstName = string.Empty;
-            this.LastName = string.Empty;
-            this.Email = string.Empty;
-            this.Phone = string.Empty;
-            this.Address = new Address();
-            this.Ref = string.Empty;
-            
+            _apps.Clear();
+            Id = string.Empty;
+            Name = string.Empty;
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            Email = string.Empty;
+            Phone = string.Empty;
+            Address = new Address();
+            Ref = string.Empty;
+
         }
 
         public object Clone()
