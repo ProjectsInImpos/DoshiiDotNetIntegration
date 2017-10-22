@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DoshiiDotNetIntegration.Models;
+using Order = DoshiiDotNetIntegration.Models.Order;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
@@ -16,7 +17,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 
 		internal string Status { get; set; }
 
-		internal OrderWithConsumer Order { get; set; }
+		internal Order Order { get; set; }
 
         internal IEnumerable<Transaction> TransactionList { get; set; }
     }

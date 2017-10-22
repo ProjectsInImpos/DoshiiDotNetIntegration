@@ -6,9 +6,9 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Models
 {
 	/// <summary>
-	/// This model is a container that represents the order being placed with a table allocation.
+	/// This model is a container that represents the Order being placed with a table allocation.
 	/// </summary>
-	public class TableOrder
+	public class TableOrder : ICloneable
 	{
 		/// <summary>
 		/// Constructor.
@@ -30,7 +30,7 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		/// <summary>
-		/// The table allocation for the order.
+		/// The table allocation for the Order.
 		/// </summary>
 		public TableAllocation Table
 		{
@@ -39,12 +39,38 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		/// <summary>
-		/// The details of the order.
+		/// The details of the Order.
 		/// </summary>
 		public Order Order
 		{
 			get;
 			set;
 		}
+
+	    protected bool Equals(TableOrder other)
+	    {
+	        return Equals(Table, other.Table) && Equals(Order, other.Order);
+	    }
+
+	    public override bool Equals(object obj)
+	    {
+	        if (ReferenceEquals(null, obj)) return false;
+	        if (ReferenceEquals(this, obj)) return true;
+	        if (obj.GetType() != this.GetType()) return false;
+	        return Equals((TableOrder) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+	        {
+	            return ((Table != null ? Table.GetHashCode() : 0)*397) ^ (Order != null ? Order.GetHashCode() : 0);
+	        }
+	    }
+
+	    public object Clone()
+	    {
+            return (TableOrder)this.MemberwiseClone();
+	    }
 	}
 }

@@ -8,7 +8,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// The consumer model represents the individual customer in Doshii.
     /// </summary>
-    public class Consumer
+    public class Consumer : ICloneable
     {
         /// <summary>
 		/// Constructor.
@@ -25,12 +25,20 @@ namespace DoshiiDotNetIntegration.Models
         {
             Name = String.Empty;
             Phone = String.Empty;
+            Email = string.Empty;
             Address = null;
             Notes = String.Empty;
             PhotoUrl = string.Empty;
             Anonymous = false;
+            FirstName = string.Empty;
+            LastName = string.Empty;
         }
 
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+        
         /// <summary>
         /// the url for the consumers photo
         /// </summary>
@@ -62,7 +70,7 @@ namespace DoshiiDotNetIntegration.Models
         public Address Address { get; set; }
         
         /// <summary>
-        /// Notes specific to this order, 
+        /// Notes specific to this Order, 
         /// this may include:
         /// Notes about delivery location,
         /// Notes about allergies,
@@ -70,5 +78,44 @@ namespace DoshiiDotNetIntegration.Models
         /// Notes about special requests for the delivery. 
         /// </summary>
         public string Notes { get; set; }
+
+        protected bool Equals(Consumer other)
+        {
+            return 
+                string.Equals(FirstName, other.FirstName) && string.Equals(LastName, other.LastName) &&
+                string.Equals(Name, other.Name) && string.Equals(Phone, other.Phone) &&
+                string.Equals(Email, other.Email) && Address.Equals(other.Address);
+
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Consumer) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (PhotoUrl != null ? PhotoUrl.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Anonymous.GetHashCode();
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Phone != null ? Phone.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Email != null ? Email.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Address != null ? Address.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Notes != null ? Notes.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (FirstName != null ? FirstName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (LastName != null ? LastName.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public object Clone()
+        {
+            return (Consumer)this.MemberwiseClone();
+        }
     }
 }

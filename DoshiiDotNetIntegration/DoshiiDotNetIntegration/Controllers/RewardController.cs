@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
+using NUnit.Framework;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -17,9 +20,9 @@ namespace DoshiiDotNetIntegration.Controllers
     internal class RewardController
     {
         /// <summary>
-        /// prop for the local <see cref="Controllers"/> instance. 
+        /// prop for the local <see cref="ControllersCollection"/> instance. 
         /// </summary>
-        internal Models.Controllers _controllers;
+        internal Models.ControllersCollection _controllersCollection;
 
         /// <summary>
         /// prop for the local <see cref="HttpController"/> instance.
@@ -29,32 +32,32 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <summary>
         /// constructor 
         /// </summary>
-        /// <param name="controller"></param>
+        /// <param name="controllerCollection"></param>
         /// <param name="httpComs"></param>
-        internal RewardController(Models.Controllers controller, HttpController httpComs)
+        internal RewardController(Models.ControllersCollection controllerCollection, HttpController httpComs)
         {
-            if (controller == null)
+            if (controllerCollection == null)
             {
                 throw new NullReferenceException("controller cannot be null");
             }
-            _controllers = controller;
-            if (_controllers.LoggingController == null)
+            _controllersCollection = controllerCollection;
+            if (_controllersCollection.LoggingController == null)
             {
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
-            if (_controllers.OrderingController == null)
+            if (_controllersCollection.OrderingController == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - IOrderingManager cannot be null");
                 throw new NullReferenceException("orderingManager cannot be null");
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - rewardManager cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, " Initialization failed - rewardManager cannot be null");
                 throw new NullReferenceException("rewardManager cannot be null");
             }
             if (httpComs == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -66,13 +69,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="memberId"></param>
         /// <returns></returns>
-        internal virtual Member GetMember(string memberId)
+        internal virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
             try
             {
                 return _httpComs.GetMember(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -82,13 +85,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// gets all the members from doshii for the orginisation. 
         /// </summary>
         /// <returns></returns>
-        internal virtual IEnumerable<Member> GetMembers()
+        internal virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
             try
             {
                 return _httpComs.GetMembers();
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -99,13 +102,22 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="member"></param>
         /// <returns></returns>
-        internal virtual bool DeleteMember(Member member)
+        internal virtual ActionResultBasic DeleteMember(string memberId)
         {
+            if (string.IsNullOrEmpty(memberId))
+            {
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete member", "member"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "member Id is empty"
+                };
+            }
             try
             {
-                return _httpComs.DeleteMember(member);
+                return _httpComs.DeleteMember(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -116,7 +128,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="member"></param>
         /// <returns></returns>
-        internal virtual Member UpdateMember(Member member)
+        internal virtual ObjectActionResult<MemberOrg> UpdateMember(MemberOrg member)
         {
             if (string.IsNullOrEmpty(member.Name))
             {
@@ -134,7 +146,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 }
 
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -144,70 +156,142 @@ namespace DoshiiDotNetIntegration.Controllers
         /// syncs the pos members with the Doshii members, 
         /// NOTE: members that exist on the pos but do not exist on doshii will be deleted from the pos with a call to <see cref="IRewardManager.DeleteMemberOnPos"/>
         /// </summary>
-        /// <returns></returns>
-        internal virtual bool SyncDoshiiMembersWithPosMembers()
+        /// <returns>
+        /// This method will return a failed result when any of the apps that are to be syncronised fail in the sync process, the fail reason in the ActionResultBasic will 
+        /// give details about which apps failed to sync. 
+        /// </returns>
+        internal virtual ActionResultBasic SyncDoshiiMembersWithPosMembers()
         {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiMembersWithPosMembers aborted due to cancellation request" };
+            }
+
             try
             {
-                List<Member> DoshiiMembersList = GetMembers().ToList();
-                List<Member> PosMembersList = _controllers.RewardManager.GetMembersFromPos().ToList();
+                StringBuilder failedReasonBuilder = new StringBuilder();
+                List<MemberOrg> DoshiiMembersList = GetMembers().ReturnObject;
+                List<MemberOrg> PosMembersList = _controllersCollection.RewardManager.GetMembersFromPos().ToList();
 
                 var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
                 var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
 
-                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id) || string.IsNullOrEmpty(p.Id) || p.Id == null);
                 foreach (var mem in membersNotInDoshii)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiMembersWithPosMembers aborted due to cancellation request" };
+                    }
+
                     try
                     {
-                        _controllers.RewardManager.DeleteMemberOnPos(mem);
+                        if (string.IsNullOrEmpty(mem.Id) || mem.Id == null)
+                        {
+                            var createResult = _controllersCollection.RewardController.UpdateMember(mem);
+                            if (createResult.Success)
+                            {
+                                _controllersCollection.RewardManager.UpdateMemberOnPosByEmail(createResult.ReturnObject);
+                            }
+                            else
+                            {
+                                _controllersCollection.RewardManager.DeleteMemberOnPosByEmail(mem.Email);
+                            }
+                        }
+                        else
+                        {
+                            _controllersCollection.RewardManager.DeleteMemberOnPos(mem.Id);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception deleting a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        failedReasonBuilder.AppendLine(string.Format("member with Id {0} failed to delete from the pos",
+                            mem.Id));
                     }
                    
+                }
+
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiMembersWithPosMembers aborted due to cancellation request" };
                 }
 
                 var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersInPos)
                 {
-                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiMembersWithPosMembers aborted due to cancellation request" };
+                    }
+
+                    MemberOrg posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
                     if (!mem.Equals(posMember))
                     {
                         try
                         {
-                            _controllers.RewardManager.UpdateMemberOnPos(mem);
+                            _controllersCollection.RewardManager.UpdateMemberOnPos(mem);
                         }
                         catch (Exception ex)
                         {
-                            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception updating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                            failedReasonBuilder.AppendLine(string.Format("member with Id {0} failed to update on the pos",
+                            mem.Id));
                         }
                         
                     }
                 }
 
+                if(_controllersCollection.IsCancellationRequested())
+                {
+                    return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiMembersWithPosMembers aborted due to cancellation request" };
+                }
+
                 var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersNotInPos)
                 {
+                    if(_controllersCollection.IsCancellationRequested())
+                    {
+                        return new ActionResultBasic() { Success = false, FailReason = "SyncDoshiiMembersWithPosMembers aborted due to cancellation request" };
+                    }
+
                     try
                     {
-                        _controllers.RewardManager.CreateMemberOnPos(mem);
+                        _controllersCollection.RewardManager.CreateMemberOnPos(mem);
                     }
                     catch(Exception ex)
                     {
-                        _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        failedReasonBuilder.AppendLine(string.Format("member with Id {0} failed to create on the pos",
+                            mem.Id));
                     }
 
                 }
 
-
-                return true;
+                if (string.IsNullOrEmpty(failedReasonBuilder.ToString()))
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = true
+                    };
+                }
+                else
+                {
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = failedReasonBuilder.ToString()
+                    };
+                }
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
-                return false;
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception while attempting to sync Doshii members with the pos"), ex);
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = DoshiiStrings.GetThereWasAnExceptionSeeLogForDetails("syncing members")
+                };
             }
         }
 
@@ -218,13 +302,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="orderId"></param>
         /// <param name="orderTotal"></param>
         /// <returns></returns>
-        internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
+        internal virtual ObjectActionResult<List<Reward>> GetRewardsForMember(string memberId)
         {
             try
             {
-                return _httpComs.GetRewardsForMember(memberId, orderId, orderTotal);
+                return _httpComs.GetRewardsForMember(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -237,27 +321,31 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="reward"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        internal virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
+        internal virtual ActionResultBasic RedeemRewardForMember(MemberOrg member, Reward reward, Order order)
         {
             try
             {
-                var returnedOrder = _controllers.OrderingController.UpdateOrder(order);
-                if (returnedOrder == null)
+                var returnedOrder = _controllersCollection.OrderingController.UpdateOrder(order);
+                if (returnedOrder.ReturnObject == null)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
-                    return false;
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" The Order was not successfully sent to Doshii so the reward could not be redeemed."));
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = returnedOrder.FailReason
+                    };
                 }
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
-                return false;
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception putting and Order to Doshii for a rewards redeem"), ex);
+                throw new OrderUpdateException(ex.ToString());
             }
             try
             {
                 return _httpComs.RedeemRewardForMember(member.Id, reward.Id, order);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -270,13 +358,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="rewardId"></param>
         /// <param name="cancelReason"></param>
         /// <returns></returns>
-        internal virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        internal virtual ActionResultBasic RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
             try
             {
                 return _httpComs.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -288,13 +376,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="memberId"></param>
         /// <param name="rewardId"></param>
         /// <returns></returns>
-        internal virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        internal virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
             try
             {
                 return _httpComs.RedeemRewardForMemberConfirm(memberId, rewardId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -308,21 +396,25 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="order"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        internal virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
+        internal virtual ActionResultBasic RedeemPointsForMember(MemberOrg member, App app, Order order, int points)
         {
             try
             {
-                order = _controllers.OrderingController.UpdateOrder(order);
-                if (order == null)
+                var returnedOrderResult = _controllersCollection.OrderingController.UpdateOrder(order);
+                if (returnedOrderResult.ReturnObject == null)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the order on Doshii, so the points can't re redeemed."));
-                    return false;
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was a problem updating the Order on Doshii, so the points can't re redeemed."));
+                    return new ActionResultBasic()
+                    {
+                        Success = false,
+                        FailReason = returnedOrderResult.FailReason
+                    };
                 }
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
-                return false;
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" There was an exception putting and Order to Doshii for a rewards redeem"), ex);
+                throw new OrderUpdateException(ex.ToString());
             }
             PointsRedeem pr = new PointsRedeem()
             {
@@ -334,7 +426,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 return _httpComs.RedeemPointsForMember(pr, member);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -345,13 +437,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// </summary>
         /// <param name="memberId"></param>
         /// <returns></returns>
-        internal virtual bool RedeemPointsForMemberConfirm(string memberId)
+        internal virtual ActionResultBasic RedeemPointsForMemberConfirm(string memberId)
         {
             try
             {
                 return _httpComs.RedeemPointsForMemberConfirm(memberId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }
@@ -363,13 +455,13 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="memberId"></param>
         /// <param name="cancelReason"></param>
         /// <returns></returns>
-        public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
+        public virtual ActionResultBasic RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             try
             {
                 return _httpComs.RedeemPointsForMemberCancel(memberId, cancelReason);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

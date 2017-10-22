@@ -23,5 +23,10 @@ namespace DoshiiDotNetIntegration.Helpers
 
             return string.Format("Bearer {0}", JWT.JsonWebToken.Encode(payload, secretKey, JWT.JwtHashAlgorithm.HS256));
         }
+
+        internal static string CreateTokenForOrginisationCreate(string secretKey)
+        {
+            return string.Format("Bearer {0}", secretKey);
+        }
     }
 }

@@ -3,23 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
-    /// A Doshii order
+    /// A Doshii Order
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonOrderToPut : JsonSerializationBase<JsonOrderToPut>
+    internal class JsonOrderToPut : JsonBaseStatus<JsonOrderToPut>
     {
-        /// <summary>
-        /// Order status
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-
         [DataMember]
         [JsonProperty(PropertyName = "phase")]
         public string Phase { get; set; }
@@ -33,17 +27,21 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string CheckinId { get; set; }
 
         /// <summary>
-        /// An obfuscated string representation of the version of the order in Doshii.
+        /// An obfuscated string representation of the version of the Order in Doshii.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "version")]
         public string Version { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
 
         private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
-		/// A list of all surcounts applied at and order level
+		/// A list of all surcounts applied at and Order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
 		[DataMember]
@@ -65,7 +63,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonOrderProduct> _items;
         
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
@@ -81,6 +79,14 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
 			set { _items = value; } 
         }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "RejectionReason")]
+        public string RejectionReason { get; set; }
 
         #region serializeMembers
 
@@ -98,6 +104,11 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
             return json;
 
+        }
+
+        public bool ShouldSerializeUri()
+        {
+            return false;
         }
 
         public bool ShouldSerializeVersion()
@@ -118,6 +129,16 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeCheckinId()
         {
             return (!string.IsNullOrEmpty(CheckinId));
+        }
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
         }
 
         #endregion

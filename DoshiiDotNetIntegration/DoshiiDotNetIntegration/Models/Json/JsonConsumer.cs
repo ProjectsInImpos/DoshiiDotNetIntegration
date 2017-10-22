@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models.Json
@@ -35,6 +36,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "firstName")]
+        public string FirstName { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "lastName")]
+        public string LastName { get; set; }
+
         /// <summary>
         /// the consumers phone number
         /// </summary>
@@ -48,10 +57,10 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "address")]
-        public Address Address { get; set; }
+        public JsonAddress Address { get; set; }
 
         /// <summary>
-        /// Notes specific to this order, 
+        /// Notes specific to this Order, 
         /// this may include:
         /// Notes about delivery location,
         /// Notes about allergies,
@@ -61,5 +70,46 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "notes")]
         public string Notes { get; set; }
+
+        #region Serialize methods
+
+        public bool ShouldSerializeFirstName()
+        {
+            return (!string.IsNullOrEmpty(FirstName));
+        }
+
+        public bool ShouldSerializeLastName()
+        {
+            return (!string.IsNullOrEmpty(LastName));
+        }
+
+        public bool ShouldSerializeAddress()
+        {
+            return (this.Address != null);
+        }
+
+        public bool ShouldSerializePhotoUrl()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeAnonymous()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeNotes()
+        {
+            return (!string.IsNullOrEmpty(Notes));
+        }
+
+        public bool ShouldSerializeEmail()
+        {
+            return (!string.IsNullOrEmpty(Email));
+        }
+        
+
+        
+        #endregion
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -80,7 +81,7 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(PostalCode));
         }
 
-        public bool ShouldSerializePostalCountry()
+        public bool ShouldSerializeCountry()
         {
             return (!string.IsNullOrEmpty(Country));
         }

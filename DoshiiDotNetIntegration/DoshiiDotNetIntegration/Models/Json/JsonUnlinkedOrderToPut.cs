@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -11,7 +12,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonUnlinkedOrderToPut : JsonSerializationBase<JsonUnlinkedOrderToPut>
+    internal class JsonUnlinkedOrderToPut : JsonBaseStatus<JsonUnlinkedOrderToPut>
     {
         /// <summary>
         /// id
@@ -20,13 +21,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
         
-        /// <summary>
-        /// Order status
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-
         [DataMember]
         [JsonProperty(PropertyName = "phase")]
         public string Phase { get; set; }
@@ -35,10 +29,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "memberId")]
         public string MemberId { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "availableEta")]
+        public DateTime? AvailableEta { get; set; }
+
         private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
-		/// A list of all surcounts applied at and order level
+		/// A list of all surcounts applied at and Order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
 		[DataMember]
@@ -57,7 +55,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		}
         
         /// <summary>
-		/// An obfuscated string representation of the version of the order in Doshii.
+		/// An obfuscated string representation of the version of the Order in Doshii.
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "version")]
@@ -66,7 +64,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonOrderProduct> _items;
         
         /// <summary>
-        /// A list of all the items included in the order. 
+        /// A list of all the items included in the Order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
@@ -82,6 +80,14 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
 			set { _items = value; } 
         }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionCode")]
+        public string RejectionCode { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rejectionReason")]
+        public string RejectionReason { get; set; }
 
         #region serializeMembers
 
@@ -105,6 +111,16 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(MemberId));
         }
 
+
+        public bool ShouldSerializeRejectionCode()
+        {
+            return (!string.IsNullOrEmpty(RejectionCode));
+        }
+
+        public bool ShouldSerializeRejectionReason()
+        {
+            return (!string.IsNullOrEmpty(RejectionReason));
+        }
         #endregion
 
         

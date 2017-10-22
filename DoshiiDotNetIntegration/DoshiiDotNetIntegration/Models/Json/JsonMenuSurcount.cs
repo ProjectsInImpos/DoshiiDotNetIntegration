@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
-    /// Surcharges and Discounts that are applied at an order level.
+    /// Surcharges and Discounts that are applied at an Order level.
     /// This model should not be used to record Product level discounts - discounts applied at a product level should be applied directly to the price attached to the product itself. 
     /// Surcharges should have a positive price.
     /// Discounts should have a negative price. 

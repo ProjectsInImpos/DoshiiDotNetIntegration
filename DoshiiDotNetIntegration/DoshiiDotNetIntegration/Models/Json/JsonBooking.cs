@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonBooking : JsonSerializationBase<JsonBooking>
+    internal class JsonBooking : JsonBaseCreatedAt<JsonBooking>
     {
         [DataMember]
         [JsonProperty(PropertyName = "id")]
@@ -34,27 +35,33 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "checkinId")]
-        public String checkinId { get; set; }
+        public String CheckinId { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "app")]
-        public String App { get; set; }
+        public JsonApp App { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "updatedAt")]
-        public DateTime? UpdatedAt { get; set; }
+        [JsonProperty(PropertyName = "status")]
+        public String Status { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "createdAt")]
-        public DateTime? CreatedAt { get; set; }
-
-        [DataMember]
-        [JsonProperty(PropertyName = "uri")]
-        public string Uri { get; set; }
+        [JsonProperty(PropertyName = "checkin")]
+        public JsonCheckin Checkin { get; set; }
 
         #region serializeMembers
 
         public bool ShouldSerializeApp()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeCheckinId()
         {
             return false;
         }

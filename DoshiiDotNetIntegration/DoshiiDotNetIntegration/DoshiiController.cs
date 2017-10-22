@@ -1,24 +1,23 @@
-﻿using AutoMapper;
-using DoshiiDotNetIntegration.CommunicationLogic;
+﻿using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
-using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
-using NUnit.Framework;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
+using DoshiiDotNetIntegration.Models.ActionResults;
+using Order = DoshiiDotNetIntegration.Models.Order;
 
 namespace DoshiiDotNetIntegration
 {
+
+
     /// <summary>
     /// This class controls requests to Doshii from the Point of sale (POS) software.
     /// This class supports ordering operations, product operations, table operations, Member operations, and reservation operations including the following;
@@ -86,7 +85,7 @@ namespace DoshiiDotNetIntegration
     /// <list type="bullet">
     ///     <item>Get the rewards / Points available for a given member using <see cref="GetRewardsForMember"/> for rewards and <see cref="GetMember"/> for points</item> 
     ///     <item>Ensure that the rewards / points are still available to be redeemed by the member with <see cref="RedeemRewardForMember"/> for rewards and <see cref="RedeemPointsForMember"/></item> 
-    ///     <item>If the above method returns true you should apply the reward / points to the order on the pos and within 30 - 60 secs call (If the time limit expires the redemption transaction is cancelled by Doshii and the pos user must start the redemption again)</item> 
+    ///     <item>If the above method returns true you should apply the reward / points to the Order on the pos and within 30 - 60 secs call (If the time limit expires the redemption transaction is cancelled by Doshii and the pos user must start the redemption again)</item> 
     ///     <item><see cref="RedeemPointsForMemberConfirm"/> for points or <see cref="RedeemRewardForMemberConfirm"/> to confirm use of the reward.</item> 
     ///     <item>When the above step is completed there is no longer a method to give the points or rewards back to a member.</item>
     /// </list>
@@ -100,11 +99,11 @@ namespace DoshiiDotNetIntegration
     /// The DoshiiController supports two communication protocols HTTP and Websockets. 
     /// The websockets protocol is used to open a websocket connection with the DoshiiAPI and once it is open, 
     /// the DoshiiController receives the notification event messages from DoshiiAPI. Events include when a user 
-    /// creates an order event ect.. The HTTP protocol is used for all other operations including creating orders, 
+    /// creates an Order event ect.. The HTTP protocol is used for all other operations including creating orders, 
     /// update orders, creating products e.t.c.)
     /// </remarks>
     public class DoshiiController : IDisposable
-	{
+    {
 		#region Constants
 
 		/// <summary>
@@ -117,37 +116,37 @@ namespace DoshiiDotNetIntegration
 		#region properties, constructors, Initialize, versionCheck
 
         
-        private bool m_IsInitalized = false;
+        private bool _isInitalized = false;
 
         /// <summary>
         /// A property indicating if initialize has been called on the doshii manager. 
         /// </summary>
         internal virtual bool IsInitalized
         {
-            get { return m_IsInitalized; }
-            set { m_IsInitalized = value; }
+            get { return _isInitalized; }
+            set { _isInitalized = value; }
         }
 
 		
-        private SocketsController m_SocketComs = null;
+        private SocketsController _socketComs = null;
 
         /// <summary>
         /// Holds an instance of CommunicationLogic.SocketsController class for interacting with the Doshii webSocket connection
         /// </summary>
         internal virtual SocketsController SocketComs
         {
-            get { return m_SocketComs; }
+            get { return _socketComs; }
             set
             {
-                if (m_SocketComs != null)
+                if (_socketComs != null)
                 {
                     UnsubscribeFromSocketEvents();
                 }
-                m_SocketComs = value;
-                if (m_SocketComs != null)
+                _socketComs = value;
+                if (_socketComs != null)
                 {
                     SubscribeToSocketEvents();
-                    m_SocketComs.Initialize();
+                    _socketComs.Initialize();
                 }
             }
         }
@@ -160,7 +159,7 @@ namespace DoshiiDotNetIntegration
 		/// <summary>
 		/// The logging manager for the Doshii SDK.
 		/// </summary>
-		internal Models.Controllers _controllers { get; set; }
+		internal Models.ControllersCollection _controllersCollection { get; set; }
         
         /// <summary>
         /// Gets the current Doshii version information.
@@ -184,39 +183,43 @@ namespace DoshiiDotNetIntegration
         /// <param name="configurationManager">An instance of IConfigurationManager that provides pos side configuration to the sdk.</param>
         public DoshiiController(IConfigurationManager configurationManager)
         {
-            _controllers = new Models.Controllers();
+            _controllersCollection = new Models.ControllersCollection();
             if (configurationManager == null)
             {
                 throw new ArgumentNullException("configurationManager", "IConfigurationManager needs to be instantiated as it is a core module");
             }
-            _controllers.ConfigurationManager = configurationManager;
-            _controllers.TransactionManager = configurationManager.GetTransactionManagerFromPos();
-            _controllers.OrderingManager = configurationManager.GetOrderingManagerFromPos();
-            _controllers.RewardManager = configurationManager.GetRewardManagerFromPos();
-            _controllers.ReservationManager = configurationManager.GetReservationManagerFromPos();
+            _controllersCollection.ConfigurationManager = configurationManager;
+
+            var cancellationprovider = configurationManager.GetCancellationProviderFromPos() ?? new GenericCancellationProvider();
+            _controllersCollection.CancellationProvider = cancellationprovider;
+            _controllersCollection.TransactionManager = configurationManager.GetTransactionManagerFromPos();
+            _controllersCollection.OrderingManager = configurationManager.GetOrderingManagerFromPos();
+            _controllersCollection.RewardManager = configurationManager.GetRewardManagerFromPos();
+            _controllersCollection.ReservationManager = configurationManager.GetReservationManagerFromPos();
+            _controllersCollection.AppManager = configurationManager.GetAppManagerFromPos();
 
             if (configurationManager.GetLoggingManagerFromPos() == null)
             {
                 throw new ArgumentNullException("logger", "ILoggingManager needs to be instantiated as it is a core module");
             }
-            _controllers.LoggingController = new LoggingController(configurationManager.GetLoggingManagerFromPos());
-            if (_controllers.TransactionManager == null)
+            _controllersCollection.LoggingController = new LoggingController(configurationManager.GetLoggingManagerFromPos());
+            if (_controllersCollection.TransactionManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IConfigurationManager.GetTransactionManager() cannot return null, it is a core module");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - IConfigurationManager.GetTransactionManager() cannot return null, it is a core module");
                 throw new ArgumentNullException("paymentManager", "ITransactionManager needs to be instantiated as it is a core module");
             }
-            if (_controllers.OrderingManager == null)
+            if (_controllersCollection.OrderingManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IConfigurationManager.GetOrderingManager() cannot return null, it is a core module");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - IConfigurationManager.GetOrderingManager() cannot return null, it is a core module");
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IConfigurationManager.GetRewardManager() returned null");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, " Membership module not supported - IConfigurationManager.GetRewardManager() returned null");
             }
-            if (_controllers.ReservationManager == null)
+            if (_controllersCollection.ReservationManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Reservation module not supported - IConfigurationManager.GetReservationManager() returned null");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, " Reservation module not supported - IConfigurationManager.GetReservationManager() returned null");
             }
             
 
@@ -238,62 +241,63 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with the interfaces provided in the IConfigurationManager implementation.</exception>
         public virtual bool Initialize(bool startWebSocketConnection)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", _controllers.ConfigurationManager.GetLocationTokenFromPos(), _controllers.ConfigurationManager.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, _controllers.ConfigurationManager.GetVendorFromPos(), _controllers.ConfigurationManager.GetSecretKeyFromPos()));
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", _controllersCollection.ConfigurationManager.GetLocationTokenFromPos(), _controllersCollection.ConfigurationManager.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, _controllersCollection.ConfigurationManager.GetVendorFromPos(), _controllersCollection.ConfigurationManager.GetSecretKeyFromPos()));
 			
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetBaseUrlFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetBaseUrlFromPos()))
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - required urlBase");
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetLocationTokenFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetLocationTokenFromPos()))
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - required locationId");
                 throw new ArgumentException("empty locationToken");
             }
 
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetVendorFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetVendorFromPos()))
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - required vendor");
                 throw new ArgumentException("empty vendor");
             }
 
-            if (string.IsNullOrWhiteSpace(_controllers.ConfigurationManager.GetSecretKeyFromPos()))
+            if (string.IsNullOrWhiteSpace(_controllersCollection.ConfigurationManager.GetSecretKeyFromPos()))
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - required secretKey");
                 throw new ArgumentException("empty secretKey");
             }
 
-            int timeout = _controllers.ConfigurationManager.GetSocketTimeOutFromPos();
+            int timeout = _controllersCollection.ConfigurationManager.GetSocketTimeOutFromPos();
 
 			if (timeout < 0)
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed - timeoutvaluesecs must be minimum 0");
                 throw new ArgumentException("timeoutvaluesecs < 0");
             }
 			else if (timeout == 0)
 			{
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, String.Format("Doshii: will use default timeout of {0}", DoshiiController.DefaultTimeout));
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, String.Format(" will use default timeout of {0}", DoshiiController.DefaultTimeout));
 				timeout = DoshiiController.DefaultTimeout;
 			}
 
-            string socketUrl = BuildSocketUrl(FormatBaseUrl(_controllers.ConfigurationManager.GetSocketUrlFromPos()), _controllers.ConfigurationManager.GetLocationTokenFromPos());
-            m_IsInitalized = InitializeProcess(socketUrl, FormatBaseUrl(_controllers.ConfigurationManager.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
+            string socketUrl = BuildSocketUrl(FormatBaseUrl(_controllersCollection.ConfigurationManager.GetSocketUrlFromPos()), _controllersCollection.ConfigurationManager.GetLocationTokenFromPos());
+            _isInitalized = InitializeProcess(socketUrl, FormatBaseUrl(_controllersCollection.ConfigurationManager.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
                 try
                 {
-                    _controllers.OrderingController.RefreshAllOrders();
+                    _controllersCollection.OrderingController.RefreshAllOrders();
                 }
                 catch (Exception ex)
                 {
-                    m_IsInitalized = false;
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed");
+                    _isInitalized = false;
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " Error OrderingController.RefreshAllOrders()", ex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Fatal, " Initialization failed");
                 }
                 
             }
-            return m_IsInitalized;
+            return _isInitalized;
         }
 
         /// <summary>
@@ -317,48 +321,52 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         internal virtual bool InitializeProcess(string socketUrl, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, " Initializing Doshii");
 
-            _httpComs = new HttpController(UrlBase, _controllers);
-            _controllers.TransactionController = new TransactionController(_controllers, _httpComs);
-            _controllers.OrderingController = new OrderingController(_controllers, _httpComs);
-            _controllers.MenuController = new MenuController(_controllers, _httpComs);
-            _controllers.TableController = new TableController(_controllers, _httpComs);
-            _controllers.CheckinController = new CheckinController(_controllers, _httpComs);
-            _controllers.ConsumerController = new ConsumerController(_controllers, _httpComs);
-            if (_controllers.ReservationManager != null)
+            _httpComs = new HttpController(UrlBase, _controllersCollection);
+            _controllersCollection.TransactionController = new TransactionController(_controllersCollection, _httpComs);
+            _controllersCollection.OrderingController = new OrderingController(_controllersCollection, _httpComs);
+            _controllersCollection.MenuController = new MenuController(_controllersCollection, _httpComs);
+            _controllersCollection.TableController = new TableController(_controllersCollection, _httpComs);
+            _controllersCollection.CheckinController = new CheckinController(_controllersCollection, _httpComs);
+            _controllersCollection.ConsumerController = new ConsumerController(_controllersCollection, _httpComs);
+            _controllersCollection.AppController = new AppController(_controllersCollection, _httpComs);
+            _controllersCollection.LocationController = new LocationController(_controllersCollection, _httpComs);
+            _controllersCollection.EmployeeController = new EmployeeController(_controllersCollection, _httpComs);
+            _controllersCollection.RejectionCodeController = new RejectionCodeController(_controllersCollection, _httpComs);
+            if (_controllersCollection.ReservationManager != null)
             {
-                _controllers.ReservationController = new ReservationController(_controllers, _httpComs);
+                _controllersCollection.ReservationController = new ReservationController(_controllersCollection, _httpComs);
             }
             else
             {
-                _controllers.ReservationController = null;
+                _controllersCollection.ReservationController = null;
             }
-            if (_controllers.RewardManager != null)
+            if (_controllersCollection.RewardManager != null)
             {
-                _controllers.RewardController = new RewardController(_controllers, _httpComs);
+                _controllersCollection.RewardController = new RewardController(_controllersCollection, _httpComs);
             }
             else
             {
-                _controllers.RewardController = null;
+                _controllersCollection.RewardController = null;
             }
             
             if (StartWebSocketConnection)
             {
                 try
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
-                    m_SocketComs = new SocketsController(socketUrl, timeOutValueSecs, _controllers);
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
+                    _socketComs = new SocketsController(socketUrl, timeOutValueSecs, _controllersCollection);
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
 
                     SubscribeToSocketEvents();
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket events are subscribed to")));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(string.Format("socket events are subscribed to")));
 
-                    m_SocketComs.Initialize();
+                    _socketComs.Initialize();
                 }
                 catch (Exception ex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString()));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString()));
                     return false;
                 }
             }
@@ -400,25 +408,27 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         internal virtual void SubscribeToSocketEvents()
         {
-            if (m_SocketComs == null)
+            if (_socketComs == null)
             {
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: The socketComs has not been initialized");
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " The socketComs has not been initialized");
                 throw new NotSupportedException("m_SocketComms is null");
             }
             else
             {
                 UnsubscribeFromSocketEvents();
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Subscribing to socket events");
-                m_SocketComs.OrderCreatedEvent += new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
-                m_SocketComs.TransactionCreatedEvent += new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
-                m_SocketComs.TransactionUpdatedEvent += new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
-				m_SocketComs.SocketCommunicationEstablishedEvent += new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
-                m_SocketComs.SocketCommunicationTimeoutReached += new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
-                m_SocketComs.MemberCreatedEvent += new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
-                m_SocketComs.MemberUpdatedEvent += new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
-                m_SocketComs.BookingCreatedEvent += new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
-                m_SocketComs.BookingUpdatedEvent += new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
-                m_SocketComs.BookingDeletedEvent += new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
+				_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, " Subscribing to socket events");
+                _socketComs.OrderCreatedEvent += new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+                _socketComs.OrderUpdatedEvent += new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
+                _socketComs.TransactionCreatedEvent += new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
+                _socketComs.TransactionUpdatedEvent += new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
+				_socketComs.SocketCommunicationEstablishedEvent += new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+                _socketComs.SocketCommunicationTimeoutReached += new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+                _socketComs.MemberCreatedEvent += new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+                _socketComs.MemberUpdatedEvent += new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+                _socketComs.MemberDeletedEvent += new SocketsController.MemberDeletedEventHandler(SocketComsMemberDeletedEventHandler);
+                _socketComs.BookingCreatedEvent += new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+                _socketComs.BookingUpdatedEvent += new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+                _socketComs.BookingDeletedEvent += new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
             }
         }
 
@@ -427,21 +437,25 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         internal virtual void UnsubscribeFromSocketEvents()
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
-            m_SocketComs.OrderCreatedEvent -= new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
-            m_SocketComs.TransactionCreatedEvent -= new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
-            m_SocketComs.TransactionUpdatedEvent -= new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
-            m_SocketComs.SocketCommunicationEstablishedEvent -= new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
-            m_SocketComs.SocketCommunicationTimeoutReached -= new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
-            m_SocketComs.MemberCreatedEvent -= new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
-            m_SocketComs.MemberUpdatedEvent -= new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
-            m_SocketComs.BookingCreatedEvent -= new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
-            m_SocketComs.BookingUpdatedEvent -= new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
-            m_SocketComs.BookingDeletedEvent -= new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, " Unsubscribing from socket events");
+            _socketComs.OrderCreatedEvent -= new SocketsController.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+            _socketComs.OrderUpdatedEvent -= new SocketsController.OrderUpdatedEventHandler(SocketComsOrderUpdatedEventHandler);
+            _socketComs.TransactionCreatedEvent -= new SocketsController.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
+            _socketComs.TransactionUpdatedEvent -= new SocketsController.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
+            _socketComs.SocketCommunicationEstablishedEvent -= new SocketsController.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+            _socketComs.SocketCommunicationTimeoutReached -= new SocketsController.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+            _socketComs.MemberCreatedEvent -= new SocketsController.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+            _socketComs.MemberUpdatedEvent -= new SocketsController.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+            _socketComs.MemberDeletedEvent -= new SocketsController.MemberDeletedEventHandler(SocketComsMemberDeletedEventHandler);
+            _socketComs.BookingCreatedEvent -= new SocketsController.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+            _socketComs.BookingUpdatedEvent -= new SocketsController.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+            _socketComs.BookingDeletedEvent -= new SocketsController.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
         }
         #endregion
 
-        #region socket communication event handlers
+	   
+
+	    #region socket communication event handlers
 
         /// <summary>
         /// Handles a socket communication established event and calls <see cref="RefreshAllOrders()"/>. 
@@ -450,14 +464,59 @@ namespace DoshiiDotNetIntegration
         /// <param name="e">The event arguments.</param>
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
+			if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, " received Socket connection event");
+
             try
             {
-                _controllers.OrderingController.RefreshAllOrders();
+
+                _controllersCollection.OrderingController.RefreshAllOrders();
             }
             catch (Exception ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, "Doshii: There was an exception while trying to retrieve all the orders from Doshii.", ex);
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " There was an exception while trying to refresh all the orders from Doshii.", ex);
+            }
+            try
+            {
+
+                if (_controllersCollection.ReservationManager != null)
+                {
+                    _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
+                }
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " There was an exception while trying to refresh all the bookings from Doshii.", ex);
+            }
+            try
+            {
+               
+                if (_controllersCollection.RewardManager != null)
+                {
+                    _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " There was an exception while trying to refresh all the bookings from Doshii.", ex);
+            }
+            try
+            {
+
+                if (_controllersCollection.AppManager != null)
+                {
+                    _controllersCollection.AppController.SyncDoshiiAppsWithPosApps();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, " There was an exception while trying to refresh all the apps from Doshii.", ex);
             }
             
         }
@@ -469,8 +528,8 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTimeOutValueReached(object sender, EventArgs e)
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, 
-				"Doshii: SocketComsTimeoutValueReached");
+			_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, 
+				" SocketComsTimeoutValueReached");
         }
 
         /// <summary>
@@ -482,15 +541,35 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsOrderCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderCreatedEventArgs e)
         {
-			if (!String.IsNullOrEmpty(e.Order.Id))
+            if(_controllersCollection.IsCancellationRequested())
             {
-                _controllers.LoggingController.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting order was passed to the order created event handler.");
-                throw new NotSupportedException("Developer Error, An order with a posId was passed to the CreatedOrderEventHandler");
+                return;
             }
-            _controllers.OrderingController.HandleOrderCreated(e.Order, e.TransactionList.ToList());
+
+            if (!String.IsNullOrEmpty(e.Order.Id))
+            {
+                _controllersCollection.LoggingController.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting Order was passed to the Order created event handler.");
+                throw new NotSupportedException("Developer Error, An Order with a posId was passed to the CreatedOrderEventHandler");
+            }
+            _controllersCollection.OrderingController.HandleOrderCreated(e.Order, e.TransactionList.ToList());
         }
 
-        
+        /// <summary>
+        /// Handles a SocketComs_OrderUpdatedEvent, 
+        /// Records the Order.UpdatedAt value and calls the appropriate method on the OrderingInterface to act on the check. 
+        /// <exception cref="NotSupportedException">When a partial payment is attempted during Bistro Mode.</exception>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        internal virtual void SocketComsOrderUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderUpdatedEventArgs e)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.OrderingController.HandleOrderUpdated(e.Order);
+        }
 
         
         /// <summary>
@@ -502,14 +581,26 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTransactionCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" received a transaction status event with status '{0}', for transaction Id '{1}', for Order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             switch (e.Transaction.Status)
             {
                 case "pending":
-                    _controllers.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    if (e.Transaction.LinkedTrxIds.Count > 0)
+                    {
+                        _controllersCollection.TransactionController.HandelPendingRefundTransactionReceived(e.Transaction);
+                    }
+                    else
+                    {
+                        _controllersCollection.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    }
                     break;
                 default:
-					_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status)); 
+					_controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status)); 
                     throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API",e.Transaction.Status));
             }
 		}
@@ -522,21 +613,26 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsMemberCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" received a member created event with member Id '{0}'", e.MemberId));
             try
             {
-                _controllers.RewardManager.CreateMemberOnPos(e.Member);
+                _controllersCollection.RewardManager.CreateMemberOnPos(e.Member);
             }
             catch(MemberExistOnPosException ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
                 try
                 {
-                    _controllers.RewardManager.UpdateMemberOnPos(e.Member);
+                    _controllersCollection.RewardManager.UpdateMemberOnPos(e.Member);
                 }
                 catch (MemberDoesNotExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed.", e.MemberId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to update member with Id '{0}' on pos failed.", e.MemberId));
                 }
             }
         }
@@ -549,24 +645,56 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsMemberUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" received a member updated event for member Id '{0}'", e.MemberId));
             try
             {
-                _controllers.RewardManager.UpdateMemberOnPos(e.Member);
+                _controllersCollection.RewardManager.UpdateMemberOnPos(e.Member);
             }
             catch (MemberDoesNotExistOnPosException ex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
                 try
                 {
-                    _controllers.RewardManager.CreateMemberOnPos(e.Member);
+                    _controllersCollection.RewardManager.CreateMemberOnPos(e.Member);
                 }
                 catch (MemberExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed", e.MemberId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to create member with Id '{0}' on pos failed", e.MemberId));
                 }
             }
         }
+
+        internal virtual void SocketComsMemberDeletedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member deleted event for member Id '{0}'", e.MemberId));
+            try
+            {
+                _controllersCollection.RewardManager.DeleteMemberOnPos(e.MemberId);
+            }
+            catch (MemberDoesNotExistOnPosException ex)
+            {
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
+                try
+                {
+                    _controllersCollection.RewardManager.CreateMemberOnPos(e.Member);
+                }
+                catch (MemberExistOnPosException nex)
+                {
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete member with Id '{0}' on pos failed", e.MemberId));
+                }
+            }
+        }
+        
 
         /// <summary>
         /// Handles a SocketComs.BookingCreatedEvent, 
@@ -576,21 +704,26 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsBookingCreatedEventHandler(object sender, BookingEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking created event for booking id '{0}'", e.BookingId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(": received a booking created event for booking id '{0}'", e.BookingId));
             try
             {
-                _controllers.ReservationManager.CreateBookingOnPos(e.Booking);
+                _controllersCollection.ReservationManager.CreateBookingOnPos(e.Booking);
             }
             catch (BookingExistOnPosException bex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed due to booking already existing, now attempting to update existing booking.", e.BookingId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to create booking with Id '{0}' on pos failed due to booking already existing, now attempting to update existing booking.", e.BookingId));
                 try
                 {
-                    _controllers.ReservationManager.UpdateBookingOnPos(e.Booking);
+                    _controllersCollection.ReservationManager.UpdateBookingOnPos(e.Booking);
                 }
                 catch (BookingDoesNotExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed.", e.BookingId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to update booking with Id '{0}' on pos failed.", e.BookingId));
                 }
             }
         }
@@ -603,21 +736,26 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsBookingUpdatedEventHandler(object sender, BookingEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking updated event for booking id '{0}'", e.BookingId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(": received a booking updated event for booking id '{0}'", e.BookingId));
             try
             {
-                _controllers.ReservationManager.UpdateBookingOnPos(e.Booking);
+                _controllersCollection.ReservationManager.UpdateBookingOnPos(e.Booking);
             }
             catch (BookingDoesNotExistOnPosException bex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed due to booking already existing, now attempting to create new booking.", e.BookingId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to update booking with Id '{0}' on pos failed due to booking already existing, now attempting to create new booking.", e.BookingId));
                 try
                 {
-                    _controllers.ReservationManager.CreateBookingOnPos(e.Booking);
+                    _controllersCollection.ReservationManager.CreateBookingOnPos(e.Booking);
                 }
                 catch (BookingExistOnPosException nex)
                 {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed.", e.BookingId));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to create booking with Id '{0}' on pos failed.", e.BookingId));
                 }
             }
         }
@@ -630,14 +768,19 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsBookingDeletedEventHandler(object sender, BookingEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking deleted event for booking id '{0}'", e.BookingId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(": received a booking deleted event for booking id '{0}'", e.BookingId));
             try
             {
-                _controllers.ReservationManager.DeleteBookingOnPos(e.Booking);
+                _controllersCollection.ReservationManager.DeleteBookingOnPos(e.Booking);
             }
             catch (BookingDoesNotExistOnPosException bex)
             {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete booking with Id '{0}' on pos failed due to booking not existing.", e.BookingId));
+                _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" attempt to delete booking with Id '{0}' on pos failed due to booking not existing.", e.BookingId));
             }
 
         }
@@ -651,22 +794,26 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsTransactionUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                return;
+            }
+            _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format(" received a transaction status event with status '{0}', for transaction Id '{1}', for Order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             
             switch (e.Transaction.Status)
             {
                 case "pending":
-                    _controllers.TransactionController.HandelPendingTransactionReceived(e.Transaction);
+                    _controllersCollection.TransactionController.HandelPendingTransactionReceived(e.Transaction);
                     break;
                 case "cancelled":
-                    _controllers.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
-                    _controllers.TransactionManager.CancelPayment(e.Transaction);
+                    _controllersCollection.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
+                    _controllersCollection.TransactionManager.CancelPayment(e.Transaction);
                     break;
                 case "complete":
-                    _controllers.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
+                    _controllersCollection.TransactionManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
                     break;
                 default:
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status));
+                    _controllersCollection.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format(" a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status));
                     throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API", e.Transaction.Status));
             }
         }
@@ -676,46 +823,104 @@ namespace DoshiiDotNetIntegration
         #region ordering And Transaction
 
         /// <summary>
-        /// call this method to accept an order created by an order ahead partner, 
-        /// <para/>this method will test that the order on doshii has not changed since it was original received by the pos. 
-        /// <para/>It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
+        /// call this method to accept an Order created by an Order ahead partner, 
+        /// <para/>this method will test that the Order on doshii has not changed since it was original received by the pos. 
+        /// <para/>It is the responsibility of the pos to ensure that the products on the Order were not changed during the confirmation process as this will not 
         /// <para/>be checked by this method. 
-        /// <para/>If this method is not successful then the order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
+        /// <para/>If this method is not successful then the Order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
         /// </summary>
         /// <param name="orderToAccept">
-        /// The order that is being accepted
+        /// The Order that is being accepted
         /// </param>
         /// <returns>
-        /// True if the order was recorded as accepted on Doshii
-        /// <para/>False if the order was not recorded as accepted on Doshii.
+        /// True if the Order was recorded as accepted on Doshii
+        /// <para/>False if the Order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool AcceptOrderAheadCreation(Order orderToAccept)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic AcceptOrderAheadCreation(Order orderToAccept)
         {
-            if (!m_IsInitalized)
+             if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AcceptOrderAheadCreation"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
 
-            return _controllers.OrderingController.AcceptOrderAheadCreation(orderToAccept);
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+
+            return _controllersCollection.OrderingController.AcceptOrderAheadCreation(orderToAccept);
         }
 
         /// <summary>
-        /// Call this method to reject an order created by an order ahead partner,
+        /// Call this method to reject an Order created by an Order ahead partner,
         /// </summary>
         /// <param name="orderToReject">
-        /// The pending Doshii order that will be rejected
+        /// The pending Doshii Order that will be rejected
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual void RejectOrderAheadCreation(Order orderToReject)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RejectOrderAheadCreation(Order orderToReject)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RejectOrderAheadCreation"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            _controllers.OrderingController.RejectOrderAheadCreation(orderToReject);
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.OrderingController.RejectOrderAheadCreation(orderToReject);
+        }
+
+
+        /// <summary>
+        /// Requests the refund from partner.
+        /// </summary>
+        /// <param name="orderReleatedToRefund">The order releated to refund.</param>
+        /// <param name="amountToRefund">The amount to refund.</param>
+        /// <param name="transacitonIdsToRefund">The transaciton ids to refund.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RequestRefundFromPartner(Order orderReleatedToRefund, decimal amountToRefund, List<string> transacitonIdsToRefund)
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TransactionController.RequestRefundForOrderPosInitiated(orderReleatedToRefund, (int)(amountToRefund * 100), transacitonIdsToRefund);
+        }
+
+        /// <summary>
+        /// Gets the order log.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Log>> GetOrderLog(Order order)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.OrderingController.GetOrderLog(order);
+            
         }
 
         /// <summary>
@@ -729,38 +934,48 @@ namespace DoshiiDotNetIntegration
         /// <para/>Returns null if the request failed. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Transaction RecordPosTransactionOnDoshii(Transaction transaction)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Transaction> RecordPosTransactionOnDoshii(Transaction transaction)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RecordPosTransactionOnDoshii"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TransactionController.RecordPosTransactionOnDoshii(transaction);
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TransactionController.RecordPosTransactionOnDoshii(transaction);
         }
 
         /// <summary>
-        /// This method returns an order from Doshii corresponding to the OrderId
+        /// This method returns an Order from Doshii corresponding to the OrderId
         /// </summary>
         /// <param name="orderId">
-        /// The Id of the order that is being requested. 
+        /// The Id of the Order that is being requested. 
         /// </param>
         /// <returns>
-        /// The order with the corresponding Id
-        /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
+        /// The Order with the corresponding Id
+        /// <para/>If there is no Order corresponding to the Id, a blank Order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-		public virtual Order GetOrder(string orderId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+		public virtual ObjectActionResult<Order> GetOrder(string orderId)
 		{
-            if (!m_IsInitalized)
+		    if(_controllersCollection.IsCancellationRequested())
+		    {
+		        this.ThrowDoshiiCancellationRequestedException();
+		    }
+
+            if(!_isInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrder"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
 		    try
 		    {
-                return _controllers.OrderingController.GetOrder(orderId);
+                return _controllersCollection.OrderingController.GetOrder(orderId);
 		    }
 		    catch(Exception ex)
 		    {
@@ -773,26 +988,31 @@ namespace DoshiiDotNetIntegration
         /// This method returns a consumer from Doshii corresponding to the CheckinId
         /// </summary>
         /// <param name="checkinId">
-        /// The checkinId for the consumer that is being requiested. 
+        /// The CheckinId for the consumer that is being requiested. 
         /// </param>
         /// <returns>
-        /// The consumer with the corresponding checkinId
-        /// <para/>If there is no consumer corresponding to the checkinId, a blank consumer may be returned. 
+        /// The consumer with the corresponding CheckinId
+        /// <para/>If there is no consumer corresponding to the CheckinId, a blank consumer may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Consumer> GetConsumerFromCheckinId(string checkinId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetConsumerFromCheckinId"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.ConsumerController.GetConsumerFromCheckinId(checkinId);
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.ConsumerController.GetConsumerFromCheckinId(checkinId);
         }
-        
-		/// <summary>
-		/// Retrieves the current order list from Doshii.
+
+        /// <summary>
+		/// Retrieves the current Order list from Doshii.
 		/// <para/>This method will only return orders that are linked to pos ordered in Doshii
 		/// <para/>To get a list of unlinked orders call<see cref="GetUnlinkedOrders"/>
 		/// </summary>
@@ -802,14 +1022,46 @@ namespace DoshiiDotNetIntegration
 		/// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-		public virtual IEnumerable<Order> GetOrders()
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+		public virtual ObjectActionResult<List<Order>> GetOrders()
 		{
-            if (!m_IsInitalized)
+		    if(_controllersCollection.IsCancellationRequested())
+		    {
+		        this.ThrowDoshiiCancellationRequestedException();
+		    }
+
+            if(!_isInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrders"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-		    return _controllers.OrderingController.GetOrders();
+		    return _controllersCollection.OrderingController.GetOrders();
+        }
+
+        /// <summary>
+        /// Retrieves the current Order list from Doshii.
+        /// <para/>This method will only return orders that are linked to pos ordered in Doshii
+        /// <para/>To get a list of unlinked orders call<see cref="GetUnlinkedOrders"/>
+        /// </summary>
+        /// <returns>
+        /// The current list of linked orders available in Doshii.
+        /// If there are no linked orders a blank IEnumerable is returned. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Order>> GetOrdersByStatus(string status)
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+
+            if(!_isInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+            return _controllersCollection.OrderingController.GetOrdersByStatus(status);
         }
 
         /// <summary>
@@ -824,103 +1076,133 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual Transaction GetTransaction(string transactionId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Transaction> GetTransaction(string transactionId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransaction"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TransactionController.GetTransaction(transactionId);
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TransactionController.GetTransaction(transactionId);
         }
 
         /// <summary>
-        /// This method returns a transaction from Doshii corresponding to the order with the doshiiOrderId
+        /// This method returns a transaction from Doshii corresponding to the Order with the doshiiOrderId
         /// <para/>This method should only be called in relation to unlinkedOrders as this method will not return transactions related to linked orders. 
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// The DoshiiId of the order that is being requested. 
+        /// The DoshiiId of the Order that is being requested. 
         /// </param>
         /// <returns>
         /// <see cref="Transaction"/> that relate to the doshiiOrderId. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Transaction>> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransactionFromDoshiiOrderId"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TransactionController.GetTransactionFromDoshiiOrderId(doshiiOrderId);
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(doshiiOrderId);
             
         }
 
         /// <summary>
-        /// This method returns a transaction from Doshii corresponding to the order with the posOrderId
+        /// This method returns a transaction from Doshii corresponding to the Order with the posOrderId
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// The DoshiiId of the order that is being requested. 
+        /// The DoshiiId of the Order that is being requested. 
         /// </param>
         /// <returns>
         /// <see cref="Transaction"/> that relate to the doshiiOrderId. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-        public virtual IEnumerable<Transaction> GetTransactionFromOrderId(string posOrderId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Transaction>> GetTransactionFromOrderId(string posOrderId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransactionFromDoshiiOrderId"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TransactionController.GetTransactionFromPosOrderId(posOrderId);
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TransactionController.GetTransactionFromPosOrderId(posOrderId);
 
         }
 
-		/// <summary>
+        /// <summary>
 		/// Retrieves the list of active transactions in Doshii.
 		/// </summary>
 		/// <returns>The current list of active Doshii transactions.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
-		public virtual IEnumerable<Transaction> GetTransactions()
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Transaction>> GetTransactions()
 		{
-            if (!m_IsInitalized)
+		    if(_controllersCollection.IsCancellationRequested())
+		    {
+		        this.ThrowDoshiiCancellationRequestedException();
+		    }
+
+
+            if(!_isInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTransactions"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-		    return _controllers.TransactionController.GetTransactions();
+		    return _controllersCollection.TransactionController.GetTransactions();
 		}
 
         /// <summary>
         /// This method will update the Order on the Doshii API
         /// <para/>This can be used to update / create orders on Doshii that have been modified / created on the pos.
         /// <para/>This method should not be used to accept or reject pending orders from doshii.
-        /// <para/>To accept a pending order ahead order from Doshii use <see cref="AcceptOrderAheadCreation"/>
-        /// <para/>To reject a pending order ahead order from Doshii use <see cref="RejectOrderAheadCreation"/>
+        /// <para/>To accept a pending Order ahead Order from Doshii use <see cref="AcceptOrderAheadCreation"/>
+        /// <para/>To reject a pending Order ahead Order from Doshii use <see cref="RejectOrderAheadCreation"/>
         /// </summary>
         /// <param name="order">
-        /// The order must contain all the products / items,
+        /// The Order must contain all the products / items,
         /// <para/>All surcharges,
         /// <para/>All discounts,
-        /// <para/>Included in the check as this method will overwrite the order currently on Doshii 
+        /// <para/>Included in the check as this method will overwrite the Order currently on Doshii 
         /// </param>
         /// <returns>
-        /// The order that Doshii has recorded after the update.
+        /// The Order that Doshii has recorded after the update.
         /// </returns>
-        /// <exception cref="OrderUpdateException">There was an issue updating the order on Doshii, See exception for details.</exception>
+        /// <exception cref="OrderUpdateException">There was an issue updating the Order on Doshii, See exception for details.</exception>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Order UpdateOrder(Order order)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Order> UpdateOrder(Order order)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateOrder"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.OrderingController.UpdateOrder(order);
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.OrderingController.UpdateOrder(order);
         }
 
         #endregion
@@ -935,43 +1217,53 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual Member GetMember(string memberId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<MemberOrg> GetMember(string memberId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMember"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+
+            if(!_isInitalized)
             {
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            return _controllers.RewardController.GetMember(memberId);
+            if (_controllersCollection.RewardManager == null)
+            {
+                this.ThrowDoshiiMembershipNotInitializedException();
+            }
+            return _controllersCollection.RewardController.GetMember(memberId);
         }
 
         /// <summary>
         /// Returns all the Doshii members for the organization 
         /// </summary>
         /// <returns>
-        /// IEnumerable of all the members registered in the orginisation. 
+        /// IEnumerable of all the members registered in the organisation. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual IEnumerable<Member> GetMembers()
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<MemberOrg>> GetMembers()
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMembers"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+
+            if(!_isInitalized)
             {
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetMembers"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            return _controllers.RewardController.GetMembers();
+            if (_controllersCollection.RewardManager == null)
+            {
+                this.ThrowDoshiiMembershipNotInitializedException();
+            }
+            return _controllersCollection.RewardController.GetMembers();
         }
 
         /// <summary>
@@ -985,20 +1277,25 @@ namespace DoshiiDotNetIntegration
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
-        public virtual bool DeleteMember(Member member)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic DeleteMember(string memberId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteMember"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.DeleteMember(member);
+            return _controllersCollection.RewardController.DeleteMember(memberId);
         }
 
         /// <summary>
@@ -1010,28 +1307,34 @@ namespace DoshiiDotNetIntegration
         /// </param>
         /// <returns></returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         /// <exception cref="MemberIncompleteException">Thrown when the member provided for updating is not complete.</exception>
-        public virtual Member UpdateMember(Member member)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<MemberOrg> UpdateMember(MemberOrg member)
         {
-            if (!m_IsInitalized)
+             if(_controllersCollection.IsCancellationRequested())
+             {
+                 this.ThrowDoshiiCancellationRequestedException();
+             }
+
+            if (!_isInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            if (_controllers.RewardManager == null)
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.UpdateMember(member);
+            return _controllersCollection.RewardController.UpdateMember(member);
         }
+
 
         /// <summary>
         /// The method compares the members on the pos with the members on Doshii, 
-        /// This method will delete members on the pos that do not exist on Doshii, and update members on the pos that differ to the members on Doshii.  
+        /// <para>This method will delete members on the pos that do not exist on Doshii, and update members on the pos that differ to the members on Doshii.  </para>
         /// </summary>
         /// <returns>
         /// True if the action was successful, 
@@ -1039,83 +1342,95 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool SyncDoshiiMembersWithPosMembers()
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic SyncDoshiiMembersWithPosMembers()
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.SyncDoshiiMembersWithPosMembers();
+            return _controllersCollection.RewardController.SyncDoshiiMembersWithPosMembers();
         }
 
         /// <summary>
-        /// This method will return all the rewards available for a member of the orginisation on Doshii.
+        /// This method will return all the rewards available for a member of the organisation on Doshii.
         /// The following process is used to retreive the rewards.
         /// <list type="bullet">
-        ///   <item>Retreives the order from the pos with the orderId and attempts to update the order on Doshii</item>
+        ///   <item>Retreives the Order from the pos with the orderId and attempts to update the Order on Doshii</item>
         ///   <item>Requests the rewards from Doshii with the provided memberId, and orderTotal.</item>
         /// </list>
         /// </summary>
         /// <param name="memberId">The Id of the member to request rewards for</param>
-        /// <param name="orderId">The Id of the order that the member may use the requested rewards on</param>
-        /// <param name="orderTotal">The current total of the order the member may use the rewards on</param>
+        /// <param name="orderId">The Id of the Order that the member may use the requested rewards on</param>
+        /// <param name="orderTotal">The current total of the Order the member may use the rewards on</param>
         /// <returns></returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         /// <exception cref="RestfulApiErrorResponseException">Throw if these was an issue communicating with Doshii.</exception>
-        public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Reward>> GetRewardsForMember(string memberId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetRewardsForMember"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
             {
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetRewardsForMember"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            return _controllers.RewardController.GetRewardsForMember(memberId, orderId, orderTotal);
+            if (_controllersCollection.RewardManager == null)
+            {
+                this.ThrowDoshiiMembershipNotInitializedException();
+            }
+            return _controllersCollection.RewardController.GetRewardsForMember(memberId);
         }
 
         /// <summary>
-        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order.
+        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the Order.
         /// after calling this method successfully the pas must 
         /// <list type="bullet">
-        ///   <item>apply the reward to the order</item>
-        ///   <item>accept payment for the order from the customer.</item>
+        ///   <item>apply the reward to the Order</item>
+        ///   <item>accept payment for the Order from the customer.</item>
         ///   <item>call <see cref="RedeemRewardForMemberConfirm"/> to confirm the use of the redard</item>
         /// </list>
         /// </summary>
         /// <param name="member">The member attempting to redeem the reward.</param>
         /// <param name="reward">The rewards the member is attempting to redeem.</param>
-        /// <param name="order">The order the reward should be applied to.</param>
+        /// <param name="order">The Order the reward should be applied to.</param>
         /// <returns>
         /// true - when the reward can be redeemed - the pos must  
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RedeemRewardForMember(MemberOrg member, Reward reward, Order order)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMember"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.RedeemRewardForMember(member, reward, order);
+            return _controllersCollection.RewardController.RedeemRewardForMember(member, reward, order);
         }
 
         /// <summary>
@@ -1130,20 +1445,24 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberCancel"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberCancel"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
+            return _controllersCollection.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
         }
 
         /// <summary>
@@ -1163,34 +1482,38 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberConfirm"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemRewardForMemberConfirm"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
+            return _controllersCollection.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
         }
 
         /// <summary>
         /// This method should be called to confirm that the points the member is attempting to redeem are still available. 
         /// after calling this method successfully the pas must 
         /// <list type="bullet">
-        ///   <item>apply the points to the order</item>
-        ///   <item>accept payment for the order from the customer.</item>
+        ///   <item>apply the points to the Order</item>
+        ///   <item>accept payment for the Order from the customer.</item>
         ///   <item>call <see cref="RedeemPointsForMemberConfirm"/> to confirm the use of the points</item>
         /// </list>
         /// </summary>
         /// <param name="member">the member that would like to redeem points.</param>
         /// <param name="app">The app that has the points that the member wishes to redeem</param>
-        /// <param name="order">The order that the member wishes to redeem the points against.</param>
+        /// <param name="order">The Order that the member wishes to redeem the points against.</param>
         /// <param name="points">The amount of points the member wishes to redeem</param>
         /// <returns>
         /// True if the points are still available to redeem
@@ -1198,20 +1521,24 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RedeemPointsForMember(MemberOrg member, App app, Order order, int points)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMember"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMember"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.RedeemPointsForMember(member, app, order, points);
+            return _controllersCollection.RewardController.RedeemPointsForMember(member, app, order, points);
         }
 
         /// <summary>
@@ -1228,20 +1555,24 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemPointsForMemberConfirm(string memberId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RedeemPointsForMemberConfirm(string memberId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberConfirm"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberConfirm"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.RedeemPointsForMemberConfirm(memberId);
+            return _controllersCollection.RewardController.RedeemPointsForMemberConfirm(memberId);
         }
 
         /// <summary>
@@ -1252,57 +1583,59 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
-        public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberCancel"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            if (_controllers.RewardManager == null)
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.RewardManager == null)
             {
 
-                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RedeemPointsForMemberCancel"));
+                this.ThrowDoshiiMembershipNotInitializedException();
             }
-            return _controllers.RewardController.RedeemPointsForMemberCancel(memberId, cancelReason);
+            return _controllersCollection.RewardController.RedeemPointsForMemberCancel(memberId, cancelReason);
         }
+
         #endregion
 
         #region tableAllocation and consumers
 
         /// <summary>
-		/// Called by POS to add a table allocation to an order.
+		/// Called by POS to add a table allocation to an Order.
 		/// </summary>
-		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
+		/// <param name="posOrderId">The unique identifier of the Order on the POS.</param>
         /// <param name="tableNames">A list of the tables to add to the allocaiton, if you want to remove the table allocaiton you should pass an empty list into this param.</param>
-		/// <returns>The current order details in Doshii after upload.</returns>
+		/// <returns>The current Order details in Doshii after upload.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        /// <exception cref="OrderDoesNotExistOnPosException">Thrown when the order corresponding to the posOrderId parameter cannot be retrieved from the pos.</exception>
+        /// <exception cref="OrderDoesNotExistOnPosException">Thrown when the Order corresponding to the posOrderId parameter cannot be retrieved from the pos.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
-        public virtual bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
-            if (!m_IsInitalized)
+		    if(_controllersCollection.IsCancellationRequested())
+		    {
+		        this.ThrowDoshiiCancellationRequestedException();
+		    }
+
+            if (!_isInitalized)
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AddTableAllocation"));
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-		    try
-		    {
-		        return _controllers.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
-		    }
-		    catch (Exception ex)
-		    {
-		        throw ex;
-		    }
-		    
+            return _controllersCollection.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
 		}
 
         /// <summary>
         /// This method is used to modify the table allocation of a checkin at the venue, 
         /// If you wish to un-allocate the checkin from a table without allocating it to another table you should pass an empty list to the tableNames parameter.
         /// </summary>
-        /// <param name="checkinId">The checkinId to be modified</param>
+        /// <param name="checkinId">The CheckinId to be modified</param>
         /// <param name="tableNames">The table names to be allocated to the checkin</param>
         /// <param name="covers">The amount of covers associated with the allocation.</param>
         /// <returns>
@@ -1311,21 +1644,19 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
-        public virtual bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AddTableAllocation"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            try
+
+            if (!_isInitalized)
             {
-                return _controllers.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return _controllersCollection.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
             
         }
 
@@ -1333,7 +1664,7 @@ namespace DoshiiDotNetIntegration
         /// this method should be called when a checkin has finished at the venue, eg the checkins check has been completly paid. 
         /// </summary>
         /// <param name="checkinId">
-        /// The checkinId that represents the checkin at the venue. 
+        /// The CheckinId that represents the checkin at the venue. 
         /// </param>
         /// <returns>
         /// True when the checkin was successfully closed.
@@ -1341,15 +1672,20 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
         /// <exception cref="CheckinUpdateException">Thrown when there is an exception updating the checkin on Doshii.</exception>
-        public virtual bool CloseCheckin(string checkinId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic CloseCheckin(string checkinId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AddTableAllocation"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
 
-            return _controllers.CheckinController.CloseCheckin(checkinId);
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+
+            return _controllersCollection.CheckinController.CloseCheckin(checkinId);
         }
 
         #endregion
@@ -1357,12 +1693,33 @@ namespace DoshiiDotNetIntegration
         #region products and menu
 
         /// <summary>
+        /// Gets the menu.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Menu> GetMenu()
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.GetMenu();
+        }
+
+
+        /// <summary>
         /// This method is used to update the pos menu on doshii,
         /// <para/>Calls to this method will replace the existing pos menu. 
         /// <para/>If you wish to update or create single products you should use <see cref="UpdateProduct"/> method
-        /// <para/>If you wish to update or create single order level surcharges you should use the <see cref="UpdateSurcount"/> method
+        /// <para/>If you wish to update or create single Order level surcharges you should use the <see cref="UpdateSurcount"/> method
         /// <para/>if you wish to delete a single product you should use the <see cref="DeleteProduct "/> method
-        /// <para/>if you wish to delete a single order level surcharge you should use the <see cref="DeleteSurcount "/> method
+        /// <para/>if you wish to delete a single Order level surcharge you should use the <see cref="DeleteSurcount "/> method
         /// </summary>
         /// <param name="menu">
         /// The full pos menu to be updated to doshii
@@ -1372,14 +1729,19 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Menu UpdateMenu(Menu menu)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Menu> UpdateMenu(Menu menu)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateMenu"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.MenuController.UpdateMenu(menu);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.UpdateMenu(menu);
         }
 
         /// <summary>
@@ -1393,14 +1755,19 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Surcount UpdateSurcount(Surcount surcount)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Surcount> UpdateSurcount(Surcount surcount)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateSurcount"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.MenuController.UpdateSurcount(surcount);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.UpdateSurcount(surcount);
         }
 
         /// <summary>
@@ -1414,14 +1781,19 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Product UpdateProduct(Product product)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Product> UpdateProduct(Product product)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateProduct"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.MenuController.UpdateProduct(product);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.UpdateProduct(product);
         }
 
         /// <summary>
@@ -1435,14 +1807,19 @@ namespace DoshiiDotNetIntegration
         /// <para/>false if the surcount was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool DeleteSurcount(string posId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic DeleteSurcount(string posId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteSurcount"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.MenuController.DeleteSurcount(posId);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.DeleteSurcount(posId);
         }
 
         /// <summary>
@@ -1456,16 +1833,20 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the product was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool DeleteProduct(string posId)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic DeleteProduct(string posId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteProduct"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.MenuController.DeleteProduct(posId);
-        }
 
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.MenuController.DeleteProduct(posId);
+        }
 
         #endregion
 
@@ -1481,30 +1862,42 @@ namespace DoshiiDotNetIntegration
         /// The table as it is registered in Doshii, 
         /// Null if there is no table registered in doshii for that name. 
         /// </returns>
-        public virtual Table GetTable(string tableName)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Table> GetTable(string tableName)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTable"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TableController.GetTable(tableName);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TableController.GetTable(tableName);
         }
-        
+
         /// <summary>
         /// gets all the tables registered at the venue in Doshii
         /// </summary>
         /// <returns>
         /// All the tables registered at the venue in Doshii. 
         /// </returns>
-        public virtual List<Table> GetTables()
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Table>> GetTables()
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetTables"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TableController.GetTables();
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TableController.GetTables();
         }
 
         /// <summary>
@@ -1516,14 +1909,20 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The table that was created in Doshii. 
         /// </returns>
-        public virtual Table CreateTable(Table table)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Table> CreateTable(Table table)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "CreateTable"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TableController.CreateTable(table);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TableController.CreateTable(table);
         }
 
         /// <summary>
@@ -1538,14 +1937,20 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The updated table from Doshii
         /// </returns>
-        public virtual Table UpdateTable(Table table, string oldTableName)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Table> UpdateTable(Table table, string oldTableName)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "UpdateTable"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TableController.UpdateTable(table, oldTableName);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TableController.UpdateTable(table, oldTableName);
         }
 
         /// <summary>
@@ -1557,14 +1962,20 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The table that was deleted. 
         /// </returns>
-        public virtual Table DeleteTable(string tableName)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic DeleteTable(string tableName)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteTable"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TableController.DeleteTable(tableName);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TableController.DeleteTable(tableName);
         }
 
         /// <summary>
@@ -1574,19 +1985,25 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// The current list of tables in Doshii
         /// </returns>
-        public virtual List<Table> ReplaceTableListOnDoshii(List<Table> tableList)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Table>> ReplaceTableListOnDoshii(List<Table> tableList)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "ReplaceTableListOnDoshii"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.TableController.ReplaceTableListOnDoshii(tableList);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.TableController.ReplaceTableListOnDoshii(tableList);
         }
 
         #endregion
 
-        #region Reservations and Bookings
+        #region Reservations and BookingsWithDateFilter
 
         /// <summary>
         /// This method is used to get a booking for a specific id.
@@ -1598,14 +2015,74 @@ namespace DoshiiDotNetIntegration
         /// The requested booking from Doshii if it exists. 
         /// Null if the booking does not exist. 
         /// </returns>
-        public virtual Booking GetBooking(String bookingId)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Booking> GetBooking(String bookingId)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBooking"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.ReservationController.GetBooking(bookingId);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.GetBooking(bookingId);
         }
+
+
+        /// <summary>
+        /// This method is used to get a checkin for a specific id.
+        /// </summary>
+        /// <param name="checkinId"></param>
+        /// <returns>
+        /// The requested checkin from Doshii if it exists. 
+        /// Null if the checkin does not exist. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Checkin> GetCheckin(string  checkinId)
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+            if (!_isInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        if (_controllersCollection.ReservationManager == null)
+	        {
+	            this.ThrowDoshiiReservationNotInitializedException();
+	        }
+	        return _controllersCollection.ReservationController.GetCheckin(checkinId);
+	    }
+
+        /// <summary>
+        /// Gets the new checkin.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Checkin> GetNewCheckin()
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+            if (!_isInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        return _controllersCollection.CheckinController.GetNewCheckin();
+	    }
 
         /// <summary>
         /// This method is used to get all bookings within a specified date range.
@@ -1617,33 +2094,273 @@ namespace DoshiiDotNetIntegration
         /// The end of the date range. 
         /// </param>
         /// <returns></returns>
-        public virtual List<Booking> GetBookings(DateTime from, DateTime to)
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Booking>> GetBookings(DateTime from, DateTime to)
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBookings"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.ReservationController.GetBookings(from, to);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.GetBookings(from, to);
         }
 
-          /// <summary>
+        /// <summary>
         /// This method is used by the POS to seat a checkin with a booking.
-          /// </summary>
-          /// <param name="bookingId">the id of the booking to be seated</param>
-          /// <param name="checkin">the checkin that should be associated with the booking</param>
-          /// <param name="posOrderId">the posOrderId for the booking that will be seated, this can be NULL if there is no order associated with the table.</param>
-          /// <returns>True if the booking was seated.</returns>
-        public bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
+        /// </summary>
+        /// <param name="bookingId">the id of the booking to be seated</param>
+        /// <param name="checkin">the checkin that should be associated with the booking</param>
+        /// <param name="posOrderId">the posOrderId for the booking that will be seated, this can be NULL if there is no Order associated with the table.</param>
+        /// <returns>True if the booking was seated.</returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public ActionResultBasic SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
-            if (!m_IsInitalized)
+
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "SeatBooking"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            return _controllers.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.SeatBooking(bookingId, checkin, posOrderId);
+        }
+
+        /// <summary>
+        /// Seats the booking without checkin.
+        /// </summary>
+        /// <param name="bookingId">The booking identifier.</param>
+        /// <param name="posOrderId">The position order identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public ObjectActionResult<Checkin> SeatBookingWithoutCheckin(String bookingId, String posOrderId = null)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.SeatBookingWithoutCheckin(bookingId);
+        }
+
+        /// <summary>
+        /// Updates the booking.
+        /// </summary>
+        /// <param name="booking">The booking.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception> 
+        public ObjectActionResult<Booking> UpdateBooking(Booking booking)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.UpdateBooking(booking);
+        }
+
+
+        /// <summary>
+        /// Deletes the booking.
+        /// </summary>
+        /// <param name="bookingId">The booking identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public ActionResultBasic DeleteBooking(string bookingId)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            if (_controllersCollection.ReservationManager == null)
+            {
+                this.ThrowDoshiiReservationNotInitializedException();
+            }
+            return _controllersCollection.ReservationController.DeleteBooking(bookingId);
+        }
+
+        /// <summary>
+        /// Synchronizes the reservations.
+        /// </summary>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public void SyncReservations()
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+            if (!_isInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        if (_controllersCollection.ReservationManager == null)
+	        {
+	            this.ThrowDoshiiReservationNotInitializedException();
+	        }
+	        _controllersCollection.ReservationController.SyncDoshiiBookingsWithPosBookings();
+	        
+	    }
+        #endregion
+
+        #region partner Apps
+
+        /// <summary>
+        /// Gets the apps.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<App>> GetApps()
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+            if (!_isInitalized)
+	        {
+	            this.ThrowDoshiiManagerNotInitializedException();
+	        }
+	        if (_controllersCollection.AppManager == null)
+	        {
+	            this.ThrowDoshiiAppNotInitializedException();
+	        }
+	        return _controllersCollection.AppController.GetApps();
+	    }
+
+        #endregion
+
+        #region Employee
+
+        /// <summary>
+        /// Gets the employees.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Employee>> GetEmployees()
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.EmployeeController.GetEmployees();
+        }
+
+        /// <summary>
+        /// Gets the employee.
+        /// </summary>
+        /// <param name="doshiiId">The doshii identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Employee> GetEmployee(string doshiiId)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.EmployeeController.GetEmployee(doshiiId);
+        }
+
+
+        /// <summary>
+        /// Updates the employee.
+        /// </summary>
+        /// <param name="employee">The employee.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Employee> UpdateEmployee(Employee employee)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if (!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.EmployeeController.SaveEmployee(employee);
+        }
+
+        /// <summary>
+        /// Deletes the employee.
+        /// </summary>
+        /// <param name="employeeId">The employee identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ActionResultBasic DeleteEmployee(string employeeId)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.EmployeeController.DeleteEmployee(employeeId);
         }
 
         #endregion
+
+        #region location
 
         /// <summary>
         /// This method is used to get the location information from doshii,
@@ -1653,43 +2370,154 @@ namespace DoshiiDotNetIntegration
         /// The location object representing this venue.
         /// <para/>Null will be returned if there is an error retrieving the location from doshii. 
         /// </returns>
-        public virtual Location GetLocation()
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Location> GetLocation()
         {
-            if (!m_IsInitalized)
+            if(_controllersCollection.IsCancellationRequested())
             {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetLocation"));
+                this.ThrowDoshiiCancellationRequestedException();
             }
-            try
+
+
+            if(!_isInitalized)
             {
-                return _httpComs.GetLocation();
+                this.ThrowDoshiiManagerNotInitializedException();
             }
-            catch(Exception ex)
-            {
-                return null;
-            }
+            return _controllersCollection.LocationController.GetLocation();
         }
 
         /// <summary>
-        /// throws the DoshiiManagerNotInitializedException
+        /// Gets the location.
         /// </summary>
-        /// <param name="methodName">
-        /// The name of the method that has been called before Initialize. 
-        /// </param>
+        /// <param name="hashedLocationId">The hashed location identifier.</param>
+        /// <returns></returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual void ThrowDoshiiManagerNotInitializedException(string methodName)
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Location> GetLocation(string hashedLocationId)
         {
-            throw new DoshiiManagerNotInitializedException(
-                string.Format("You must initialize the DoshiiController instance before calling {0}", methodName));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.LocationController.GetLocation(hashedLocationId);
         }
 
-        private void ThrowDoshiiMembershipNotInitializedException(string methodName)
+        /// <summary>
+        /// Gets the locations.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<Location>> GetLocations()
         {
-            throw new DoshiiMembershipManagerNotInitializedException(
-                string.Format("You must initialize the DoshiiMembership module before calling {0}", methodName));
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.LocationController.GetLocations();
         }
 
-        
+        /// <summary>
+        /// Creates the location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Location> CreateLocation(Location location)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.LocationController.CreateLocation(location);
+        }
+
+        /// <summary>
+        /// Creates the orginisation.
+        /// </summary>
+        /// <param name="organisation">The organisation.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<Organisation> CreateOrginisation(Organisation organisation)
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.LocationController.CreateOrginisation(organisation);
+	    }
+
+        #endregion
+
+        #region rejection codes
+
+        /// <summary>
+        /// Gets the rejection codes.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<List<RejectionCode>> GetRejectionCodes()
+	    {
+	        if(_controllersCollection.IsCancellationRequested())
+	        {
+	            this.ThrowDoshiiCancellationRequestedException();
+	        }
+
+            if(!_isInitalized)
+	        {
+                this.ThrowDoshiiManagerNotInitializedException();
+	        }
+            return _controllersCollection.RejectionCodeController.GetRejectionCodes();
+	    }
+
+        /// <summary>
+        /// Gets the rejection code.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiCancellationRequestedException">Thrown when cancellation is requested using the <see cref="ICancellationProvider"/>.Never thrown when the <see cref="IConfigurationManager"/>'s GetCancellationProviderFromPos() returns null or never requested to close </exception>
+        public virtual ObjectActionResult<RejectionCode> GetRejectionCode(string code)
+        {
+            if(_controllersCollection.IsCancellationRequested())
+            {
+                this.ThrowDoshiiCancellationRequestedException();
+            }
+
+
+            if(!_isInitalized)
+            {
+                this.ThrowDoshiiManagerNotInitializedException();
+            }
+            return _controllersCollection.RejectionCodeController.GetRejectionCode(code);
+        }
+
+        #endregion
 
         #region IDisposable Members
 
@@ -1698,13 +2526,24 @@ namespace DoshiiDotNetIntegration
 		/// </summary>
 		public virtual void Dispose()
 		{
-			_controllers.TransactionManager = null;
-			_controllers.LoggingController.Dispose();
-			_controllers.LoggingController = null;
+			_controllersCollection.TransactionManager = null;
+			_controllersCollection.LoggingController.Dispose();
+			_controllersCollection.LoggingController = null;
 		}
 
-		#endregion
+        #endregion
 
+        /// <summary>
+        /// Determines whether [is cancellation requested].It is recommended to use IsCancellationRequested around any Doshii functions exposed by this class DoshiiController
+        /// <par>All the methods will throw  DoshiiCancellationRequestedException </par>
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if [is cancellation requested]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsCancellationRequested()
+	    {
+	        return _controllersCollection.CancellationProvider.IsCancellationRequested;
+	    }
 		
 	}
 }

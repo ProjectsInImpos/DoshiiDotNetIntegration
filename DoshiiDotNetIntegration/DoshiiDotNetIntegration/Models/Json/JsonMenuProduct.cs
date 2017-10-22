@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -102,6 +103,62 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
         }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+
+        private List<string> _menuDir;
+
+        /// <summary>
+        /// A list of surcounts that can / are applied to the product.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "menuDir")]
+        public List<string> MenuDir
+        {
+            get
+            {
+                if (_menuDir == null)
+                {
+                    _menuDir = new List<string>();
+                }
+                return _menuDir;
+            }
+            set
+            {
+                _menuDir = value;
+            }
+        }
+
+        private List<JsonMenuProductIncludedItem> _includedItems;
+
+        /// <summary>
+        /// A list of surcounts that can / are applied to the product.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "includedItems")]
+        public List<JsonMenuProductIncludedItem> IncludedItems
+        {
+            get
+            {
+                if (_includedItems == null)
+                {
+                    _includedItems = new List<JsonMenuProductIncludedItem>();
+                }
+                return _includedItems;
+            }
+            set
+            {
+                _includedItems = value;
+            }
+        }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "Uuid")]
+        public string Uuid { get; set; }
+
+
 		/// <summary>
 		/// The POS Id of the product
 		/// </summary>
@@ -116,6 +173,52 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "unitPrice")]
         public string UnitPrice { get; set; }
+
+
+        #region Serialize methods
+
+        public virtual bool ShouldSerializeDescription()
+        {
+            return !string.IsNullOrEmpty(Description);
+        }
+
+        public virtual bool ShouldSerializeMenuDir()
+        {
+            return MenuDir.Any();
+        }
+
+        public virtual bool ShouldSerializeIncludedItems()
+        {
+            return IncludedItems.Any();
+        }
+
+        public virtual bool ShouldSerializeUuid()
+        {
+            return false;
+        }
+
+        public virtual bool ShouldSerializeType()
+        {
+            return !string.IsNullOrEmpty(Type);
+        }
+
+        public virtual bool ShouldSerializeProductSurcounts()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTags()
+        {
+            return true;
+        }
+        
+        
+        
+        
+        
+            
+        
+        #endregion
 
     }
 }

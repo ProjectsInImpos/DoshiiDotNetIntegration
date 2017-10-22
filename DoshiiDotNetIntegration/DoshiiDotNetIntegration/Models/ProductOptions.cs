@@ -17,7 +17,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public ProductOptions()
 		{
-			_Variants = new List<Variants>();
+			_Variants = new List<Variant>();
 			Clear();
 		}
 
@@ -53,24 +53,24 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string PosId { get; set; }
 
-        private List<Variants> _Variants;
+        private List<Variant> _Variants;
 
         /// <summary>
-        /// A List of Variants available to be selected from this list. 
+        /// A List of Variant available to be selected from this list. 
         /// </summary>
-        public IEnumerable<Variants> Variants 
+        public List<Variant> Variants 
         {
             get
             {
                 if (_Variants == null)
                 {
-                    _Variants = new List<Variants>();
+                    _Variants = new List<Variant>();
                 }
                 return _Variants;
             }
             set
             {
-                _Variants = value.ToList<Variants>();
+                _Variants = value.ToList<Variant>();
             }
         } 
         
@@ -84,10 +84,10 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			var options = (ProductOptions)this.MemberwiseClone();
 
-			var variants = new List<Variants>();
+			var variants = new List<Variant>();
 			foreach (var variant in this.Variants)
 			{
-				variants.Add((Variants)variant.Clone());
+				variants.Add((Variant)variant.Clone());
 			}
 			options.Variants = variants;
 
@@ -95,5 +95,31 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(ProductOptions other)
+        {
+            return Equals(_Variants, other._Variants) && string.Equals(Name, other.Name) && Min == other.Min && Max == other.Max && string.Equals(PosId, other.PosId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ProductOptions) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (_Variants != null ? _Variants.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Min;
+                hashCode = (hashCode*397) ^ Max;
+                hashCode = (hashCode*397) ^ (PosId != null ? PosId.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }

@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
-using DoshiiDotNetIntegration.Models.Json;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
     /// an object representing a checkin
     /// </summary>
-    public class Checkin 
+    public class Checkin : BaseCreatedAt, ICloneable
     {
         /// <summary>
         /// the Id of the checkin. 
@@ -41,19 +37,66 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// the time the checkin was completed. 
         /// </summary>
-        public DateTime CompletedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
 
         /// <summary>
-        /// the last time the checkin was updated on Doshii
+        /// Associated booking
         /// </summary>
-        public DateTime UpdatedAt { get; set; }
+        public string BookingId { get; set; }
 
-        /// <summary>
-        /// the time the checkin was created. 
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
 
-        public Uri Uri { get; set; }
-        
+        protected bool Equals(Checkin other)
+        {
+            return string.Equals(Id, other.Id) && string.Equals(Ref, other.Ref) &&
+                   Equals(TableNames, other.TableNames) && Covers == other.Covers && Equals(Consumer, other.Consumer) &&
+                   CompletedAt.Equals(other.CompletedAt) && Equals(BookingId, other.BookingId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Checkin) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Ref != null ? Ref.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (TableNames != null ? TableNames.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Covers;
+                hashCode = (hashCode*397) ^ (Consumer != null ? Consumer.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ CompletedAt.GetHashCode();
+                hashCode = (hashCode * 397) ^ (BookingId != null ? BookingId.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public object Clone()
+        {
+            var checkin = (Checkin)this.MemberwiseClone();
+            var tableNames = new List<string>();
+            foreach (var table in this.TableNames)
+            {
+                tableNames.Add((string)table.Clone());
+            }
+            checkin.TableNames = tableNames;
+
+            return checkin;
+        }
+
+        protected void Clear()
+        {
+            this.Id = string.Empty;
+            this.Ref = String.Empty;
+            this.TableNames.Clear();
+            this.Covers = 0;
+            this.Consumer = new Consumer();
+            this.CompletedAt = null;
+            this.BookingId = string.Empty;
+        }
     }
 }

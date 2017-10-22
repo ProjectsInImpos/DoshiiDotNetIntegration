@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Exceptions
 {
     /// <summary>
-    /// This exception will be thrown when there is a conflict while attempting to update an order in doshii.
+    /// This exception will be thrown when there is a conflict while attempting to update an Order in doshii.
     /// <para/>This exception is handled by the Doshii SDK and does not need to be handled by the pos. 
     /// </summary>
     internal class ConflictWithOrderUpdateException : Exception

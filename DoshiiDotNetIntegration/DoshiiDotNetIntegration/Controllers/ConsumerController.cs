@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -19,7 +20,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <summary>
         /// prop for the local <see cref="DoshiiDotNetIntegration.Controllers"/> instance. 
         /// </summary>
-        internal Models.Controllers _controllers;
+        internal Models.ControllersCollection _controllersCollection;
 
         /// <summary>
         /// prop for the local <see cref="HttpController"/> instance.
@@ -29,22 +30,22 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <summary>
         /// constructor
         /// </summary>
-        /// <param name="controller"></param>
+        /// <param name="controllerCollection"></param>
         /// <param name="httpComs"></param>
-        internal ConsumerController(Models.Controllers controller, HttpController httpComs)
+        internal ConsumerController(Models.ControllersCollection controllerCollection, HttpController httpComs)
         {
-            if (controller == null)
+            if (controllerCollection == null)
             {
                 throw new NullReferenceException("controller cannot be null");
             }
-            _controllers = controller;
-            if (_controllers.LoggingController == null)
+            _controllersCollection = controllerCollection;
+            if (_controllersCollection.LoggingController == null)
             {
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
             if (httpComs == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
@@ -52,17 +53,17 @@ namespace DoshiiDotNetIntegration.Controllers
         }
 
         /// <summary>
-        /// returns a consumer from the checkinId 
+        /// returns a consumer from the CheckinId 
         /// </summary>
         /// <param name="checkinId"></param>
         /// <returns></returns>
-        internal virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        internal virtual ObjectActionResult<Consumer> GetConsumerFromCheckinId(string checkinId)
         {
             try
             {
                 return _httpComs.GetConsumerFromCheckinId(checkinId);
             }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
+            catch (Exception rex)
             {
                 throw rex;
             }

@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
-    /// Variants are available to modify products on the Doshii app,
+    /// Variant are available to modify products on the Doshii app,
     /// Examples of variants may include;
     /// Steak cooking methods eg 'rare, medium, or well done',
     /// sauces eg 'Tomato, bbq, sour cream'

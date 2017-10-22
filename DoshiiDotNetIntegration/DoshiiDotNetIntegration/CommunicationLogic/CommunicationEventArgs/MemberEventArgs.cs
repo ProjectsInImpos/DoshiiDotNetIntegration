@@ -13,6 +13,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
     {
         internal string MemberId { get; set; }
 
-        internal Member Member { get; set; }
+        internal MemberOrg Member { get; set; }
     }
 }

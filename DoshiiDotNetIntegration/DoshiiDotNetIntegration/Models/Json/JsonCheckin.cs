@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models.Json
@@ -49,7 +50,25 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Uri { get; set; }
 
 
+        [DataMember]
+        [JsonProperty(PropertyName = "bookingId")]
+        public string BookingId { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "booking")]
+        public JsonBooking Booking { get; set; }
+
         #region serializeMembers
+
+        public bool ShouldSerializeBookingId()
+        {
+            return (!string.IsNullOrEmpty(BookingId));
+        }
+
+        public bool ShouldSerializeBooking()
+        {
+            return false;
+        }
 
         public bool ShouldSerializeUri()
         {

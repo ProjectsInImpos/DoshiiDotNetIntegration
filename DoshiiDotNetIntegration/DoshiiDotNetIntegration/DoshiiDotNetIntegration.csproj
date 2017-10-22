@@ -57,16 +57,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=4.2.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AutoMapper.4.2.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="JWT, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JWT.1.3.4\lib\3.5\JWT.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="nunit.core">
       <HintPath>..\packages\NUnitTestAdapter.WithFramework.1.2\lib\nunit.core.dll</HintPath>
@@ -93,6 +93,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -105,16 +106,22 @@
   <ItemGroup>
     <Compile Include="CommunicationLogic\CommunicationEventArgs\BookingEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\MemberEventArgs.cs" />
+    <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderUpdatedEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderCreatedEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\TransactionEventArgs.cs" />
     <Compile Include="CommunicationLogic\DoshiHttpResponseMessage.cs" />
     <Compile Include="CommunicationLogic\HttpController.cs" />
     <Compile Include="CommunicationLogic\SocketsController.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderEventArgs.cs" />
+    <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\CheckinController.cs" />
     <Compile Include="Controllers\ConsumerController.cs" />
+    <Compile Include="Controllers\ControllerExtensions.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\OrderingController.cs" />
+    <Compile Include="Controllers\RejectionCodeController.cs" />
     <Compile Include="Controllers\ReservationController.cs" />
     <Compile Include="Controllers\RewardController.cs" />
     <Compile Include="Controllers\TableController.cs" />
@@ -128,6 +135,9 @@
     <Compile Include="Exceptions\BookingDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingExistOnPosException.cs" />
     <Compile Include="Exceptions\BookingUpdateException.cs" />
+    <Compile Include="Exceptions\DoshiiAppManagerNotInitializedException.cs" />
+    <Compile Include="Exceptions\DoshiiCancellationRequestedException.cs" />
+    <Compile Include="Exceptions\DoshiiReservationManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiMembershipManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
@@ -140,12 +150,17 @@
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\CheckinUpdateException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
-    <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Helpers\AuthHelper.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
+    <Compile Include="Helpers\AutoMapperGenericsHelper.cs" />
     <Compile Include="Helpers\ConsumerExtension.cs" />
     <Compile Include="Helpers\DateTimeExtension.cs" />
+    <Compile Include="Helpers\DoshiiStrings.cs" />
+    <Compile Include="Helpers\ExceptionExtentions.cs" />
+    <Compile Include="Helpers\GenericCancellationProvider.cs" />
+    <Compile Include="Interfaces\IAppManager.cs" />
+    <Compile Include="Interfaces\ICancellationProvider.cs" />
     <Compile Include="Interfaces\IConfigurationManager.cs" />
     <Compile Include="Interfaces\ILoggingManager.cs" />
     <Compile Include="Interfaces\IRewardManager.cs" />
@@ -153,29 +168,44 @@
     <Compile Include="Interfaces\ITransactionManager.cs" />
     <Compile Include="Interfaces\IReservationManager.cs" />
     <Compile Include="Interfaces\NamespaceDoc.cs" />
+    <Compile Include="Models\ActionResults\ActionResultBasic.cs" />
+    <Compile Include="Models\ActionResults\ObjectActionResult.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
+    <Compile Include="Models\Base\BaseCreatedAt.cs" />
+    <Compile Include="Models\Base\BaseMember.cs" />
+    <Compile Include="Models\Base\BaseStatus.cs" />
+    <Compile Include="Models\Base\DoshiiHttpErrorMessage.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Consumer.cs" />
-    <Compile Include="Models\Controllers.cs" />
+    <Compile Include="Controllers\ControllersCollection.cs" />
+    <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Json\JsonAddress.cs" />
     <Compile Include="Models\Json\JsonApp.cs" />
+    <Compile Include="Models\Json\JsonBase\JsonBaseStatus.cs" />
+    <Compile Include="Models\Json\JsonBase\JsonBaseCreatedAt.cs" />
     <Compile Include="Models\Json\JsonBooking.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
+    <Compile Include="Models\Json\JsonEmployee.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
+    <Compile Include="Models\Json\JsonLog.cs" />
+    <Compile Include="Models\Json\JsonMemberApp.cs" />
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
-    <Compile Include="Models\Json\JsonOrderWithConsumer.cs" />
+    <Compile Include="Models\Json\JsonMenuProductIncludedItem.cs" />
+    <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
+    <Compile Include="Models\Json\JsonOrderProductIncludedItems.cs" />
+    <Compile Include="Models\Json\JsonOrganisation.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonCheckin.cs" />
+    <Compile Include="Models\Json\JsonRejectionCode.cs" />
     <Compile Include="Models\Json\JsonTableCriteria.cs" />
     <Compile Include="Models\Json\JsonTable.cs" />
     <Compile Include="Models\Json\JsonReward.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
-    <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonMenuProduct.cs" />
     <Compile Include="Models\Json\JsonMenuProductOptions.cs" />
     <Compile Include="Models\Json\JsonMenuSurcount.cs" />
@@ -185,22 +215,24 @@
     <Compile Include="Models\Json\JsonTransaction.cs" />
     <Compile Include="Models\Json\JsonOrderProduct.cs" />
     <Compile Include="Models\Json\JsonOrderProductOptions.cs" />
-    <Compile Include="Models\Json\JsonSerializationBase.cs" />
+    <Compile Include="Models\Json\JsonBase\JsonSerializationBase.cs" />
     <Compile Include="Models\Json\JsonOrderSurcount.cs" />
     <Compile Include="Models\Json\JsonTableAllocation.cs" />
     <Compile Include="Models\Json\JsonTableOrder.cs" />
     <Compile Include="Models\Json\SocketMessage.cs" />
     <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Location.cs" />
-    <Compile Include="Models\Member.cs" />
+    <Compile Include="Models\Log.cs" />
+    <Compile Include="Models\MemberApp.cs" />
+    <Compile Include="Models\MemberOrg.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
-    <Compile Include="Models\OrderWithConsumer.cs" />
     <Compile Include="Models\Order.cs" />
-    <Compile Include="Models\OrderWithNoPriceProperties.cs" />
+    <Compile Include="Models\Organisation.cs" />
     <Compile Include="Models\PointsRedeem.cs" />
     <Compile Include="Models\RedeemOrderResult.cs" />
     <Compile Include="Models\Checkin.cs" />
+    <Compile Include="Models\RejectionCode.cs" />
     <Compile Include="Models\Table.cs" />
     <Compile Include="Models\Reward.cs" />
     <Compile Include="Models\TableCriteria.cs" />
@@ -210,7 +242,7 @@
     <Compile Include="Models\Surcount.cs" />
     <Compile Include="Models\TableAllocation.cs" />
     <Compile Include="Models\TableOrder.cs" />
-    <Compile Include="Models\Variants.cs" />
+    <Compile Include="Models\Variant.cs" />
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -220,7 +252,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="DoshiiDotNetIntegration.nuspec">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -229,7 +266,14 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>$(ProjectDir)..\.nuget\nuget pack  $(ProjectPath) -IncludeReferencedProjects -properties Configuration=$(ConfigurationName) -symbols
+
+
+</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

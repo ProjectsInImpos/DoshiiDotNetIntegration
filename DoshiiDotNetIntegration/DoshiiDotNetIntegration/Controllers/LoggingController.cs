@@ -1,6 +1,7 @@
 ﻿using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Interfaces;
 using System;
+using DoshiiDotNetIntegration.Helpers;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -45,8 +46,45 @@ namespace DoshiiDotNetIntegration.Controllers
 		/// <param name="ex">An optional exception associated with the log message.</param>
 		internal virtual void LogMessage(Type type, DoshiiLogLevels level, string message, Exception ex = null)
 		{
-			if (mLog != null)
-				mLog.LogDoshiiMessage(type, level, message, ex);
+		    var messageString = string.Format("{0} {2}: {1}", DoshiiStrings.DoshiiLogPrefix, message,GetLogStringFromLogLevel(level));
+            if (mLog != null)
+		    {
+                mLog.LogDoshiiMessage(type, level, messageString, ex);
+		    }
+				
 		}
+
+	    internal virtual void RecordSocketMessage(string messageType, string messageData)
+	    {
+	        if (mLog != null)
+	        {
+	            mLog.RecordSocketMessage(messageType, messageData);
+	        }
+	    }
+
+        internal virtual string GetLogStringFromLogLevel(DoshiiLogLevels level)
+        {
+            string stringToReturn = "";
+            switch (level)
+	        {
+	            case DoshiiLogLevels.Debug:
+	                stringToReturn = "Debug";
+	                break;
+                case DoshiiLogLevels.Error:
+	                stringToReturn = "Error";
+	                break;
+                case DoshiiLogLevels.Fatal:
+	                stringToReturn = "Fatal";
+	                break;
+                case DoshiiLogLevels.Info:
+	                stringToReturn = "Info";
+	                break;
+                case DoshiiLogLevels.Warning:
+	                stringToReturn = "Warning";
+	                break;
+	        }
+            return stringToReturn;
+            
+        }
 	}
 }

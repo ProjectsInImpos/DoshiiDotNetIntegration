@@ -31,22 +31,17 @@ namespace DoshiiDotNetIntegration.Enums
         Transaction = 4,
 
         /// <summary>
-        /// Requests for transactions where the order related to the transactions is currently unlinked to the pos. 
+        /// Requests for transactions where the Order related to the transactions is currently unlinked to the pos. 
         /// </summary>
         TransactionFromDoshiiOrderId = 5,
 
         /// <summary>
-        /// Requests for transactions where the order already linked to the pos. 
-        /// </summary>
-        TransactionFromPosOrderId = 25,
-
-        /// <summary>
-        /// Requests for orders where the order is currently unlinked to the pos.
+        /// Requests for orders where the Order is currently unlinked to the pos.
         /// </summary>
         UnlinkedOrders = 6,
 
         /// <summary>
-        /// Request for a consumer with a checkinId.
+        /// Request for a consumer with a CheckinId.
         /// </summary>
         ConsumerFromCheckinId = 7,
 
@@ -128,12 +123,40 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// request for multiple booking data
         /// </summary>
-        Bookings = 23,
+        BookingsWithDateFilter = 23,
 
         /// <summary>
         /// requests for booking checkins. 
         /// </summary>
-        BookingsCheckin = 24
+        BookingsCheckin = 24,
+
+        /// <summary>
+        /// Requests for transactions where the Order already linked to the pos. 
+        /// </summary>
+        TransactionFromPosOrderId = 25,
+
+        /// <summary>
+        /// requests for partner app details. 
+        /// </summary>
+        App = 26,
+
+        RejectionCodes = 27,
+
+        Employee = 28,
+
+        Orginisation = 29,
+
+        OrderLog = 30,
+
+        UnlinkedOrderLog = 31,
+
+        Locations = 32,
+
+        MemberGetRewards = 33,
+
+        TransactionLog = 34,
+
+        AcceptedOrders = 35
 
     }
 }

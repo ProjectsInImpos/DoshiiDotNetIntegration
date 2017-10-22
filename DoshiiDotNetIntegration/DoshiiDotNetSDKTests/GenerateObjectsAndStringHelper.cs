@@ -58,7 +58,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMembersList()
+        /*internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMembersList()
         {
             var membersList = GenerateMemberList();
             string json = JsonConvert.SerializeObject(membersList);
@@ -71,7 +71,7 @@ namespace DoshiiDotNetSDKTests
                 ErrorMessage = "",
                 Message = ""
             };
-        }
+        }*/
 
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageRewardsList()
         {
@@ -88,7 +88,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMember()
+        /*internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMember()
         {
             var member = GenerateMember1();
             var jsonMember = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonMember>(member);
@@ -102,7 +102,7 @@ namespace DoshiiDotNetSDKTests
                 ErrorMessage = "",
                 Message = ""
             };
-        }
+        }*/
 
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionPending()
         {
@@ -317,17 +317,17 @@ namespace DoshiiDotNetSDKTests
             return product;
         }
 
-        internal static List<DoshiiDotNetIntegration.Models.Variants> GenerateProductVarientList()
+        internal static List<DoshiiDotNetIntegration.Models.Variant> GenerateProductVarientList()
         {
-            var list = new List<DoshiiDotNetIntegration.Models.Variants>();
+            var list = new List<DoshiiDotNetIntegration.Models.Variant>();
             list.Add(GenerateProductVarient1());
             list.Add(GenerateProductVarient2());
             return list;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient1()
+        internal static DoshiiDotNetIntegration.Models.Variant GenerateProductVarient1()
         {
-            var variant = new DoshiiDotNetIntegration.Models.Variants()
+            var variant = new DoshiiDotNetIntegration.Models.Variant()
             {
                 Name = "variant1",
                 Price = 0.1M,
@@ -336,9 +336,9 @@ namespace DoshiiDotNetSDKTests
             return variant;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient2()
+        internal static DoshiiDotNetIntegration.Models.Variant GenerateProductVarient2()
         {
-            var variant = new DoshiiDotNetIntegration.Models.Variants()
+            var variant = new DoshiiDotNetIntegration.Models.Variant()
             {
                 Name = "variant2",
                 Price = 0.1M,
@@ -562,17 +562,17 @@ namespace DoshiiDotNetSDKTests
             return reward;
         }
         
-        internal static List<Member> GenerateMemberList()
+        /*internal static List<MemberOrg> GenerateMemberList()
         {
-            var memberList = new List<Member>();
+            var memberList = new List<MemberOrg>();
             memberList.Add(GenerateMember1());
             memberList.Add(GenerateMember2());
             return memberList;
-        }
+        }*/
 
-        internal static Member GenerateMember1()
+        /*internal static MemberOrg GenerateMember1()
         {
-            var member = new Member()
+            var member = new MemberOrg()
             {
                 Address = GenerateAddress1(),
                 Apps = GenerateAppList(),
@@ -586,11 +586,11 @@ namespace DoshiiDotNetSDKTests
                 Uri = new Uri("http://www.test.com")
             };
             return member;
-        }
+        }*/
 
-        internal static Member GenerateMember2()
+        /*internal static MemberOrg GenerateMember2()
         {
-            var member = new Member()
+            var member = new MemberOrg()
             {
                 Address = GenerateAddress1(),
                 Apps = GenerateAppList(),
@@ -604,7 +604,7 @@ namespace DoshiiDotNetSDKTests
                 Uri = new Uri("http://www.test.com")
             };
             return member;
-        }
+        }*/
 
 
         internal static List<App> GenerateAppList()
@@ -662,7 +662,7 @@ namespace DoshiiDotNetSDKTests
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
                 PartnerInitiated = false,
-                Partner = "1",
+                CreatedByApp = "1",
                 Status = "pending"
             };
             return transaction;
@@ -679,7 +679,7 @@ namespace DoshiiDotNetSDKTests
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
                 PartnerInitiated = false,
-                Partner = "1",
+                CreatedByApp = "1",
                 Status = "waiting"
             };
             return transaction;
@@ -696,7 +696,7 @@ namespace DoshiiDotNetSDKTests
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
                 PartnerInitiated = false,
-                Partner = "1",
+                CreatedByApp = "1",
                 Status = "complete"
             };
             return transaction;

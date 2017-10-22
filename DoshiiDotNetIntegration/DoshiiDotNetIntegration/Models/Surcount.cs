@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// Surcharges and Discounts that are applied at an order level.
+    /// Surcharges and Discounts that are applied at an Order level.
     /// This model should not be used to record Product level discounts - discounts applied at a product level should be applied directly to the price attached to the product itself. 
     /// Surcharges should have a positive price.
     /// Discounts should have a negative price. 
@@ -31,8 +31,8 @@ namespace DoshiiDotNetIntegration.Models
 			Name = String.Empty;
 		    Type = String.Empty;
 		    Id = String.Empty;
-		    Value = 0.0M;
-			Amount = 0.0M;
+		    Value = 0;
+			Amount = 0;
 		    RewardId = string.Empty;
 		}
 
@@ -80,5 +80,32 @@ namespace DoshiiDotNetIntegration.Models
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(Surcount other)
+        {
+            return string.Equals(Name, other.Name) && Amount == other.Amount && Value == other.Value && string.Equals(Type, other.Type) && string.Equals(Id, other.Id) && string.Equals(RewardId, other.RewardId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Surcount) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ Amount.GetHashCode();
+                hashCode = (hashCode*397) ^ Value.GetHashCode();
+                hashCode = (hashCode*397) ^ (Type != null ? Type.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (RewardId != null ? RewardId.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }

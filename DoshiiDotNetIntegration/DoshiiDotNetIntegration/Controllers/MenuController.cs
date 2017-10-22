@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.ActionResults;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
@@ -16,9 +18,9 @@ namespace DoshiiDotNetIntegration.Controllers
     {
 
         /// <summary>
-        /// prop for the local <see cref="Controllers"/> instance. 
+        /// prop for the local <see cref="ControllersCollection"/> instance. 
         /// </summary>
-        internal Models.Controllers _controllers;
+        internal Models.ControllersCollection _controllersCollection;
 
         /// <summary>
         /// prop for the local <see cref="HttpController"/> instance.
@@ -28,26 +30,38 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <summary>
         /// constructor
         /// </summary>
-        /// <param name="controller"></param>
+        /// <param name="controllerCollection"></param>
         /// <param name="httpComs"></param>
-        internal MenuController(Models.Controllers controller, HttpController httpComs)
+        internal MenuController(Models.ControllersCollection controllerCollection, HttpController httpComs)
         {
-            if (controller == null)
+            if (controllerCollection == null)
             {
                 throw new NullReferenceException("controller cannot be null");
             }
-            _controllers = controller;
-            if (_controllers.LoggingController == null)
+            _controllersCollection = controllerCollection;
+            if (_controllersCollection.LoggingController == null)
             {
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
             if (httpComs == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - httpComs cannot be null");
+                _controllersCollection.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, " Initialization failed - httpComs cannot be null");
                 throw new NullReferenceException("httpComs cannot be null");
             }
             _httpComs = httpComs;
 
+        }
+
+        internal virtual ObjectActionResult<Menu> GetMenu()
+        {
+            try
+            {
+                return _httpComs.GetMenu();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         
         /// <summary>
@@ -59,24 +73,15 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The Doshii menu is successful and null if not successful. 
         /// </returns>
-        public virtual Menu UpdateMenu(Menu menu)
+        internal virtual ObjectActionResult<Menu> UpdateMenu(Menu menu)
         {
-            Menu returnedMenu = null;
             try
             {
-                returnedMenu = _httpComs.PostMenu(menu);
+                return _httpComs.PostMenu(menu);
             }
             catch (Exception ex)
             {
-                return null;
-            }
-            if (returnedMenu != null)
-            {
-                return returnedMenu;
-            }
-            else
-            {
-                return null;
+                throw ex;
             }
         }
 
@@ -89,28 +94,20 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The updated surcount. 
         /// </returns>
-        internal virtual Surcount UpdateSurcount(Surcount surcount)
+        internal virtual ObjectActionResult<Surcount> UpdateSurcount(Surcount surcount)
         {
             if (surcount.Id == null || string.IsNullOrEmpty(surcount.Id))
             {
-                _controllers.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Surcounts must have an Id to be created or updated on Doshii");
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Surcounts must have an Id to be created or updated on Doshii");
             }
             Surcount returnedSurcharge = null;
             try
             {
-                returnedSurcharge = _httpComs.PutSurcount(surcount);
+                return _httpComs.PutSurcount(surcount);
             }
             catch (Exception ex)
             {
-                return null;
-            }
-            if (returnedSurcharge != null)
-            {
-                return returnedSurcharge;
-            }
-            else
-            {
-                return null;
+                throw ex;
             }
         }
 
@@ -123,28 +120,20 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <returns>
         /// The updated product. 
         /// </returns>
-        internal virtual Product UpdateProduct(Product product)
+        internal virtual ObjectActionResult<Product> UpdateProduct(Product product)
         {
             if (product.PosId == null || string.IsNullOrEmpty(product.PosId))
             {
-                _controllers.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
             }
             Product returnedProduct = null;
             try
             {
-                returnedProduct = _httpComs.PutProduct(product);
+                return _httpComs.PutProduct(product);
             }
             catch (Exception ex)
             {
-                return null;
-            }
-            if (returnedProduct != null)
-            {
-                return returnedProduct;
-            }
-            else
-            {
-                return null;
+                throw ex;
             }
         }
 
@@ -158,19 +147,29 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the surcount on Doshii was updated. 
         /// False if the surcount on doshii was not updated. 
         /// </returns>
-        internal virtual bool DeleteSurcount(string posId)
+        internal virtual ActionResultBasic DeleteSurcount(string surcountPosId)
         {
-            bool success;
-            try
+            if (string.IsNullOrEmpty(surcountPosId))
             {
-                success = _httpComs.DeleteSurcount(posId);
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete a surcount", "surcount"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "surcountId was empty"
+                };
             }
-            catch (Exception ex)
+            else
             {
-                return false;
+                try
+                {
+                    return _httpComs.DeleteSurcount(surcountPosId);
+                }
+                catch (Exception rex)
+                {
+                    throw rex;
+                }
             }
-            return success;
-        }
+         }
 
         /// <summary>
         /// Deletes a product on Doshii
@@ -182,18 +181,28 @@ namespace DoshiiDotNetIntegration.Controllers
         /// True if the product was deleted 
         /// False if the product was not deleted. 
         /// </returns>
-        internal virtual bool DeleteProduct(string posId)
+        internal virtual ActionResultBasic DeleteProduct(string productPosId)
         {
-            bool success;
-            try
+            if (string.IsNullOrEmpty(productPosId))
             {
-                success = _httpComs.DeleteProduct(posId);
+                _controllersCollection.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Warning, DoshiiStrings.GetAttemptingActionWithEmptyId("delete a product", "product"));
+                return new ActionResultBasic()
+                {
+                    Success = false,
+                    FailReason = "productId was empty"
+                };
             }
-            catch (Exception ex)
+            else
             {
-                return false;
+                try
+                {
+                    return _httpComs.DeleteProduct(productPosId);
+                }
+                catch (Exception rex)
+                {
+                    throw rex;
+                }
             }
-            return success;
         }
         
     }

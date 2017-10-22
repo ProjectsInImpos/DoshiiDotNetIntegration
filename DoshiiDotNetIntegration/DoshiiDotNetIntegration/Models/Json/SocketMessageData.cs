@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models.Json
@@ -65,7 +66,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
         /// The Order associated with the message
         /// </summary>
-        [JsonProperty(PropertyName = "order")]
+        [JsonProperty(PropertyName = "Order")]
         public string Order { get; set; }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
         /// The CheckInId associated with the message
         /// </summary>
-        [JsonProperty(PropertyName = "checkinId")]
+        [JsonProperty(PropertyName = "CheckinId")]
         public string CheckinId { get; set; }
 
         /// <summary>

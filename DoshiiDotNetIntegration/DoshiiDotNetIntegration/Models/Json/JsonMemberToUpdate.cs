@@ -5,16 +5,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    internal class JsonMemberToUpdate : JsonSerializationBase<JsonMemberToUpdate>
+    internal class JsonMemberToUpdate : JsonBaseStatus<JsonMemberToUpdate>
     {
         [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "firstName")]
+        public string FirstName { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "lastName")]
+        public string LastName { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "email")]
@@ -47,6 +56,21 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeRef()
         {
             return (!string.IsNullOrEmpty(Ref));
+        }
+
+        public bool ShouldSerializeFirstName()
+        {
+            return (!string.IsNullOrEmpty(FirstName));
+        }
+
+        public bool ShouldSerializeLastName()
+        {
+            return (!string.IsNullOrEmpty(LastName));
+        }
+
+        public bool ShouldSerializeName()
+        {
+            return (!string.IsNullOrEmpty(Name));
         }
 
         #endregion

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DoshiiDotNetIntegration.Models;
+using Order = DoshiiDotNetIntegration.Models.Order;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {

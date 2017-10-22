@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using DoshiiDotNetIntegration.Models.Json;
 using System;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Controllers;
 using Microsoft.CSharp.RuntimeBinder;
@@ -22,7 +24,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region fields and properties
 
-        internal Models.Controllers _controllers { get; set; }
+        internal Models.ControllersCollection _controllersCollection { get; set; }
         
         
         /// <summary>
@@ -58,12 +60,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// <summary>
 		/// string to add to the Ping message to send during heartbeat checks.
 		/// </summary>
-		private const string PingMessage = "primus::ping::";
+		private const string PING_MESSAGE = "primus::ping::";
         
         /// <summary>
         /// string to identify the Pong message received from Doshii during the heartBeat process. 
         /// </summary>
-        private const string PongMessage = "primus::pong::";
+        private const string PONG_MESSAGE = "primus::pong::";
 
         #endregion
 
@@ -74,9 +76,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderCreatedEventArgs e);
         
         /// <summary>
-        /// Event will be raised when the state of an order created message is received from Doshii.
+        /// Event will be raised when the state of an Order created message is received from Doshii.
         /// </summary>
         internal event OrderCreatedEventHandler OrderCreatedEvent;
+
+        internal delegate void OrderUpdatedEventHandler(object sender, CommunicationEventArgs.OrderUpdatedEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when an Order message has been received from Doshii.
+        /// </summary>
+        internal event OrderUpdatedEventHandler OrderUpdatedEvent;
 
         internal delegate void TransactionCreatedEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
         
@@ -98,6 +107,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Event will be raised when a member updated through doshii. 
         /// </summary>
         internal virtual event MemberUpdatedEventHandler MemberUpdatedEvent;
+
+        internal delegate void MemberDeletedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a member updated through doshii. 
+        /// </summary>
+        internal virtual event MemberDeletedEventHandler MemberDeletedEvent;
+        
 
         internal delegate void MemberCreatedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
 
@@ -168,24 +185,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// <param name="logManager">
 		/// A <see cref="LoggingController"/> instance.
 		/// </param>
-        internal SocketsController(string webSocketUrl, int socketConnectionTimeOutValue, Models.Controllers controllers)
+        internal SocketsController(string webSocketUrl, int socketConnectionTimeOutValue, Models.ControllersCollection controllersCollection)
         {
-            if (controllers.OrderingController == null)
+            if (controllersCollection.OrderingController == null)
             {
                 throw new ArgumentNullException("orderingController");
             }
-            if (controllers.TransactionController == null)
+            if (controllersCollection.TransactionController == null)
             {
                 throw new ArgumentNullException("transactionController");
             }
 
-			if (controllers.LoggingController == null)
+			if (controllersCollection.LoggingController == null)
 			{
 				throw new ArgumentNullException("logManager");
 			}
-            _controllers = controllers;
+            _controllersCollection = controllersCollection;
 			_socketConnectionTimeOutValue = socketConnectionTimeOutValue;
-            _logger = controllers.LoggingController;
+            _logger = controllersCollection.LoggingController;
            
             if (socketConnectionTimeOutValue < 10)
             {
@@ -240,7 +257,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal virtual void SetLastConnectionAttemptTime()
         {
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
+			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
             _lastConnectionAttemptTime = DateTime.Now;
         }
 
@@ -256,20 +273,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if ((DateTime.Now.AddSeconds(-10) > _lastConnectionAttemptTime))
                     {
                         SetLastConnectionAttemptTime();
-						_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Attempting Socket connection")); 
+						_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" Attempting Socket connection")); 
                         _webSocketsConnection.Connect();
                     }
                     
                 }
                 catch(Exception ex)
                 {
-					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, "Doshii: There was an error initializing the web sockets connection to Doshii", ex);
+					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, " There was an error initializing the web sockets connection to Doshii", ex);
                 }
                 
             }
             else
             {
-				_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object"));
+				_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format(" Attempted to open a web socket connection before initializing the was object"));
             }
         }
 
@@ -284,7 +301,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-				_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending web-sockets message '{0}' to {1}", message, _webSocketsConnection.Url.ToString()));
+				_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" Sending web-sockets message '{0}' to {1}", message, _webSocketsConnection.Url.ToString()));
                 if (_webSocketsConnection.IsAlive)
                 {
                     _webSocketsConnection.Send(message);
@@ -293,7 +310,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (Exception ex)
             {
-				_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, _webSocketsConnection.Url.ToString()), ex);
+				_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format(" Exception while sending a webSocket message '{0}' to {1}", message, _webSocketsConnection.Url.ToString()), ex);
             }
 
 			return false;
@@ -318,9 +335,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
                     double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
-                    string message = string.Format("\"{0}<{1}>\"", SocketsController.PingMessage, doubleForHeartbeat.ToString());
+                    string message = string.Format("\"{0}<{1}>\"", SocketsController.PING_MESSAGE, doubleForHeartbeat.ToString());
 					if (SendMessage(message))
-						SetLastSuccessfullSocketCommunicationTime();
+                    {
+                        SetLastSuccessfullSocketCommunicationTime();
+                    }
                 }
                 else
                 {
@@ -342,7 +361,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         internal virtual void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the web-sockets connection to {0} the error was {1}", _webSocketsConnection.Url.ToString(), e.Message));
+			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format(" There was an error with the web-sockets connection to {0} the error was {1}", _webSocketsConnection.Url.ToString(), e.Message));
             //StopHeartbeatThread();
             if (e.Message == "The WebSocket connection has already been closed.")
             {
@@ -358,15 +377,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
-            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received WebScoket message"));
+            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" Received WebScoket message"));
             SocketMessage theMessage = new SocketMessage();
             if (e.Type == Opcode.Text)
             {
                 string messageString = e.Data.ToString();
                 // drop heart beat response
-                if (messageString.Contains(String.Format("{0}", SocketsController.PongMessage)))
+                if (messageString.Contains(String.Format("{0}", SocketsController.PONG_MESSAGE)))
                 {
-					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
+					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
                     return;
                 }
                 else
@@ -380,9 +399,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 string messageString = e.RawData.ToString();
                 // drop heartbeat message
-                if (messageString.Contains(String.Format("{0}", SocketsController.PongMessage)))
+                if (messageString.Contains(String.Format("{0}", SocketsController.PONG_MESSAGE)))
                 {
-                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
+                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
                     return;
                 }
                 else
@@ -391,10 +410,27 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 
             }
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: De-serialized WebScoket message - '{0}'", theMessage.ToString()));
-            ProcessSocketMessage(theMessage);
+			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" De-serialized WebScoket message - '{0}'", theMessage.ToString()));
+            ProcessSocketMessageAsync(theMessage);
 
         }
+
+
+        internal virtual void ProcessSocketMessageAsync(SocketMessage theMessage)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    ProcessSocketMessage(theMessage);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("exception while creating socket message"), ex);
+                }
+            });
+        }
+
 
         /// <summary>
         /// Processes the socket message received from Doshii and raises the appropriate events to alert subscribers. 
@@ -407,6 +443,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
             SocketMessageData messageData = new SocketMessageData();
+            _logger.RecordSocketMessage((string)theMessage.Emit[0], theMessage.ToJsonString());
             messageData.EventName = (string)theMessage.Emit[0];
             messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
             messageData.OrderId = (string)dynamicSocketMessageData.orderId;
@@ -416,16 +453,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             messageData.Id = (string)dynamicSocketMessageData.id;
             messageData.MemberId = (string)dynamicSocketMessageData.memberId;
             messageData.BookingId = (string)dynamicSocketMessageData.id;
-            messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
+            messageData.Uri = (Uri)dynamicSocketMessageData.uri;
             
             switch (messageData.EventName)
             {
                 case "order_created":
                     var orderStatusEventArgs = new CommunicationEventArgs.OrderCreatedEventArgs();
-                    orderStatusEventArgs.Order = _controllers.OrderingController.GetOrderFromDoshiiOrderId(messageData.Id);
+                    orderStatusEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id).ReturnObject;
+                    
                     if (orderStatusEventArgs.Order != null)
                     {
-                        orderStatusEventArgs.TransactionList = _controllers.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id);
+                        orderStatusEventArgs.TransactionList = _controllersCollection.TransactionController.GetTransactionFromDoshiiOrderId(messageData.Id).ReturnObject;
                         orderStatusEventArgs.OrderId = messageData.Id;
                         orderStatusEventArgs.Status = messageData.Status;
 
@@ -440,9 +478,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     
                     break;
+                case "order_updated":
+                    var orderUpdatedEventArgs = new CommunicationEventArgs.OrderUpdatedEventArgs();
+                    orderUpdatedEventArgs.Order = _controllersCollection.OrderingController.GetUnlinkedOrderFromDoshiiOrderId(messageData.Id).ReturnObject;
+                    if (orderUpdatedEventArgs.Order != null)
+                    {
+                        orderUpdatedEventArgs.OrderId = messageData.Id;
+                        orderUpdatedEventArgs.Status = messageData.Status;
+
+                        if (OrderUpdatedEvent != null)
+                        {
+                            OrderUpdatedEvent(this, orderUpdatedEventArgs);
+                        }
+                        else
+                        {
+                            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the OrderUpdatedEvent"));
+                        }
+                    }
+
+                    break;
                 case "transaction_created":
                     CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();
-                    transactionCreatedEventArgs.Transaction = _controllers.TransactionController.GetTransaction(messageData.Id);
+                    transactionCreatedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id).ReturnObject;
                     transactionCreatedEventArgs.TransactionId = messageData.Id;
                     transactionCreatedEventArgs.Status = messageData.Status;
                     if (TransactionCreatedEvent != null)
@@ -457,7 +514,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_updated":
                     CommunicationEventArgs.TransactionEventArgs transactionUpdtaedEventArgs = new TransactionEventArgs();
-                    transactionUpdtaedEventArgs.Transaction = _controllers.TransactionController.GetTransaction(messageData.Id);
+                    transactionUpdtaedEventArgs.Transaction = _controllersCollection.TransactionController.GetTransaction(messageData.Id).ReturnObject;
                     transactionUpdtaedEventArgs.TransactionId = messageData.Id;
                     transactionUpdtaedEventArgs.Status = messageData.Status;
 
@@ -475,7 +532,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberCreatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.Id);
+                        memberCreatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id).ReturnObject;
                         memberCreatedEventArgs.MemberId = messageData.Id;
                     }
                     catch(Exception ex)
@@ -498,7 +555,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberUpdatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberUpdatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.Id);
+                        memberUpdatedEventArgs.Member = _controllersCollection.RewardController.GetMember(messageData.Id).ReturnObject;
                         memberUpdatedEventArgs.MemberId = messageData.Id;
                     }
                     catch(Exception ex)
@@ -512,7 +569,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the MemberUpdatedEvent"));
+                    }
+
+                    break;
+                case "member_deleted":
+                    CommunicationEventArgs.MemberEventArgs memberDeletedEventArgs = new MemberEventArgs();
+                    try
+                    {
+                        memberDeletedEventArgs.MemberId = messageData.Id;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Exception calling get member."), ex);
+                    }
+
+                    if (MemberUpdatedEvent != null)
+                    {
+                        MemberDeletedEvent(this, memberDeletedEventArgs);
+                    }
+                    else
+                    {
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the MemberDeletedEvent"));
                     }
 
                     break;
@@ -520,7 +598,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingCreatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingCreatedEventArgs.Booking = _controllers.ReservationController.GetBooking(messageData.BookingId);
+                        bookingCreatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId).ReturnObject;
                         bookingCreatedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -540,7 +618,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingUpdatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingUpdatedEventArgs.Booking = _controllers.ReservationController.GetBooking(messageData.BookingId);
+                        bookingUpdatedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId).ReturnObject;
                         bookingUpdatedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -560,7 +638,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingDeletedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingDeletedEventArgs.Booking = _controllers.ReservationController.GetBooking(messageData.BookingId);
+                        bookingDeletedEventArgs.Booking = _controllersCollection.ReservationController.GetBooking(messageData.BookingId).ReturnObject;
                         bookingDeletedEventArgs.BookingId = messageData.BookingId;
                     }
                     catch
@@ -577,7 +655,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     break;
                 default:
-                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
+                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Warning, string.Format(" Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
                     break;
             }
         }
@@ -589,7 +667,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         internal virtual void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebSockets connection to {0} closed", _webSocketsConnection.Url.ToString()));
+			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format(" WebSockets connection to {0} closed", _webSocketsConnection.Url.ToString()));
         }
 
         /// <summary>
@@ -600,10 +678,40 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebSockets connection successfully open to {0}", _webSocketsConnection.Url.ToString()));
+            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug,
+                string.Format(" WebSockets connection successfully open to {0}", _webSocketsConnection.Url.ToString()));
             StartHeartbeatThread();
-            SocketCommunicationEstablishedEvent(this, e);
+
+            //Fire and forget 
+            Task.Run(() =>
+                {
+                    if (_webSocketConnectionEvent.WaitOne(100))
+                    {
+                        var logger = _logger;
+                        try
+                        {
+                            SocketCommunicationEstablishedEvent(this, e);
+                        }
+
+                        catch (Exception ex)
+                        {
+
+                            logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error,
+                                string.Format(" Error while performing SocketCommunicationEstablishedEvent {0}", ex));
+                        }
+                        finally
+                        {
+                            _webSocketConnectionEvent.Set();
+                        }
+                    }
+
+                })
+                .ConfigureAwait(
+                    false); //This thread do not expect to run on the creator on completion . Avoid context switching while task completes its action
+
         }
+
+        private readonly  AutoResetEvent _webSocketConnectionEvent =new AutoResetEvent(true);
 
         #endregion
 
@@ -639,7 +747,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		public void Dispose()
 		{
 			_logger = null;
-		    _controllers = null;
+		    _controllersCollection = null;
 			_webSocketsConnection = null;
 		}
 

@@ -7,7 +7,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// A table allocation object
     /// </summary>
-	public class TableAllocation
+	public class TableAllocation : ICloneable
 	{
 		/// <summary>
 		/// This is the CheckInId associated with the TableAllocation
@@ -47,5 +47,35 @@ namespace DoshiiDotNetIntegration.Models
 			Status = String.Empty;
 			Version = String.Empty;
 		}
+
+	    protected bool Equals(TableAllocation other)
+	    {
+	        return string.Equals(Id, other.Id) && string.Equals(Name, other.Name) && string.Equals(Status, other.Status) && string.Equals(Version, other.Version);
+	    }
+
+	    public override bool Equals(object obj)
+	    {
+	        if (ReferenceEquals(null, obj)) return false;
+	        if (ReferenceEquals(this, obj)) return true;
+	        if (obj.GetType() != this.GetType()) return false;
+	        return Equals((TableAllocation) obj);
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        unchecked
+	        {
+	            var hashCode = (Id != null ? Id.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ (Status != null ? Status.GetHashCode() : 0);
+	            hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
+	            return hashCode;
+	        }
+	    }
+
+	    public object Clone()
+	    {
+            return (TableAllocation)this.MemberwiseClone();
+	    }
 	}
 }

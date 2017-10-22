@@ -83,5 +83,20 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <returns></returns>
         ILoggingManager GetLoggingManagerFromPos();
+
+        /// <summary>
+        /// this method can return an IAppManager implementation if the pos wishes to implement the reservations functionality offered by Doshii,
+        /// if the pos does not wish to use the reservation functionality you my return Null for this method.  
+        /// </summary>
+        /// <returns></returns>
+        IAppManager GetAppManagerFromPos();
+
+
+        /// <summary>
+        /// this method can return an ICancellationProvider implementation if the pos wishes to implement to signal cancellation of ongoing Doshii sync processes,
+        /// if the pos does not wish to use the cancellation you my return Null for this method.  
+        /// </summary>
+        /// <returns></returns>
+        ICancellationProvider GetCancellationProviderFromPos();
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Json.JsonBase;
 
 namespace DoshiiDotNetIntegration.Models.Json
 {
@@ -131,6 +132,40 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
         }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+
+        private List<JsonOrderProductIncludedItems> _includedItems;
+
+        /// <summary>
+        /// A list of surcounts that can / are applied to the product.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "includedItems")]
+        public List<JsonOrderProductIncludedItems> IncludedItems
+        {
+            get
+            {
+                if (_includedItems == null)
+                {
+                    _includedItems = new List<JsonOrderProductIncludedItems>();
+                }
+                return _includedItems;
+            }
+            set
+            {
+                _includedItems = value;
+            }
+        }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "uuid")]
+        public string Uuid { get; set; }
+
+
+
 		/// <summary>
 		/// The POS Id of the product
 		/// </summary>
@@ -138,15 +173,53 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "posId")]
 		public string PosId { get; set; }
 
-        public bool ShouldSerializePosId()
+        #region Serialize methods
+
+        public virtual bool ShouldSerializePosId()
         {
             return (!string.IsNullOrEmpty(PosId));
         }
 
-        public bool ShouldSerializeDescription()
+        public virtual bool ShouldSerializeDescription()
         {
             return (!string.IsNullOrEmpty(Description));
         }
+
+        public virtual bool ShouldSerializeIncludedItems()
+        {
+            return IncludedItems.Any();
+        }
+
+        public virtual bool ShouldSerializeUuid()
+        {
+            return false;
+        }
+        ////////
+        public virtual bool ShouldSerializeType()
+        {
+            return (!string.IsNullOrEmpty(Type));
+        }
+
+        public virtual bool ShouldSerializeProductSurcounts()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTags()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTotalAfterSurcounts()
+        {
+            return true;
+        }
+
+        public virtual bool ShouldSerializeTotalBeforeSurcounts()
+        {
+            return true;
+        }
+        #endregion
 
    }
 }

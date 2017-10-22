@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using DoshiiDotNetIntegration.Models.Base;
 
 namespace DoshiiDotNetIntegration.Models
 {
@@ -11,7 +12,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// Transactions that are linked to orders in Doshii
     /// </summary>
-    public class Transaction : ICloneable
+    public class Transaction : BaseStatus, ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -30,14 +31,17 @@ namespace DoshiiDotNetIntegration.Models
             OrderId = String.Empty;
             Reference = String.Empty;
             Invoice = String.Empty;
-		    PaymentAmount = 0.0M;
+		    PaymentAmount = 0;
 		    AcceptLess = false;
 		    PartnerInitiated = false; 
-            Partner = String.Empty;
+            CreatedByApp = String.Empty;
 		    Status = "pending";
             Version = String.Empty;
-            Uri = String.Empty;
+		    Uri = string.Empty;
 		    Tip = 0.0M;
+		    CreatedAt = null;
+		    UpdatedAt = null;
+		    LinkedTrxIds.Clear();
 		}
 
         public decimal Tip { get; set; }
@@ -48,7 +52,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// identify the order this transaction relates to
+        /// identify the Order this transaction relates to
         /// </summary>
         public string OrderId { get; set; }
 
@@ -80,25 +84,34 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// identifier for the partner that completed the transaction
         /// </summary>
-        public string Partner { get; set; }
+        public string CreatedByApp { get; set; }
 
         /// <summary>
-        /// The current transaction status, pending, waiting, complete
-        /// </summary>
-        public string Status { get; set; }
-
-        /// <summary>
-        /// An obfuscated string representation of the version for the order in Doshii.
+        /// An obfuscated string representation of the version for the Order in Doshii.
         /// </summary>
         public string Version { get; set; }
 
+        private List<string> _linkedTrxIds;
+
         /// <summary>
-        /// The URI of the order
+        /// A list of all surcounts applied at and Order level
+        /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
-        public string Uri { get; set; }
+        public List<string> LinkedTrxIds
+        {
+            get
+            {
+                if (_linkedTrxIds == null)
+                {
+                    _linkedTrxIds = new List<string>();
+                }
+                return _linkedTrxIds;
+            }
+            set { _linkedTrxIds = value.ToList<string>(); }
+        }
 
 
-		#region ICloneable Members
+        #region ICloneable Members
 
 		/// <summary>
 		/// Returns a deep copy of the instance.
@@ -106,9 +119,51 @@ namespace DoshiiDotNetIntegration.Models
 		/// <returns>A clone of the instance.</returns>
 		public object Clone()
 		{
-			return this.MemberwiseClone();
+            var transaction = (Transaction)this.MemberwiseClone();
+
+            // Memberwise clone doesn't handle recursive cloning of internal properties such as lists
+            // here I am overwriting the list with cloned copies of the list items
+            var trxList = new List<string>();
+            foreach (var trxId in this.LinkedTrxIds)
+            {
+                trxList.Add((string)trxId.Clone());
+            }
+            transaction.LinkedTrxIds = trxList;
+            return transaction;
 		}
 
 		#endregion
-	}
+
+        protected bool Equals(Transaction other)
+        {
+            return Equals(_linkedTrxIds, other._linkedTrxIds) && Tip == other.Tip && string.Equals(Id, other.Id) && string.Equals(OrderId, other.OrderId) && string.Equals(Reference, other.Reference) && string.Equals(Invoice, other.Invoice) && PaymentAmount == other.PaymentAmount && AcceptLess == other.AcceptLess && PartnerInitiated == other.PartnerInitiated && string.Equals(CreatedByApp, other.CreatedByApp) && string.Equals(Version, other.Version);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Transaction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Tip.GetHashCode();
+                hashCode = (hashCode*397) ^ (Id != null ? Id.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_linkedTrxIds != null ? _linkedTrxIds.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (OrderId != null ? OrderId.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Reference != null ? Reference.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Invoice != null ? Invoice.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ PaymentAmount.GetHashCode();
+                hashCode = (hashCode*397) ^ AcceptLess.GetHashCode();
+                hashCode = (hashCode*397) ^ PartnerInitiated.GetHashCode();
+                hashCode = (hashCode*397) ^ (CreatedByApp != null ? CreatedByApp.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Version != null ? Version.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
 }
